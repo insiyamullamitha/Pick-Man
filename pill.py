@@ -30,4 +30,3 @@ class Pill:
     pygame.draw.circle(SCREEN, PINK, (self.posX,self.posY), 15, 0)
           
 pills = []
-hello = "hello"
