@@ -355,3 +355,4 @@ class Game:
 
 game = Game()
 game.playGame()
+h = "h"
