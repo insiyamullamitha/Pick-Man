@@ -26,6 +26,7 @@ class Game:
     self.theme = "default"
     self.username = ""
     self.powerupObjects = []
+    self.player = Player(0, None, None)
 
   #getters and setters for app class attributes - except clock as this will not change
   
@@ -125,7 +126,7 @@ class Game:
           self.setState(button.newState)
 
   def loadPlayer(self):
-    uploadImage(self.getCharacter(), 1, 275+player.getPosX()*30, 65 + player.getPosY()*30)
+    uploadImage(self.getCharacter(), 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
 
   
   # check that username is between 3 and 10 characters and save as game username
@@ -187,21 +188,21 @@ class Game:
             elif event.key == pygame.K_DOWN: # move down
               direction = "down"
             if direction in ["left", "right", "up", "down"]: # if player has can move, move and check for collision with pill and increase score
-              for x in range(player.getSpeed()): # move one place for every unit of speed
-                player.move(direction)
-                if player.collisions() == "pills": # check for collisions after each movement
+              for x in range(self.player.getSpeed()): # move one place for every unit of speed
+                self.player.move(direction)
+                if self.player.collisions() == "pills": # check for collisions after each movement
                   self.setScore(self.getScore() + 1)
                   if len(maze.getPills()) == 0:
                     self.setState("game over")
-                if player.collisions() == "powerups": # if player collides with powerup, powerup should affect game 
-                  powerupIndex = maze.getPowerups().index((player.getPosX(), player.getPosY())) # find which powerup is being eaten in maze
+                if self.player.collisions() == "powerups": # if player collides with powerup, powerup should affect game 
+                  powerupIndex = maze.getPowerups().index((self.player.getPosX(), self.player.getPosY())) # find which powerup is being eaten in maze
                   powerupEaten = self.getPowerupObjects()[powerupIndex] # find object vector corresponds to
                   if powerupEaten.getType() == "score": # change score
                     self.setScore(self.getScore() + powerupEaten.getScoreValue()) 
                   elif powerupEaten.getType() == "speed": # change speed
-                    player.setSpeed(powerupEaten.getSpeedValue())
+                    self.player.setSpeed(powerupEaten.getSpeedValue())
                   elif powerupEaten.getType() == "mode": # change mode
-                    player.changeMode()
+                    self.player.changeMode()
                   maze.removePowerup(powerupIndex) # remove powerup from array so you can't eat it again 
         if event.type == MOUSEBUTTONDOWN:
           if self.getState() != "start-up":
@@ -304,6 +305,8 @@ class Game:
           draw_text("kill one ghost", 280, 170, YELLOW, 15)
           draw_text("earn 100 points", 475, 170, YELLOW, 15)
           draw_text("no lives lost", 680, 170, YELLOW, 15)
+          self.player.setPosX(maze.getPlayer().x)
+          self.player.setPosY(maze.getPlayer().y)
         #display input box for username button
         usernameButton.render()
         draw_text("Enter username below and press enter", 350, 330, BLACK, 20)

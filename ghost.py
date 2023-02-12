@@ -55,6 +55,7 @@ class Ghost:
     
   #add move, draw, kill and reset methods
   def move(self):
+    pass
     while self.getMoving() and (self.getPosX(), self.getPosY()) != (player.getPosX(), player.getPosY()):
       destination = (player.getPosX(), player.getPosY())
 
