@@ -10,7 +10,8 @@ class Player:
   def __init__(self, givenRotation, givenPosX, givenPosY):
     self.mode = "chased"
     self.speed = 1
-    self.startingPosition = (givenPosX, givenPosY)
+    self.startPosX = givenPosX
+    self.startPosY = givenPosY
     self.posX = givenPosX
     self.posY = givenPosY
     self.rotate = givenRotation
@@ -40,6 +41,17 @@ class Player:
     return self.posY
   def setPosY(self, givenPosY):
     self.posY = givenPosY
+  
+  def getStartPosX(self):
+    return self.startPosX
+  def setStartPosX(self, givenPosX):
+    self.startPosX = givenPosX
+  
+  def getStartPosY(self):
+    return self.startPosY
+  def setStartPosY(self, givenPosY):
+    self.startPosY = givenPosY
+
 
   #rotate pacman image so it faces towards the direction it moves in
   def getRotate(self):
@@ -80,3 +92,4 @@ class Player:
   def eatPills(self, maze): # remove pill vector from pills array if player is in same position
     pillToBeEaten = maze.getPills().index((self.getPosX(), self.getPosY()))
     maze.removePill(pillToBeEaten)
+  

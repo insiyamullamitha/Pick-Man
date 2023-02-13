@@ -110,12 +110,36 @@ class Game:
     for pill in self.maze.getPills(): # draw pills
       pygame.draw.circle(SCREEN, PINK, (289+pill.x*30, 78+pill.y*30), 5, 0)
     for ghost in self.getGhostObjects(): # ghost objects must be instantiated
-      if ghost.move(self.player, self.maze) == "collision":
-        self.setLives(self.getLives()-1)
-        ghost.moving = False
       uploadImage(ghost.getImage(), 0.8, 275+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
+      if ghost.move(self.player, self.maze) == "collision": # if ghost and player collision
+        self.ghostCollisions(ghost)
     for powerup in self.getPowerupObjects(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
+    # draw player 
+    uploadImage(self.getCharacter(), 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
+  
+  def ghostCollisions(self, ghost): # ghost and player collisions
+    if self.player.getMode() == "chased": # if player is in chase mode 
+      # reset all character positions
+      self.player.setPosX(self.player.getStartPosX()) 
+      self.player.setPosY(self.player.getStartPosY())
+      for ghostObject in self.getGhostObjects():
+        ghostObject.respawn()
+      # play sound effects and update lives
+      playSoundEffects(LOSINGLIFE)
+      self.setLives(self.getLives()-1)
+      if self.getLives() <= 0:
+        self.setState("game over")
+      # redraw maze and wait a few seconds before continuing
+      self.draw_maze()
+      pygame.display.flip()
+      pygame.time.delay(2000)
+    else: # player in kill mode 
+      # reset ghost position and prevent it from moving
+      ghost.setPosX(ghost.getStartPosX()) 
+      ghost.setPosY(ghost.getStartPosY())
+      ghost.moving = False 
+
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -318,9 +342,13 @@ class Game:
           self.maze.load_maze(level1Maze)
         self.player.setPosX(self.maze.getPlayer().x)
         self.player.setPosY(self.maze.getPlayer().y)
+        self.player.setStartPosX(self.maze.getPlayer().x)
+        self.player.setStartPosY(self.maze.getPlayer().y)
         for ghost in range(len(self.getGhostObjects())):
           self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
           self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
+          self.ghostObjects[ghost].setStartPosX(self.maze.getGhosts()[ghost].x)
+          self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
         #display input box for username button
         usernameButton.render()
         draw_text("Enter username below and press enter", 350, 330, BLACK, 20)
@@ -335,12 +363,8 @@ class Game:
           button.render()
         for button in allButtons[3]: # display play state specific buttons
           button.render()
-        self.draw_maze()
-        self.loadPlayer()
         self.createPowerups()
-        #uploadImage(self.ghostObjects[0].getImage(), 0.8, 275+self.ghostObjects[0].getPosX()*30, 65 + self.ghostObjects[0].getPosY()*30)
-        #uploadImage(inky.getImage(), 0.8, 275+inky.getPosX()*30, 65 + inky.getPosY()*30)
-        #uploadImage(winky.getImage(), 0.8, 275+winky.getPosX()*30, 65 + winky.getPosY()*30)
+        self.draw_maze()
         draw_text("username: " + self.getUsername(), 10, 150, BLACK, 40)
         draw_text("score: " + str(self.getScore()), 10, 100, BLACK, 40)
 
