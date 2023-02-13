@@ -73,10 +73,6 @@ class Ghost:
     self.setPosY(newY)
     print(self.getPosX(), self.getPosY())
 
-
-
-    uploadImage(self.getImage(), 1, self.getPosX(), self.getPosY())
-
 class WanderingGhost(Ghost):
   def __init__(self, givenX, givenY, givenImage, givenName):
     Ghost.__init__(self, givenX, givenY, givenImage, givenName)
