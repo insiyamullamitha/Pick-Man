@@ -80,5 +80,3 @@ class Player:
   def eatPills(self): # remove pill vector from pills array if player is in same position
     pillToBeEaten = maze.getPills().index((self.getPosX(), self.getPosY()))
     maze.removePill(pillToBeEaten)
-
-player = Player(0, 1, 7)
