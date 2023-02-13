@@ -1,5 +1,6 @@
 from constants import *
 import pygame
+from ghost import *
 from pygame.locals import *
 from helperFunctions import *
 from maze import *

@@ -108,6 +108,7 @@ class Game:
       pass
     for powerup in self.getPowerupObjects(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
+    blinky.move(self.player)
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -145,6 +146,8 @@ class Game:
   def playGame(self):
 
     while self.getRunning():
+
+      self.clock.tick(FRAMESPERSECOND)
 
       pygame.init()    
       pygame.display.set_caption("PICKMAN")  
