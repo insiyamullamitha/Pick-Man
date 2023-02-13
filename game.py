@@ -27,6 +27,8 @@ class Game:
     self.username = ""
     self.powerupObjects = []
     self.player = Player(0, None, None)
+    self.ghostObjects = [blinky, inky, winky]
+    self.maze = Maze()
 
   #getters and setters for app class attributes - except clock as this will not change
   
@@ -96,19 +98,24 @@ class Game:
     self.powerupObjects.append(newPowerup)
   def resetPowerupObjects(self):
     self.powerupObjects = []
+
+  def getGhostObjects(self):
+    return self.ghostObjects
   
   def draw_maze(self): # load maze on screen
-    for wall in maze.getWalls(): # draw walls
+    for wall in self.maze.getWalls(): # draw walls
       pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (wall.x*30)), 65 + (wall.y*30), 30, 30),0)
-    for path in maze.getPaths(): # draw white squares representing path
+    for path in self.maze.getPaths(): # draw white squares representing path
       pygame.draw.rect(SCREEN, WHITE, pygame.Rect((275 + (path.x*30)), 65 + (path.y*30), 30, 30),0)
-    for pill in maze.getPills(): # draw pills
+    for pill in self.maze.getPills(): # draw pills
       pygame.draw.circle(SCREEN, PINK, (289+pill.x*30, 78+pill.y*30), 5, 0)
-    for ghost in maze.getGhosts(): # ghost objects must be instantiated
-      pass
+    for ghost in self.getGhostObjects(): # ghost objects must be instantiated
+      if ghost.move(self.player, self.maze) == "collision":
+        self.setLives(self.getLives()-1)
+        ghost.moving = False
+      uploadImage(ghost.getImage(), 0.8, 275+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
     for powerup in self.getPowerupObjects(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
-    blinky.move(self.player)
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -138,7 +145,7 @@ class Game:
     
   def createPowerups(self): # loaded in game loop to instantiate powerup objects
     self.resetPowerupObjects()
-    for powerup in maze.getPowerups():
+    for powerup in self.maze.getPowerups():
       # create new powerup object with random attributes
       newPowerup = Powerup(random.choice(["speed", "score"]), "positive", 2, powerup.x, powerup.y, 10, "cherrypowerup.png")
       self.appendPowerupObjects(newPowerup) # add to attribute of array of powerups
@@ -192,13 +199,13 @@ class Game:
               direction = "down"
             if direction in ["left", "right", "up", "down"]: # if player has can move, move and check for collision with pill and increase score
               for x in range(self.player.getSpeed()): # move one place for every unit of speed
-                self.player.move(direction)
-                if self.player.collisions() == "pills": # check for collisions after each movement
+                self.player.move(direction, self.maze)
+                if self.player.collisions(self.maze) == "pills": # check for collisions after each movement
                   self.setScore(self.getScore() + 1)
-                  if len(maze.getPills()) == 0:
+                  if len(self.maze.getPills()) == 0:
                     self.setState("game over")
-                if self.player.collisions() == "powerups": # if player collides with powerup, powerup should affect game 
-                  powerupIndex = maze.getPowerups().index((self.player.getPosX(), self.player.getPosY())) # find which powerup is being eaten in maze
+                if self.player.collisions(self.maze) == "powerups": # if player collides with powerup, powerup should affect game 
+                  powerupIndex = self.maze.getPowerups().index((self.player.getPosX(), self.player.getPosY())) # find which powerup is being eaten in maze
                   powerupEaten = self.getPowerupObjects()[powerupIndex] # find object vector corresponds to
                   if powerupEaten.getType() == "score": # change score
                     self.setScore(self.getScore() + powerupEaten.getScoreValue()) 
@@ -206,7 +213,7 @@ class Game:
                     self.player.setSpeed(powerupEaten.getSpeedValue())
                   elif powerupEaten.getType() == "mode": # change mode
                     self.player.changeMode()
-                  maze.removePowerup(powerupIndex) # remove powerup from array so you can't eat it again 
+                  self.maze.removePowerup(powerupIndex) # remove powerup from array so you can't eat it again 
         if event.type == MOUSEBUTTONDOWN:
           if self.getState() != "start-up":
             self.clickButtons()
@@ -308,8 +315,12 @@ class Game:
           draw_text("kill one ghost", 280, 170, YELLOW, 15)
           draw_text("earn 100 points", 475, 170, YELLOW, 15)
           draw_text("no lives lost", 680, 170, YELLOW, 15)
-          self.player.setPosX(maze.getPlayer().x)
-          self.player.setPosY(maze.getPlayer().y)
+          self.maze.load_maze(level1Maze)
+        self.player.setPosX(self.maze.getPlayer().x)
+        self.player.setPosY(self.maze.getPlayer().y)
+        for ghost in range(len(self.getGhostObjects())):
+          self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
+          self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
         #display input box for username button
         usernameButton.render()
         draw_text("Enter username below and press enter", 350, 330, BLACK, 20)
@@ -327,9 +338,9 @@ class Game:
         self.draw_maze()
         self.loadPlayer()
         self.createPowerups()
-        uploadImage(blinky.getImage(), 0.8, 275+blinky.getPosX()*30, 65 + blinky.getPosY()*30)
-        uploadImage(inky.getImage(), 0.8, 275+inky.getPosX()*30, 65 + inky.getPosY()*30)
-        uploadImage(winky.getImage(), 0.8, 275+winky.getPosX()*30, 65 + winky.getPosY()*30)
+        #uploadImage(self.ghostObjects[0].getImage(), 0.8, 275+self.ghostObjects[0].getPosX()*30, 65 + self.ghostObjects[0].getPosY()*30)
+        #uploadImage(inky.getImage(), 0.8, 275+inky.getPosX()*30, 65 + inky.getPosY()*30)
+        #uploadImage(winky.getImage(), 0.8, 275+winky.getPosX()*30, 65 + winky.getPosY()*30)
         draw_text("username: " + self.getUsername(), 10, 150, BLACK, 40)
         draw_text("score: " + str(self.getScore()), 10, 100, BLACK, 40)
 
