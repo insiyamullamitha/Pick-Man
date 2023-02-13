@@ -102,7 +102,7 @@ class WanderingGhost(Ghost):
         self.setPosX(self.getPosX() + changeX) # update new positions
         self.setPosY(self.getPosY() + changeY)
         moved = True
-      if self.movements >= 4 or moved == False: # if no movement or movement in one direction many times, reset movements and change direction
+      if self.movements >= 4 or not moved: # if no movement or movement in one direction many times, reset movements and change direction
         self.direction = random.choice(["left", "right", "up", "down"])
         self.movements = 0
 
