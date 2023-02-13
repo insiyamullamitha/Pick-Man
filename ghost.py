@@ -55,7 +55,7 @@ class Ghost:
     self.posY = self.startPosY
     
   #add move, draw, kill and reset methods
-  def move(self, player):
+  def move(self, player, maze):
     heuristic = float('inf')
     while self.getMoving() and heuristic >= 0:
       for availablePathX in range(1, -2, -1):
@@ -84,7 +84,7 @@ class WanderingGhost(Ghost):
     self.direction = random.choice(["left", "right", "up", "down"])
     self.movements = 0
   
-  def move(self, player): # ghost move function
+  def move(self, player, maze): # ghost move function
     if self.moving:
       moved = False # check if ghost has moved at all in one pass
       changeX, changeY = 0, 0
@@ -105,11 +105,9 @@ class WanderingGhost(Ghost):
       if self.movements >= 4 or not moved: # if no movement or movement in one direction many times, reset movements and change direction
         self.direction = random.choice(["left", "right", "up", "down"])
         self.movements = 0
-
       if self.getPosX() == player.getPosX() and self.getPosY() == player.getPosY(): # check for collisions with player and stop moving if true
-        self.moving = False
         return "collision"
 
-blinky = WanderingGhost(maze.getGhosts()[0].x, maze.getGhosts()[0].y, "redghost.png", "Blinky")
-inky = Ghost(maze.getGhosts()[1].x, maze.getGhosts()[1].y, "blueghost.png", "Inky")
-winky = Ghost(maze.getGhosts()[2].x, maze.getGhosts()[2].y, "purpleghost.png", "Winky")
+blinky = WanderingGhost(None, None, "redghost.png", "Blinky")
+inky = WanderingGhost(None, None, "blueghost.png", "Inky")
+winky = WanderingGhost(None, None, "purpleghost.png", "Winky")

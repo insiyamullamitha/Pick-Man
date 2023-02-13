@@ -48,6 +48,3 @@ class Powerup:
     def setScoreValue(self, givenScoreValue):
         self.scoreValue = givenScoreValue
 
-totalPowerups = []
-for x in range(len(maze.getPowerups())):
-    pass

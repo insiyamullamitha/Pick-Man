@@ -91,6 +91,13 @@ class Maze:
         self.player = None
 
     def load_maze(self, maze): 
+        self.resetDoors()
+        self.resetPowerups()
+        self.resetPills()
+        self.resetGhosts()
+        self.resetPlayer()
+        self.resetPaths()
+        self.resetWalls()
         # reset arrays for each component so they do not end up having more vectors than there are every time the method is run
         for row in range(0, len(maze)):
             for column in range(0, len(maze)+2):
@@ -113,6 +120,8 @@ class Maze:
     
     def draw_maze(self):
         pass
+
+
 
 level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"],
               ["1","P","1","1","1","P","1","1","1","1","1","P","1","1","1","P","1"],
@@ -147,5 +156,6 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","P","1","1","1","P","1","1","1","1","1","P","1","1","1","P","1"],
               ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]]
 
-maze = Maze()        
-maze.load_maze(level1Maze)
+
+
+

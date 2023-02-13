@@ -47,7 +47,7 @@ class Player:
   def setRotate(self, givenRotation):
     self.rotate = givenRotation
 
-  def move(self, direction):  # takes in direction of movement and updates player coordinates
+  def move(self, direction, maze):  # takes in direction of movement and updates player coordinates
     match direction:
       case "left": # move left
         if (self.getPosX() - 1, self.getPosY()) not in maze.getWalls():
@@ -66,17 +66,17 @@ class Player:
           self.setPosY(self.getPosY() + 1)
           self.setRotate(90)
 
-  def collisions(self): # after new movement check for collisions between players and ghosts/pills/powerups
+  def collisions(self, maze): # after new movement check for collisions between players and ghosts/pills/powerups
     if (self.getPosX(), self.getPosY()) in maze.getWalls():
       return "walls"
     if (self.getPosX(), self.getPosY()) in maze.getPills(): # check if player position is in pill position
       playSoundEffects(PILLSOUND)
-      self.eatPills()
+      self.eatPills(maze)
       return "pills"
     if (self.getPosX(), self.getPosY()) in maze.getPowerups():
       playSoundEffects(POWERUPSOUND)
       return "powerups"
   
-  def eatPills(self): # remove pill vector from pills array if player is in same position
+  def eatPills(self, maze): # remove pill vector from pills array if player is in same position
     pillToBeEaten = maze.getPills().index((self.getPosX(), self.getPosY()))
     maze.removePill(pillToBeEaten)
