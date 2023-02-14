@@ -29,71 +29,6 @@ class Game:
     self.ghostObjects = [blinky, inky, winky]
     self.maze = Maze()
 
-  #getters and setters for app class attributes - except clock as this will not change
-  
-  def getState(self):
-    return self.state
-  def setState(self, givenState):
-    self.state = givenState
-
-  def getPreviousState(self):
-    return self.previousState
-  def setPreviousState(self, givenState):
-    self.previousState = givenState
-
-  def getRunning(self):
-    return self.running
-  def setRunning(self, givenRunning):
-    self.running = givenRunning
-
-  def getScore(self):
-    return self.score
-  def setScore(self, givenScore):
-    self.score = givenScore
-  
-  def getMusic(self):
-    return self.music
-  def setMusic(self, givenMusic):
-    self.music = givenMusic
-
-  def getSoundEffects(self):
-    return self.soundEffects
-  def setSoundEffects(self, givenSoundEffects):
-    self.soundEffects = givenSoundEffects
-
-  def getStars(self):
-    return self.stars
-  def setStars(self, givenStars):
-    self.stars = givenStars
-  
-  def getLives(self):
-    return self.lives
-  def setLives(self, givenLives):
-    self.lives = givenLives
-
-  def getLevel(self):
-    return self.currentLevel
-  def setLevel(self, givenLevel):
-    self.currentLevel = givenLevel
-
-  def getCharacter(self):
-    return self.character
-  def setCharacter(self, givenCharacter):
-    self.character = givenCharacter
-
-  def getTheme(self):
-    return self.theme
-  def setTheme(self, givenTheme):
-    self.theme = givenTheme
-  
-  def getUsername(self):
-    return self.username
-  def setUsername(self, givenUsername):
-    self.username = givenUsername
-
-  def getGhostObjects(self):
-    return self.ghostObjects
-  
   def draw_maze(self): # load maze on screen
     for wall in self.maze.getWalls(): # draw walls
       pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (wall.x*30)), 65 + (wall.y*30), 30, 30),0)
@@ -104,32 +39,34 @@ class Game:
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
     # draw player 
-    uploadImage(self.getCharacter(), 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
-    for ghost in self.getGhostObjects(): # ghost objects must be instantiated
+    uploadImage(self.character, 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
+    for ghost in self.ghostObjects: # ghost objects must be instantiated
+      ghost.move(self.maze) # ghost object move
       uploadImage(ghost.getImage(), 0.8, 275+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
-      if ghost.move(self.player, self.maze) == "collision": # if ghost and player collision
+      if ghost.kill(self.player): # if player and ghost collide then handle in ghostCollisions function based on player mode
+        pygame.display.flip()
         self.ghostCollisions(ghost)
-  
+
   def ghostCollisions(self, ghost): # ghost and player collisions
-    if self.player.getMode() == "chased": # if player is in chase mode 
+    if self.player.getMode() == "chased": # if player being chased
       # reset all character positions
       self.player.setPosX(self.player.getStartPosX()) 
       self.player.setPosY(self.player.getStartPosY())
-      for ghostObject in self.getGhostObjects():
+      for ghostObject in self.ghostObjects:
         ghostObject.respawn()
+        ghostObject.setMoving(False)
       # play sound effects and update lives
       playSoundEffects(LOSINGLIFE)
-      self.setLives(self.getLives()-1)
-      if self.getLives() <= 0:
-        self.setState("game over")
+      self.lives -= 1
+      if self.lives <= 0:
+        self.state = "game over"
       # redraw maze and wait a few seconds before continuing
       self.draw_maze()
       pygame.display.flip()
       pygame.time.delay(2000)
-    else: # player in kill mode 
+    else: # player in kill mode (chasing)
       # reset ghost position and prevent it from moving
-      ghost.setPosX(ghost.getStartPosX()) 
-      ghost.setPosY(ghost.getStartPosY())
+      ghost.respawn()
       ghost.moving = False 
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
@@ -137,26 +74,26 @@ class Game:
     for buttons in allButtons:
       for button in buttons:
         if button.click() != None:
-          if button in allButtons[1] and self.getState() != "menu":
+          if button in allButtons[1] and self.state != "menu":
             return
-          if button in allButtons[2] and self.getState() == "levels":
-            self.setLevel(button.text)
-          if button in allButtons[2] and self.getState() != "levels":
+          if button in allButtons[2] and self.state == "levels":
+            self.currentLevel = button.text
+          if button in allButtons[2] and self.state != "levels":
             return
-          if button in allButtons[3] and self.getState() != "play":
+          if button in allButtons[3] and self.state != "play":
             return
-          self.setPreviousState(self.getState())
-          self.setState(button.newState)
+          self.previousState = self.state
+          self.state = button.newState
   
   # check that username is between 3 and 10 characters and save as game username
   def verifyUsername(self):
     if len(usernameButton.text) > 2 and len(usernameButton.text) < 11:
-      self.setState("play")
-      self.setUsername(usernameButton.text.upper())
+      self.state = "play"
+      self.username = usernameButton.text.upper()
 
   def playGame(self):
 
-    while self.getRunning():
+    while self.running:
 
       self.clock.tick(FRAMESPERSECOND)
 
@@ -165,23 +102,23 @@ class Game:
       pacman = pygame.image.load('media/pacmandefault.png')
       pygame.display.set_icon(pacman)
 
-      if self.getMusic():
+      if self.music:
         pass
         #MUSIC.play(12)
 
       #event handling for ending game, key presses, mouse clicks, arrow key movement
       for event in pygame.event.get(): # check if user has quit
         if event.type == pygame.QUIT:
-          self.setState("end program")
+          self.state = "end program"
         if event.type == pygame.KEYDOWN: # return to menu when "p"
           if event.key == pygame.K_SPACE: # pause/unpause game when space par is pressed 
-            if self.getState() == "play":
-              self.setState("pause")
-            elif self.getState() == "pause":
-              self.setState("play")
+            if self.state == "play":
+              self.state = "pause"
+            elif self.state == "pause":
+              self.state = "play"
           if event.key == pygame.K_ESCAPE:
-            self.setState(self.getPreviousState())
-          if self.getState() == "instructions": # input username
+            self.state = self.previousState
+          if self.state == "instructions": # input username
             usertext = usernameButton.text
             if event.key == pygame.K_RETURN: # verify if enter is clicked
               self.verifyUsername()
@@ -191,7 +128,7 @@ class Game:
             elif event.unicode in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ": # only valid characters entered
               usertext += event.unicode
             usernameButton.text = usertext # update new input 
-          elif self.getState() == "play": # detect arrow key movement during game 
+          elif self.state == "play": # detect arrow key movement during game 
             direction = ""
             if event.key == pygame.K_LEFT: # move left
               direction = "left"
@@ -207,9 +144,9 @@ class Game:
                 self.draw_maze()
                 pygame.display.flip()
                 if self.player.collisions(self.maze) == "pills": # check for collisions after each movement
-                  self.setScore(self.getScore() + 1)
+                  self.score += 1
                   if len(self.maze.getPills()) == 0:
-                    self.setState("game over")
+                    self.state = "game over"
                 if self.player.collisions(self.maze) == "powerups": # if player collides with powerup, powerup should affect game 
                   found = False
                   while not found:
@@ -218,18 +155,18 @@ class Game:
                         powerupEaten = powerup
                         found = True
                   if powerupEaten.getType() == "score": # change score
-                    self.setScore(self.getScore() + powerupEaten.getScoreValue()) 
+                    self.score += powerupEaten.getScoreValue()
                   elif powerupEaten.getType() == "speed": # change speed
                     self.player.setSpeed(powerupEaten.getSpeedValue())
                   elif powerupEaten.getType() == "mode": # change mode
                     self.player.changeMode()
                   self.maze.getPowerups().remove(powerupEaten)
         if event.type == MOUSEBUTTONDOWN:
-          if self.getState() != "start-up":
+          if self.state != "start-up":
             self.clickButtons()
 
       # start up screen game state
-      if self.getState() == "start-up":
+      if self.state == "start-up":
         SCREEN.fill((WHITE))
         for x in range(300):
           uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png", "pacmandefault.PNG"]),0.5, random.randint(-30,1000), random.randint(-30,600))
@@ -237,10 +174,10 @@ class Game:
         draw_text("BY INSIYA MULLAMITHA", 320, 400, BLACK, 40)
         pygame.display.flip()
         pygame.time.delay(2500)
-        self.setState("menu")
+        self.state = "menu"
 
       #menu gamestate
-      if self.getState() == "menu": 
+      if self.state == "menu": 
         SCREEN.fill((WHITE)) 
         for x in range(5):
           uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png"]),0.8, random.randint(-30,1000), random.randint(-30,600))
@@ -252,30 +189,30 @@ class Game:
         draw_text("PICKMAN", -8, 0, BLUE, 300)
 
       #background music game state
-      elif self.getState() == "music":
+      elif self.state == "music":
         SCREEN.fill(WHITE)
-        if self.getMusic() == True:
+        if self.music == True:
           pass
         else:
           pass
       
-      elif self.getState() == "sound":
+      elif self.state == "sound":
         SCREEN.fill(WHITE)
 
       #leaderboard/statistics game state
-      elif self.getState() == "stats":
+      elif self.state == "stats":
         SCREEN.fill(WHITE)
         draw_text("LEADERBOARD AND STATISTICS", 0, 20, BLACK, 87)
         # statistics methods
       
       #powerups/stars game state
-      elif self.getState() == "buy powerups":
+      elif self.state == "buy powerups":
         SCREEN.fill(WHITE)
         draw_text("STARS AND POWERUPS", 10, 20, BLACK, 120)
         draw_text("You currently have " + str(self.stars) + " stars", 10, 100, BLACK, 30)
 
       #help game state
-      elif self.getState() == "help":#function displays new screen with help instructions
+      elif self.state == "help":#function displays new screen with help instructions
         SCREEN.fill((WHITE))
         draw_text("HELP", 50, 0, BLACK, 200)
         draw_text("HELP", 45, 0, BLUE, 200 )
@@ -289,15 +226,15 @@ class Game:
         draw_text("• Compete with your friends with the leaderboard feature!", 60, 290, BLACK, 30)
 
       #change character and theme game state  
-      elif self.getState() == "change character":
+      elif self.state == "change character":
         SCREEN.fill(WHITE)
         draw_text("CHANGE CHARACTER/THEME", 5, 20, BLACK, 95)
         uploadImage("pacman.PNG", 0.1, 50, 150 )
         uploadImage("jellyfish.PNG", 0.1, 300, 160)
 
 
-      elif self.getState() == "levels": #function displays levels page
-        self.setPreviousState("menu")
+      elif self.state == "levels": #function displays levels page
+        self.previousState = "menu"
         SCREEN.fill(WHITE)
         for button in allButtons[0]:
           button.render()
@@ -307,13 +244,13 @@ class Game:
         draw_text("LEVELS PAGE", 22, 0, BLUE, 200)
 
       #paused game state  
-      elif self.getState() == "pause":
-        self.setPreviousState("play")
+      elif self.state == "pause":
+        self.previousState = "play"
         SCREEN.fill((WHITE))
         draw_text("PAUSED", 0, 0, BLACK, 200)
 
-      elif self.getState() == "instructions": # display instructions for individual level
-        self.setPreviousState("levels")
+      elif self.state == "instructions": # display instructions for individual level
+        self.previousState = "levels"
         SCREEN.fill(WHITE)
         for button in allButtons[0]: #display side buttons 
           button.render()
@@ -321,19 +258,19 @@ class Game:
           uploadImage('starsymbol.png', 2, 240 + 200*star, 100)
         draw_text("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118)
         draw_text("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118)
-        if self.getLevel() == "1":
+        if self.currentLevel == "1":
           draw_text("kill one ghost", 280, 170, YELLOW, 15)
           draw_text("earn 100 points", 475, 170, YELLOW, 15)
           draw_text("no lives lost", 680, 170, YELLOW, 15)
           self.maze.load_maze(level1Maze)
-        elif self.getLevel() == "2":
+        elif self.currentLevel == "2":
           # level 2 instructions
           self.maze.load_maze(level2Maze)
         self.player.setPosX(self.maze.getPlayer().x)
         self.player.setPosY(self.maze.getPlayer().y)
         self.player.setStartPosX(self.maze.getPlayer().x)
         self.player.setStartPosY(self.maze.getPlayer().y)
-        for ghost in range(len(self.getGhostObjects())):
+        for ghost in range(len(self.ghostObjects)):
           self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
           self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
           self.ghostObjects[ghost].setStartPosX(self.maze.getGhosts()[ghost].x)
@@ -343,8 +280,8 @@ class Game:
         draw_text("Enter username below and press enter", 350, 330, BLACK, 20)
 
       #playing game state
-      elif self.getState() == "play":
-        self.setPreviousState("pause")
+      elif self.state == "play":
+        self.previousState = "pause"
         SCREEN.fill(WHITE)
         draw_text("LEVEL " + self.currentLevel, 2, 5, BLACK, 100)
         draw_text("LEVEL " + self.currentLevel, -3, 5, BLUE, 100)
@@ -353,11 +290,11 @@ class Game:
         for button in allButtons[3]: # display play state specific buttons
           button.render()
         self.draw_maze()
-        draw_text("username: " + self.getUsername(), 10, 150, BLACK, 40)
-        draw_text("score: " + str(self.getScore()), 10, 100, BLACK, 40)
+        draw_text("username: " + self.username, 10, 150, BLACK, 40)
+        draw_text("score: " + str(self.score), 10, 100, BLACK, 40)
 
-      elif self.getState() == "game over":
-        self.setPreviousState("menu")
+      elif self.state == "game over":
+        self.previousState = "menu"
         SCREEN.fill(WHITE)
         draw_text("GAME OVER", 24, 190, BLACK, 225)
         draw_text("GAME OVER", 19, 190, BLUE, 225 )
@@ -369,7 +306,7 @@ class Game:
         # next level button
         # reset current game statistics
       
-      elif self.getState() == "end program":
+      elif self.state == "end program":
         SCREEN.fill(BLACK)
         # add animation
         playSoundEffects(LOSINGLIFE)

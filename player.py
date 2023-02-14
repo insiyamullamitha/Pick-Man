@@ -62,33 +62,33 @@ class Player:
   def move(self, direction, maze):  # takes in direction of movement and updates player coordinates
     match direction:
       case "left": # move left
-        if (self.getPosX() - 1, self.getPosY()) not in maze.getWalls():
-          self.setPosX(self.getPosX() - 1)
-          self.setRotate(0)
+        if (self.posX - 1, self.posY) not in maze.getWalls():
+          self.posX -= 1
+          self.rotate = 0
       case "right": # move right
-        if (self.getPosX() + 1, self.getPosY()) not in maze.getWalls():
-          self.setPosX(self.getPosX() + 1)
-          self.setRotate(180)
+        if (self.posX + 1, self.posY) not in maze.getWalls():
+          self.posX += 1
+          self.rotate = 180
       case "up": # move up
-        if (self.getPosX(), self.getPosY()-1) not in maze.getWalls():          
-          self.setPosY(self.getPosY() - 1)
-          self.setRotate(270)
+        if (self.posX, self.posY-1) not in maze.getWalls():          
+          self.posY -= 1
+          self.rotate = 270
       case "down": # move down
-        if (self.getPosX(), self.getPosY()+1) not in maze.getWalls():
-          self.setPosY(self.getPosY() + 1)
-          self.setRotate(90)
+        if (self.posX, self.posY+1) not in maze.getWalls():
+          self.posY += 1
+          self.rotate = 270
 
   def collisions(self, maze): # after new movement check for collisions between players and ghosts/pills/powerups
-    if (self.getPosX(), self.getPosY()) in maze.getPills(): # check if player position is in pill position
+    if (self.posX, self.posY) in maze.getPills(): # check if player position is in pill position
       playSoundEffects(PILLSOUND)
       self.eatPills(maze)
       return "pills"
     for powerup in maze.getPowerups():
-      if (self.getPosX(), self.getPosY()) == (powerup.getPosX(), powerup.getPosY()):
+      if (self.posX, self.posY) == (powerup.getPosX(), powerup.getPosY()):
         playSoundEffects(POWERUPSOUND)
         return "powerups"
   
   def eatPills(self, maze): # remove pill vector from pills array if player is in same position
-    pillToBeEaten = maze.getPills().index((self.getPosX(), self.getPosY()))
+    pillToBeEaten = maze.getPills().index((self.posX, self.posY))
     maze.removePill(pillToBeEaten)
   

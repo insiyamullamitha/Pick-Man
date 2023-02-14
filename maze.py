@@ -103,22 +103,22 @@ class Maze:
         for row in range(0, len(maze)):
             for column in range(0, len(maze)+2):
                 if maze[row][column] == "1" or maze[row][column] == "G":#walls
-                    self.appendWalls(pygame.math.Vector2(column, row))
+                    self.walls.append(pygame.math.Vector2(column, row))
                 else:
-                    self.appendPath(pygame.math.Vector2(column, row))
+                    self.paths.append(pygame.math.Vector2(column, row))
                 if "P" in maze[row][column]:#pills
-                    self.appendPills(pygame.math.Vector2(column, row))
+                    self.pills.append(pygame.math.Vector2(column, row))
                 if "G" in maze[row][column]:#ghosts
-                    self.appendGhosts(pygame.math.Vector2(column, row))
+                    self.ghosts.append(pygame.math.Vector2(column, row))
                     #pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (column*30)), 65 + (row*30), 30, 30),0)
                     pass
                 if "D" in maze[row][column]:#doors
-                    self.appendDoors(pygame.math.Vector2(column, row))
+                    self.doors.append(pygame.math.Vector2(column, row))
                 if maze[row][column] == "B":#booster
                     newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, column, row, 10, random.choice(["cherrypowerup.png", "grapepowerup.png"]))
-                    self.appendPowerups(newPowerup) # add to attribute of array of powerups
+                    self.powerups.append(newPowerup) # add to attribute of array of powerups
                 if "U" in maze[row][column]:#user sprite position
-                    self.setPlayer(pygame.math.Vector2(column, row))  
+                    self.player = pygame.math.Vector2(column, row)
     
     def draw_maze(self):
         pass
