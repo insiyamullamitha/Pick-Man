@@ -3,6 +3,7 @@ from helperFunctions import *
 import pygame
 from pygame.locals import *
 import random
+from powerup import *
 vec = pygame.math.Vector2()
 
 # maze class to instantiate structure of maze
@@ -114,7 +115,8 @@ class Maze:
                 if "D" in maze[row][column]:#doors
                     self.appendDoors(pygame.math.Vector2(column, row))
                 if maze[row][column] == "B":#booster
-                    self.appendPowerups(pygame.math.Vector2(column, row))
+                    newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, column, row, 10, random.choice(["cherrypowerup.png", "grapepowerup.png"]))
+                    self.appendPowerups(newPowerup) # add to attribute of array of powerups
                 if "U" in maze[row][column]:#user sprite position
                     self.setPlayer(pygame.math.Vector2(column, row))  
     
@@ -147,7 +149,7 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","B","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
-              ["1","DU","P","P","P","P","P","G","G","G","P","P","P","P","P","DP","1"],
+              ["1","D1U","P","P","P","P","P","G","G","G","P","P","P","P","P","D2P","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","B","1","1","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","P","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],
@@ -155,6 +157,8 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","P","P","P","P","P","P","P","P","B","P","P","P","P","P","P","1"],
               ["1","P","1","1","1","P","1","1","1","1","1","P","1","1","1","P","1"],
               ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]]
+
+level2Maze = []
 
 
 

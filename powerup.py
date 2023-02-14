@@ -1,7 +1,5 @@
 from maze import *
 from player import *
-from maze import *
-
 
 class Powerup:
     def __init__(self, givenType, givenMode, givenSpeed, givenPosX, givenPosY, givenScoreValue, givenImage):

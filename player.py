@@ -83,9 +83,10 @@ class Player:
       playSoundEffects(PILLSOUND)
       self.eatPills(maze)
       return "pills"
-    if (self.getPosX(), self.getPosY()) in maze.getPowerups():
-      playSoundEffects(POWERUPSOUND)
-      return "powerups"
+    for powerup in maze.getPowerups():
+      if (self.getPosX(), self.getPosY()) == (powerup.getPosX(), powerup.getPosY()):
+        playSoundEffects(POWERUPSOUND)
+        return "powerups"
   
   def eatPills(self, maze): # remove pill vector from pills array if player is in same position
     pillToBeEaten = maze.getPills().index((self.getPosX(), self.getPosY()))
