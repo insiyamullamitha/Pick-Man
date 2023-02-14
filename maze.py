@@ -107,7 +107,7 @@ class Maze:
                     self.appendPath(pygame.math.Vector2(column, row))
                 if "P" in maze[row][column]:#pills
                     self.appendPills(pygame.math.Vector2(column, row))
-                if maze[row][column] == "G":#ghosts
+                if "G" in maze[row][column]:#ghosts
                     self.appendGhosts(pygame.math.Vector2(column, row))
                     #pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (column*30)), 65 + (row*30), 30, 30),0)
                     pass
@@ -130,7 +130,7 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","B","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","1","1","P","1","P","1","1","1","1","1","P","1","P","1","1","1"],
-              ["1","DU","P","P","P","P","1","G","G","G","1","P","P","P","P","DP","1"],
+              ["1","DU","P","P","P","P","1","WG","WG","WG","1","P","P","P","P","DP","1"],
               ["1","1","1","P","1","P","1","1","1","1","1","P","1","B","1","1","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","P","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],

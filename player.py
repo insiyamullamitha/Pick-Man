@@ -79,8 +79,6 @@ class Player:
           self.setRotate(90)
 
   def collisions(self, maze): # after new movement check for collisions between players and ghosts/pills/powerups
-    if (self.getPosX(), self.getPosY()) in maze.getWalls():
-      return "walls"
     if (self.getPosX(), self.getPosY()) in maze.getPills(): # check if player position is in pill position
       playSoundEffects(PILLSOUND)
       self.eatPills(maze)

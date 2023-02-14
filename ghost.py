@@ -3,6 +3,8 @@ from helperFunctions import *
 from maze import *
 from player import *
 import random
+import math
+from operator import xor
 
 class Ghost:
   def __init__(self, givenX, givenY, givenImage, givenName):
@@ -78,29 +80,36 @@ class WanderingGhost(Ghost):
     Ghost.__init__(self, givenX, givenY, givenImage, givenName)
     self.moving = True
     self.direction = random.choice(["left", "right", "up", "down"])
-    self.movements = 0
+    self.movements = random.choice([10, 20, 30, 40, 50])
   
   def move(self, player, maze): # ghost move function
     if self.moving:
-      moved = False # check if ghost has moved at all in one pass
       changeX, changeY = 0, 0
       match (self.direction): # update changeX and changeY depending on direction of player
+        # check if new coordinates would cause wall collision
         case "left":
-          changeX, changeY = -1, 0
+          if (math.floor(self.getPosX() - 0.1), self.getPosY()) in maze.getPaths(): 
+            changeX = -0.1
         case "right":
-          changeX, changeY = 1, 0
+          if (math.ceil(self.getPosX() + 0.1), self.getPosY()) in maze.getPaths():
+            changeX = 0.1
         case "up":
-          changeX, changeY = 0, -1
+          if (self.getPosX(), math.floor(self.getPosY() - 0.1)) in maze.getPaths():
+            changeY = -0.1
         case "down":
-          changeX, changeY = 0, 1
-      if (self.getPosX() + changeX, self.getPosY() + changeY) not in maze.getWalls(): # check if new coordinates collide with wall
-        self.movements += 1
+          if (self.getPosX(), math.ceil(self.getPosY() + 0.1)) in maze.getPaths():
+            changeY = 0.1
+
+      # if no movement or movement in one direction many times, reset movements and change direction
+      if changeX == 0 and changeY == 0 or self.movements <= 0: 
+        self.direction = random.choice(["left", "right", "up", "down"])
+        self.movements = random.choice([10, 20, 30, 40, 50])
+
+      else: # check if new coordinates collide with wall
+        self.movements -= 1
         self.setPosX(self.getPosX() + changeX) # update new positions
         self.setPosY(self.getPosY() + changeY)
-        moved = True
-      if self.movements >= 4 or not moved: # if no movement or movement in one direction many times, reset movements and change direction
-        self.direction = random.choice(["left", "right", "up", "down"])
-        self.movements = 0
+      
       if self.getPosX() == player.getPosX() and self.getPosY() == player.getPosY(): # check for collisions with player and stop moving if true
         return "collision"
 

@@ -47,4 +47,3 @@ class Powerup:
         return self.scoreValue
     def setScoreValue(self, givenScoreValue):
         self.scoreValue = givenScoreValue
-

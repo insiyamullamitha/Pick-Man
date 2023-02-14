@@ -109,14 +109,14 @@ class Game:
       pygame.draw.rect(SCREEN, WHITE, pygame.Rect((275 + (path.x*30)), 65 + (path.y*30), 30, 30),0)
     for pill in self.maze.getPills(): # draw pills
       pygame.draw.circle(SCREEN, PINK, (289+pill.x*30, 78+pill.y*30), 5, 0)
-    for ghost in self.getGhostObjects(): # ghost objects must be instantiated
-      uploadImage(ghost.getImage(), 0.8, 275+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
-      if ghost.move(self.player, self.maze) == "collision": # if ghost and player collision
-        self.ghostCollisions(ghost)
     for powerup in self.getPowerupObjects(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
     # draw player 
     uploadImage(self.getCharacter(), 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
+    for ghost in self.getGhostObjects(): # ghost objects must be instantiated
+      uploadImage(ghost.getImage(), 0.8, 275+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
+      if ghost.move(self.player, self.maze) == "collision": # if ghost and player collision
+        self.ghostCollisions(ghost)
   
   def ghostCollisions(self, ghost): # ghost and player collisions
     if self.player.getMode() == "chased": # if player is in chase mode 
@@ -156,10 +156,6 @@ class Game:
             return
           self.setPreviousState(self.getState())
           self.setState(button.newState)
-
-  def loadPlayer(self):
-    uploadImage(self.getCharacter(), 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
-
   
   # check that username is between 3 and 10 characters and save as game username
   def verifyUsername(self):
@@ -171,7 +167,7 @@ class Game:
     self.resetPowerupObjects()
     for powerup in self.maze.getPowerups():
       # create new powerup object with random attributes
-      newPowerup = Powerup(random.choice(["speed", "score"]), "positive", 2, powerup.x, powerup.y, 10, "cherrypowerup.png")
+      newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, powerup.x, powerup.y, 10, random.choice(["cherrypowerup.png", "lightningboltpowerup.png"]))
       self.appendPowerupObjects(newPowerup) # add to attribute of array of powerups
 
   def playGame(self):
@@ -224,6 +220,8 @@ class Game:
             if direction in ["left", "right", "up", "down"]: # if player has can move, move and check for collision with pill and increase score
               for x in range(self.player.getSpeed()): # move one place for every unit of speed
                 self.player.move(direction, self.maze)
+                self.draw_maze()
+                pygame.display.flip()
                 if self.player.collisions(self.maze) == "pills": # check for collisions after each movement
                   self.setScore(self.getScore() + 1)
                   if len(self.maze.getPills()) == 0:
@@ -238,6 +236,7 @@ class Game:
                   elif powerupEaten.getType() == "mode": # change mode
                     self.player.changeMode()
                   self.maze.removePowerup(powerupIndex) # remove powerup from array so you can't eat it again 
+                  self.createPowerups()
         if event.type == MOUSEBUTTONDOWN:
           if self.getState() != "start-up":
             self.clickButtons()
@@ -344,6 +343,7 @@ class Game:
         self.player.setPosY(self.maze.getPlayer().y)
         self.player.setStartPosX(self.maze.getPlayer().x)
         self.player.setStartPosY(self.maze.getPlayer().y)
+        self.createPowerups()
         for ghost in range(len(self.getGhostObjects())):
           self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
           self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
@@ -363,7 +363,6 @@ class Game:
           button.render()
         for button in allButtons[3]: # display play state specific buttons
           button.render()
-        self.createPowerups()
         self.draw_maze()
         draw_text("username: " + self.getUsername(), 10, 150, BLACK, 40)
         draw_text("score: " + str(self.getScore()), 10, 100, BLACK, 40)
