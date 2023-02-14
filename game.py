@@ -25,7 +25,6 @@ class Game:
     self.character = "pacmandefault.PNG"
     self.theme = "default"
     self.username = ""
-    self.powerupObjects = []
     self.player = Player(0, None, None)
     self.ghostObjects = [blinky, inky, winky]
     self.maze = Maze()
@@ -91,13 +90,6 @@ class Game:
     return self.username
   def setUsername(self, givenUsername):
     self.username = givenUsername
-  
-  def getPowerupObjects(self):
-    return self.powerupObjects
-  def appendPowerupObjects(self, newPowerup):
-    self.powerupObjects.append(newPowerup)
-  def resetPowerupObjects(self):
-    self.powerupObjects = []
 
   def getGhostObjects(self):
     return self.ghostObjects
@@ -109,7 +101,7 @@ class Game:
       pygame.draw.rect(SCREEN, WHITE, pygame.Rect((275 + (path.x*30)), 65 + (path.y*30), 30, 30),0)
     for pill in self.maze.getPills(): # draw pills
       pygame.draw.circle(SCREEN, PINK, (289+pill.x*30, 78+pill.y*30), 5, 0)
-    for powerup in self.getPowerupObjects(): # powerup objects must be instantiated
+    for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
     # draw player 
     uploadImage(self.getCharacter(), 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
@@ -140,7 +132,6 @@ class Game:
       ghost.setPosY(ghost.getStartPosY())
       ghost.moving = False 
 
-
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
     for buttons in allButtons:
@@ -162,13 +153,6 @@ class Game:
     if len(usernameButton.text) > 2 and len(usernameButton.text) < 11:
       self.setState("play")
       self.setUsername(usernameButton.text.upper())
-    
-  def createPowerups(self): # loaded in game loop to instantiate powerup objects
-    self.resetPowerupObjects()
-    for powerup in self.maze.getPowerups():
-      # create new powerup object with random attributes
-      newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, powerup.x, powerup.y, 10, random.choice(["cherrypowerup.png", "lightningboltpowerup.png"]))
-      self.appendPowerupObjects(newPowerup) # add to attribute of array of powerups
 
   def playGame(self):
 
@@ -227,16 +211,19 @@ class Game:
                   if len(self.maze.getPills()) == 0:
                     self.setState("game over")
                 if self.player.collisions(self.maze) == "powerups": # if player collides with powerup, powerup should affect game 
-                  powerupIndex = self.maze.getPowerups().index((self.player.getPosX(), self.player.getPosY())) # find which powerup is being eaten in maze
-                  powerupEaten = self.getPowerupObjects()[powerupIndex] # find object vector corresponds to
+                  found = False
+                  while not found:
+                    for powerup in self.maze.getPowerups():
+                      if powerup.getPosX() == self.player.getPosX() and powerup.getPosY() == self.player.getPosY():
+                        powerupEaten = powerup
+                        found = True
                   if powerupEaten.getType() == "score": # change score
                     self.setScore(self.getScore() + powerupEaten.getScoreValue()) 
                   elif powerupEaten.getType() == "speed": # change speed
                     self.player.setSpeed(powerupEaten.getSpeedValue())
                   elif powerupEaten.getType() == "mode": # change mode
                     self.player.changeMode()
-                  self.maze.removePowerup(powerupIndex) # remove powerup from array so you can't eat it again 
-                  self.createPowerups()
+                  self.maze.getPowerups().remove(powerupEaten)
         if event.type == MOUSEBUTTONDOWN:
           if self.getState() != "start-up":
             self.clickButtons()
@@ -339,11 +326,13 @@ class Game:
           draw_text("earn 100 points", 475, 170, YELLOW, 15)
           draw_text("no lives lost", 680, 170, YELLOW, 15)
           self.maze.load_maze(level1Maze)
+        elif self.getLevel() == "2":
+          # level 2 instructions
+          self.maze.load_maze(level2Maze)
         self.player.setPosX(self.maze.getPlayer().x)
         self.player.setPosY(self.maze.getPlayer().y)
         self.player.setStartPosX(self.maze.getPlayer().x)
         self.player.setStartPosY(self.maze.getPlayer().y)
-        self.createPowerups()
         for ghost in range(len(self.getGhostObjects())):
           self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
           self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
