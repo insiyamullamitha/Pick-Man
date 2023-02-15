@@ -28,6 +28,8 @@ class Game:
     self.player = Player(0, None, None)
     self.ghostObjects = [blinky, inky, winky]
     self.maze = Maze()
+    self.stars = 3
+    self.instructions = []
 
   def draw_maze(self): # load maze on screen
     for wall in self.maze.getWalls(): # draw walls
@@ -48,7 +50,6 @@ class Game:
         self.ghostCollisions(ghost)
 
   def ghostCollisions(self, ghost): # ghost and player collisions
-    print("collision")
     if self.player.getMode() == "chased": # if player being chased
       # reset all character positions
       self.player.setPosX(self.player.getStartPosX()) 
@@ -58,20 +59,27 @@ class Game:
         #ghostObject.setMoving(False)
       # play sound effects and update lives
       playSoundEffects(LOSINGLIFE)
-      self.lives -= 1
+      self.lives -= 1 
       if self.lives <= 0:
         self.state = "game over"
       # redraw maze and wait a few seconds before continuing
-      ghost.setMoving(False)
-      self.draw_maze()
-      pygame.display.flip()
-      pygame.time.delay(2000)
-      ghost.setMoving(True)
+      else:
+        ghost.setMoving(False)
+        self.draw_maze()
+        pygame.display.flip()
+        pygame.time.delay(2000)
+        ghost.setMoving(True)
     else: # player in kill mode (chasing)
       # reset ghost position and prevent it from moving
       self.score += 30
       ghost.respawn()
       ghost.setMoving(False)
+
+  def displayGameStars(self): # displays stars and instructions during game
+    for star in range(self.stars): # display star for each achieved goal
+      uploadImage("yellowstar.png", 0.08, 20, 200 + star*100)
+    for instruction in range(3): # displays instructions next to each star
+      draw_text(self.instructions[instruction], 115, 240 + instruction * 100, BLACK, 20 )
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -258,22 +266,34 @@ class Game:
         SCREEN.fill(WHITE)
         for button in allButtons[0]: #display side buttons 
           button.render()
-        for star in range(3):# displays stars and instructions for level
-          uploadImage('starsymbol.png', 2, 240 + 200*star, 100)
         draw_text("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118)
         draw_text("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118)
-        if self.currentLevel == "1":
-          draw_text("kill one ghost", 280, 170, YELLOW, 15)
-          draw_text("earn 100 points", 475, 170, YELLOW, 15)
-          draw_text("no lives lost", 680, 170, YELLOW, 15)
+        uploadImage("pacmandefault.png", 1.5, 10, 215)
+        for x in range(6):
+          pygame.draw.circle(SCREEN, PINK, (60 + x*40, 235), 7.5, 0)
+        for x in range(8):
+          pygame.draw.circle(SCREEN, PINK, (740 + x*40, 235), 7.5, 0)
+        with open ("levelInstructions.txt") as file: # find instructions for level and store in array
+          lines = file.readlines()
+          startInstruction = int(self.currentLevel) * 3 - 3
+          self.instructions = [lines[startInstruction].strip('\n'), lines[startInstruction + 1].strip('\n'), lines[startInstruction + 2].strip('\n')]
+        # display each instruction and star
+        for star in range(3):
+          uploadImage('emptystar.png', 0.1, 250 + 200*star, 170)
+        draw_text(self.instructions[0], 262, 290, BLACK, 15)
+        draw_text(self.instructions[1], 457, 290, BLACK, 15)
+        draw_text(self.instructions[2], 665, 290, BLACK, 15)
+        if self.currentLevel == "1": # load level 1 maze 
           self.maze.load_maze(level1Maze)
-        elif self.currentLevel == "2":
+        elif self.currentLevel == "2": # load level 2 maze
           # level 2 instructions
           self.maze.load_maze(level2Maze)
-        self.player.setPosX(self.maze.getPlayer().x)
+        # set initial coordinates for player
+        self.player.setPosX(self.maze.getPlayer().x) 
         self.player.setPosY(self.maze.getPlayer().y)
         self.player.setStartPosX(self.maze.getPlayer().x)
         self.player.setStartPosY(self.maze.getPlayer().y)
+        # set initial coordinates for each ghost
         for ghost in range(len(self.ghostObjects)):
           self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
           self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
@@ -281,7 +301,7 @@ class Game:
           self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
         #display input box for username button
         usernameButton.render()
-        draw_text("Enter username below and press enter", 350, 330, BLACK, 20)
+        draw_text("Enter username below and press enter", 350, 350, BLACK, 20)
 
       #playing game state
       elif self.state == "play":
@@ -294,6 +314,7 @@ class Game:
         for button in allButtons[3]: # display play state specific buttons
           button.render()
         self.draw_maze()
+        self.displayGameStars()
         draw_text("username: " + self.username, 10, 150, BLACK, 40)
         draw_text("score: " + str(self.score), 10, 100, BLACK, 40)
 
