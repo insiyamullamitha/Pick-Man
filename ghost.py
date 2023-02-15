@@ -82,6 +82,16 @@ class WanderingGhost(Ghost):
     self.direction = random.choice(["left", "right", "up", "down"])
     self.movements = random.choice([10, 20, 30, 40, 50])
   
+  def getDirection(self):
+    return self.direction
+  def setDirection(self, givenDirection):
+    self.direction = givenDirection
+
+  def getMovements(self):
+    return self.movements
+  def setMovements(self, givenMovements):
+    self.movements = givenMovements
+
   def move(self, maze): # ghost move function
     if self.moving:
       changeX, changeY = 0, 0
@@ -112,7 +122,7 @@ class WanderingGhost(Ghost):
 
   def kill(self, player):
     # check for collisions with player and return true if collision has occurred
-    if math.ceil(self.posX) == player.getPosX() and math.ceil(self.posY == player.getPosY()) or math.floor(self.posX) == player.getPosX() and math.floor(self.posY == player.getPosY()): 
+    if round(self.posX) == player.getPosX() and round(self.posY == player.getPosY()): #or round(self.posX) == player.getPosX() and math.floor(self.posY == player.getPosY()): 
       return True
 
 

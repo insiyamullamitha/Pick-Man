@@ -48,26 +48,30 @@ class Game:
         self.ghostCollisions(ghost)
 
   def ghostCollisions(self, ghost): # ghost and player collisions
+    print("collision")
     if self.player.getMode() == "chased": # if player being chased
       # reset all character positions
       self.player.setPosX(self.player.getStartPosX()) 
       self.player.setPosY(self.player.getStartPosY())
       for ghostObject in self.ghostObjects:
         ghostObject.respawn()
-        ghostObject.setMoving(False)
+        #ghostObject.setMoving(False)
       # play sound effects and update lives
       playSoundEffects(LOSINGLIFE)
       self.lives -= 1
       if self.lives <= 0:
         self.state = "game over"
       # redraw maze and wait a few seconds before continuing
+      ghost.setMoving(False)
       self.draw_maze()
       pygame.display.flip()
       pygame.time.delay(2000)
+      ghost.setMoving(True)
     else: # player in kill mode (chasing)
       # reset ghost position and prevent it from moving
+      self.score += 30
       ghost.respawn()
-      ghost.moving = False 
+      ghost.setMoving(False)
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
