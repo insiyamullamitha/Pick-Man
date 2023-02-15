@@ -28,7 +28,7 @@ class Game:
     self.player = Player(0, None, None)
     self.ghostObjects = [blinky, inky, winky]
     self.maze = Maze()
-    self.stars = 3
+    self.stars = 0
     self.instructions = []
 
   def draw_maze(self): # load maze on screen
@@ -75,11 +75,37 @@ class Game:
       ghost.respawn()
       ghost.setMoving(False)
 
+  def displayLives(self): # display number of lives using red/empty hearts during game
+    for x in range(self.lives): # display red hearts for lives still remaining 
+      uploadImage("fulllife.png", 0.7, 50 + x * 70, 150)
+    if self.lives < 3: # if less than 3 lives display an empty heart representing life 3
+      uploadImage("emptylife.png", 0.7, 190, 150)
+    if self.lives < 2: # if less than 2 hearts display an empty heart representing life 2
+      uploadImage("emptylife.png", 0.7, 120, 150)
+
+  def updateStars(self): # change star status if instruction has been completed
+    match self.currentLevel:
+      case "1": # instructions for level 1
+        if self.instructions[2][0] != 1 and self.score >= 30:
+          self.instructions[2][0] = 1
+          self.stars += 1
+        elif self.instructions[1][0] != 1 and self.score >= 20:
+          self.instructions[1][0] = 1
+          self.stars += 1
+        elif self.instructions[0][0] != 1 and self.score >= 10:
+          self.instructions[0][0] = 1
+          self.stars += 1
+
   def displayGameStars(self): # displays stars and instructions during game
-    for star in range(self.stars): # display star for each achieved goal
-      uploadImage("yellowstar.png", 0.08, 20, 200 + star*100)
-    for instruction in range(3): # displays instructions next to each star
-      draw_text(self.instructions[instruction], 115, 240 + instruction * 100, BLACK, 20 )
+    self.updateStars()
+    for instruction in self.instructions:
+      # determine whether star has been achieved or not and accordingly load empty/yellow star
+      image = "emptystar.png"
+      if instruction[0] == 1:
+        image = "yellowstar.png"
+      # display star and its instruction next to it
+      uploadImage(image, 0.08, 20, 200 + self.instructions.index(instruction)*100)
+      draw_text(instruction[1], 115, 240 + self.instructions.index(instruction) * 100, BLACK, 20 )
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -244,22 +270,24 @@ class Game:
         uploadImage("pacman.PNG", 0.1, 50, 150 )
         uploadImage("jellyfish.PNG", 0.1, 300, 160)
 
-
-      elif self.state == "levels": #function displays levels page
-        self.previousState = "menu"
+      elif self.state == "levels": #displays levels page
+        self.previousState = "menu" # return to menu if escape key is pressed
         SCREEN.fill(WHITE)
-        for button in allButtons[0]:
+        for button in allButtons[0]: # display side buttons
           button.render()
-        for button in allButtons[2]:
+        for button in allButtons[2]: # display level number
           button.render()
+          level = int(button.text)
+          stars = 0
+          with open ("levelStarsInstructions.txt") as file: # for each level find number of stars
+            lines = file.readlines()
+            startLine = level * 3 - 3
+            stars = int(lines[startLine][0]) + int(lines[startLine + 1][0]) + int(lines[startLine + 2][0])
+            for star in range(stars): # display number of stars below level
+              uploadImage("yellowstar.png", 0.02, 30 * star + button.x - 35, button.y + 40)
+
         draw_text("LEVELS PAGE", 27, 0, BLACK, 200)
         draw_text("LEVELS PAGE", 22, 0, BLUE, 200)
-
-      #paused game state  
-      elif self.state == "pause":
-        self.previousState = "play"
-        SCREEN.fill((WHITE))
-        draw_text("PAUSED", 0, 0, BLACK, 200)
 
       elif self.state == "instructions": # display instructions for individual level
         self.previousState = "levels"
@@ -273,16 +301,19 @@ class Game:
           pygame.draw.circle(SCREEN, PINK, (60 + x*40, 235), 7.5, 0)
         for x in range(8):
           pygame.draw.circle(SCREEN, PINK, (740 + x*40, 235), 7.5, 0)
-        with open ("levelInstructions.txt") as file: # find instructions for level and store in array
+        with open ("levelStarsInstructions.txt") as file: # find instructions for level and store in array
           lines = file.readlines()
           startInstruction = int(self.currentLevel) * 3 - 3
-          self.instructions = [lines[startInstruction].strip('\n'), lines[startInstruction + 1].strip('\n'), lines[startInstruction + 2].strip('\n')]
+          # update self.instructions with star status of zero (at the start of the game) and type of instruction
+          self.instructions = [[0, lines[startInstruction][1:].strip('\n')],
+                              [0, lines[startInstruction + 1][1:].strip('\n')], 
+                              [0, lines[startInstruction + 2][1:].strip('\n')]]
         # display each instruction and star
-        for star in range(3):
-          uploadImage('emptystar.png', 0.1, 250 + 200*star, 170)
-        draw_text(self.instructions[0], 262, 290, BLACK, 15)
-        draw_text(self.instructions[1], 457, 290, BLACK, 15)
-        draw_text(self.instructions[2], 665, 290, BLACK, 15)
+        for instruction in range(3):
+          uploadImage("emptystar.png", 0.1, 250 + 200*instruction, 170)
+          draw_text(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
+        #draw_text(self.instructions[1][1], 457, 290, BLACK, 15)
+        #draw_text(self.instructions[2][1], 665, 290, BLACK, 15)
         if self.currentLevel == "1": # load level 1 maze 
           self.maze.load_maze(level1Maze)
         elif self.currentLevel == "2": # load level 2 maze
@@ -315,8 +346,15 @@ class Game:
           button.render()
         self.draw_maze()
         self.displayGameStars()
-        draw_text("username: " + self.username, 10, 150, BLACK, 40)
-        draw_text("score: " + str(self.score), 10, 100, BLACK, 40)
+        self.displayLives()
+        pygame.draw.rect(SCREEN, GREEN, pygame.Rect(70, 90, 150, 40), 0, 3)
+        draw_text("score: " + str(self.score), 75, 95, BLACK, 40)
+      
+      #paused game state  
+      elif self.state == "pause":
+        self.previousState = "play"
+        SCREEN.fill((WHITE))
+        draw_text("PAUSED", 0, 0, BLACK, 200)
 
       elif self.state == "game over":
         self.previousState = "menu"

@@ -122,7 +122,7 @@ class WanderingGhost(Ghost):
 
   def kill(self, player):
     # check for collisions with player and return true if collision has occurred
-    if round(self.posX) == player.getPosX() and round(self.posY == player.getPosY()): #or round(self.posX) == player.getPosX() and math.floor(self.posY == player.getPosY()): 
+    if math.ceil(self.posX) == player.getPosX() and math.ceil(self.posY == player.getPosY()) or math.floor(self.posX) == player.getPosX() and math.floor(self.posY == player.getPosY()): 
       return True
 
 
