@@ -33,18 +33,18 @@ class Game:
 
   def drawMaze(self): # load maze on screen
     for wall in self.maze.getWalls(): # draw walls
-      pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (wall.x*30)), 65 + (wall.y*30), 30, 30),0)
+      pygame.draw.rect(SCREEN, BLACK, pygame.Rect((250 + (wall.x*30)), 65 + (wall.y*30), 30, 30),0)
     for path in self.maze.getPaths(): # draw white squares representing path
-      pygame.draw.rect(SCREEN, WHITE, pygame.Rect((275 + (path.x*30)), 65 + (path.y*30), 30, 30),0)
+      pygame.draw.rect(SCREEN, WHITE, pygame.Rect((250 + (path.x*30)), 65 + (path.y*30), 30, 30),0)
     for pill in self.maze.getPills(): # draw pills
-      pygame.draw.circle(SCREEN, PINK, (289+pill.x*30, 78+pill.y*30), 5, 0)
+      pygame.draw.circle(SCREEN, PINK, (264+pill.x*30, 78+pill.y*30), 5, 0)
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
-      uploadImage(powerup.getImage(), 0.7, 280+powerup.getPosX()*30, 70+powerup.getPosY()*30)
+      uploadImage(powerup.getImage(), 0.7, 255+powerup.getPosX()*30, 70+powerup.getPosY()*30)
     # draw player 
-    uploadImage(self.character, 1, 275+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
+    uploadImage(self.character, 1, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
     for ghost in self.ghostObjects: # ghost objects must be instantiated
       ghost.move(self.maze) # ghost object move
-      uploadImage(ghost.getImage(), 0.8, 275+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
+      uploadImage(ghost.getImage(), 0.8, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
       if ghost.kill(self.player): # if player and ghost collide then handle in ghostCollisions function based on player mode
         pygame.display.flip()
         self.ghostCollisions(ghost)
@@ -77,22 +77,22 @@ class Game:
 
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 
-      uploadImage("fulllife.png", 0.7, 50 + x * 70, 150)
+      uploadImage("fulllife.png", 0.7, 35 + x * 70, 150)
     if self.lives < 3: # if less than 3 lives display an empty heart representing life 3
-      uploadImage("emptylife.png", 0.7, 190, 150)
+      uploadImage("emptylife.png", 0.7, 175, 150)
     if self.lives < 2: # if less than 2 hearts display an empty heart representing life 2
-      uploadImage("emptylife.png", 0.7, 120, 150)
+      uploadImage("emptylife.png", 0.7, 105, 150)
 
   def updateStars(self): # change star status if instruction has been completed
     match self.currentLevel:
       case "1": # instructions for level 1
-        if self.instructions[2][0] != 1 and self.score >= 30:
+        if self.instructions[2][0] != 1 and self.score >= 300:
           self.instructions[2][0] = 1
           self.stars += 1
-        elif self.instructions[1][0] != 1 and self.score >= 20:
+        elif self.instructions[1][0] != 1 and self.score >= 200:
           self.instructions[1][0] = 1
           self.stars += 1
-        elif self.instructions[0][0] != 1 and self.score >= 10:
+        elif self.instructions[0][0] != 1 and self.score >= 100:
           self.instructions[0][0] = 1
           self.stars += 1
 
@@ -346,8 +346,8 @@ class Game:
         self.drawMaze()
         self.displayGameStars()
         self.displayLives()
-        pygame.draw.rect(SCREEN, GREEN, pygame.Rect(70, 90, 150, 40), 0, 3)
-        drawText("score: " + str(self.score), 75, 95, BLACK, 40)
+        pygame.draw.rect(SCREEN, GREEN, pygame.Rect(50, 90, 150, 40), 0, 3)
+        drawText("score: " + str(self.score), 55, 95, BLACK, 40)
       
       #paused game state  
       elif self.state == "pause":
