@@ -278,7 +278,6 @@ class Game:
         for button in allButtons[2]: # display level number
           button.render()
           level = int(button.text)
-          stars = 0
           with open ("levelStarsInstructions.txt") as file: # for each level find number of stars
             lines = file.readlines()
             startLine = level * 3 - 3

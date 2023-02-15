@@ -102,9 +102,9 @@ class Maze:
         # reset arrays for each component so they do not end up having more vectors than there are every time the method is run
         for row in range(0, len(maze)):
             for column in range(0, len(maze)+2):
-                if maze[row][column] == "1" or maze[row][column] == "G":#walls
+                if maze[row][column] == "1":#walls
                     self.walls.append(pygame.math.Vector2(column, row))
-                else:
+                elif maze[row][column] != "G":
                     self.paths.append(pygame.math.Vector2(column, row))
                 if "P" in maze[row][column]:#pills
                     self.pills.append(pygame.math.Vector2(column, row))
@@ -115,7 +115,7 @@ class Maze:
                 if "D" in maze[row][column]:#doors
                     self.doors.append(pygame.math.Vector2(column, row))
                 if maze[row][column] == "B":#booster
-                    newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, column, row, 10, random.choice(["cherrypowerup.png", "grapepowerup.png"]))
+                    newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, column, row, random.choice([5, 10, 50, 100]), random.choice(["cherrypowerup.png", "grapepowerup.png"]))
                     self.powerups.append(newPowerup) # add to attribute of array of powerups
                 if "U" in maze[row][column]:#user sprite position
                     self.player = pygame.math.Vector2(column, row)
@@ -131,8 +131,8 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","P","1","1","1","P","1","1","P","1","1","P","1","1","1","P","1"],
               ["1","B","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
-              ["1","1","1","P","1","P","1","1","1","1","1","P","1","P","1","1","1"],
-              ["1","DU","P","P","P","P","1","WG","WG","WG","1","P","P","P","P","DP","1"],
+              ["1","1","1","P","1","P","1","1","0","1","1","P","1","P","1","1","1"],
+              ["1","DU","P","P","P","P","1","G","G","G","1","P","P","P","P","DP","1"],
               ["1","1","1","P","1","P","1","1","1","1","1","P","1","B","1","1","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","P","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],
@@ -142,7 +142,7 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]]
 
 
-level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"],
+"""level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"],
               ["1","P","1","1","1","P","1","1","1","1","1","P","1","1","1","P","1"],
               ["1","P","P","P","P","P","P","P","P","P","B","P","P","P","P","P","1"],
               ["1","P","1","1","1","P","1","1","P","1","1","P","1","1","1","P","1"],
@@ -156,7 +156,7 @@ level1Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","P","1","1","1","P","1","1","P","1","1","P","1","1","1","P","1"],
               ["1","P","P","P","P","P","P","P","P","B","P","P","P","P","P","P","1"],
               ["1","P","1","1","1","P","1","1","1","1","1","P","1","1","1","P","1"],
-              ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]]
+              ["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1"]]"""
 
 level2Maze = []
 

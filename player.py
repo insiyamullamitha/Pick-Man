@@ -62,19 +62,19 @@ class Player:
   def move(self, direction, maze):  # takes in direction of movement and updates player coordinates
     match direction:
       case "left": # move left
-        if (self.posX - 1, self.posY) not in maze.getWalls():
+        if (self.posX - 1, self.posY) in maze.getPaths():
           self.posX -= 1
           self.rotate = 0
       case "right": # move right
-        if (self.posX + 1, self.posY) not in maze.getWalls():
+        if (self.posX + 1, self.posY) in maze.getPaths():
           self.posX += 1
           self.rotate = 180
       case "up": # move up
-        if (self.posX, self.posY-1) not in maze.getWalls():          
+        if (self.posX, self.posY-1) in maze.getPaths():          
           self.posY -= 1
           self.rotate = 270
       case "down": # move down
-        if (self.posX, self.posY+1) not in maze.getWalls():
+        if (self.posX, self.posY+1) in maze.getPaths():
           self.posY += 1
           self.rotate = 270
 

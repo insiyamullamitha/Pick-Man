@@ -80,7 +80,7 @@ class WanderingGhost(Ghost):
     Ghost.__init__(self, givenX, givenY, givenImage, givenName)
     self.moving = True
     self.direction = random.choice(["left", "right", "up", "down"])
-    self.movements = random.choice([10, 20, 30, 40, 50])
+    self.movements = 10
   
   def getDirection(self):
     return self.direction
@@ -98,16 +98,16 @@ class WanderingGhost(Ghost):
       match (self.direction): # update changeX and changeY depending on direction of player
         # check if new coordinates would cause wall collision
         case "left":
-          if (math.floor(self.posX - 0.1), self.posY) in maze.getPaths(): 
+          if (math.floor(self.posX - 0.1), self.posY) in maze.getPaths() or (math.floor(self.posX - 0.1), self.posY) in maze.getGhosts(): 
             changeX = -0.1
         case "right":
-          if (math.ceil(self.posX + 0.1), self.posY) in maze.getPaths():
+          if (math.ceil(self.posX + 0.1), self.posY) in maze.getPaths() or (math.ceil(self.posX + 0.1), self.posY) in maze.getGhosts(): 
             changeX = 0.1
         case "up":
-          if (self.posX, math.floor(self.posY - 0.1)) in maze.getPaths():
+          if (self.posX, math.floor(self.posY - 0.1)) in maze.getPaths() or (self.posX, math.floor(self.posY - 0.1)) in maze.getGhosts(): 
             changeY = -0.1
         case "down":
-          if (self.posX, math.ceil(self.posY + 0.1)) in maze.getPaths():
+          if (self.posX, math.ceil(self.posY + 0.1)) in maze.getPaths() or (self.posX, math.ceil(self.posY + 0.1)) in maze.getGhosts(): 
             changeY = 0.1
 
       # if no movement or movement in one direction many times, reset movements and change direction
