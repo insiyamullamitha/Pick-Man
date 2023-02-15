@@ -156,12 +156,8 @@ class Game:
           if event.key == pygame.K_SPACE: # pause/unpause game when space par is pressed 
             if self.state == "play":
               self.state = "pause"
-              #for ghost in self.ghostObjects():
-                #ghost.setMoving(False)
             elif self.state == "pause":
               self.state = "play"
-              #for ghost in self.ghostObjects():
-                #ghost.setMoving(True)
           if event.key == pygame.K_ESCAPE:
             self.state = self.previousState
           if self.state == "instructions": # input username
@@ -320,8 +316,6 @@ class Game:
         for instruction in range(3):
           uploadImage("emptystar.png", 0.1, 250 + 200*instruction, 170)
           drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
-        #drawText(self.instructions[1][1], 457, 290, BLACK, 15)
-        #drawText(self.instructions[2][1], 665, 290, BLACK, 15)
         if self.currentLevel == "1": # load level 1 maze 
           self.maze.loadMaze(level1Maze)
         elif self.currentLevel == "2": # load level 2 maze

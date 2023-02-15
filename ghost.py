@@ -10,22 +10,22 @@ class Ghost:
   def __init__(self, givenX, givenY, givenImage, givenName):
     self.posX = givenX
     self.posY = givenY
-    self.startPosX = givenX
-    self.startPosY = givenY
-    self.image = givenImage
-    self.name = givenName
-    self.moving = True
+    self.__startPosX = givenX
+    self.__startPosY = givenY
+    self.__image = givenImage
+    self.__name = givenName
+    self.__moving = True
 
   #setters and getters
   def getName(self):
-    return self.name 
+    return self.__name 
   def setName(self, givenName):
-    self.name = givenName
+    self.__name = givenName
   
   def getMoving(self):
-    return self.moving
+    return self.__moving
   def setMoving(self, givenMoving):
-    self.moving = givenMoving
+    self.__moving = givenMoving
 
   def getPosX(self):
     return self.posX
@@ -38,28 +38,28 @@ class Ghost:
     self.posY = givenY
   
   def getStartPosX(self):
-    return self.startPosX
+    return self.__startPosX
   def setStartPosX(self, givenX):
-    self.startPosX = givenX
+    self.__startPosX = givenX
 
   def getStartPosY(self):
-    return self.startPosY
+    return self.__startPosY
   def setStartPosY(self, givenY):
-    self.startPosY = givenY
+    self.__startPosY = givenY
 
   def getImage(self):
-    return self.image
+    return self.__image
   def setImage(self, givenImage):
-    self.image = givenImage
+    self.__image = givenImage
 
   def respawn(self):
-    self.posX = self.startPosX
-    self.posY = self.startPosY
+    self.posX = self.__startPosX
+    self.posY = self.__startPosY
     
   #add move, draw, kill and reset methods
   def move(self, player, maze):
     heuristic = float('inf')
-    while self.moving and heuristic >= 0:
+    while self.__moving and heuristic >= 0:
       for availablePathX in range(1, -2, -1):
         for availablePathY in range(1, -2, -1):
           if abs(availablePathX) != abs(availablePathY):
@@ -78,24 +78,24 @@ class Ghost:
 class WanderingGhost(Ghost):
   def __init__(self, givenX, givenY, givenImage, givenName):
     Ghost.__init__(self, givenX, givenY, givenImage, givenName)
-    self.moving = True
-    self.direction = random.choice(["left", "right", "up", "down"])
-    self.movements = 10
+    self.__moving = True
+    self.__direction = random.choice(["left", "right", "up", "down"])
+    self.__movements = 10
   
   def getDirection(self):
-    return self.direction
+    return self.__direction
   def setDirection(self, givenDirection):
-    self.direction = givenDirection
+    self.__direction = givenDirection
 
   def getMovements(self):
-    return self.movements
+    return self.__movements
   def setMovements(self, givenMovements):
-    self.movements = givenMovements
+    self.__movements = givenMovements
 
   def move(self, maze): # ghost move function
-    if self.moving:
+    if self.__moving:
       changeX, changeY = 0, 0
-      match (self.direction): # update changeX and changeY depending on direction of player
+      match (self.__direction): # update changeX and changeY depending on direction of player
         # check if new coordinates would cause wall collision
         case "left":
           if (math.floor(self.posX - 0.1), self.posY) in maze.getPaths() or (math.floor(self.posX - 0.1), self.posY) in maze.getGhosts(): 
@@ -111,12 +111,12 @@ class WanderingGhost(Ghost):
             changeY = 0.1
 
       # if no movement or movement in one direction many times, reset movements and change direction
-      if changeX == 0 and changeY == 0 or self.movements <= 0: 
-        self.direction = random.choice(["left", "right", "up", "down"])
-        self.movements = random.choice([10, 20, 30, 40, 50])
+      if changeX == 0 and changeY == 0 or self.__movements <= 0: 
+        self.__direction = random.choice(["left", "right", "up", "down"])
+        self.__movements = random.choice([10, 20, 30, 40, 50])
 
       else: # check if new coordinates collide with wall
-        self.movements -= 1
+        self.__movements -= 1
         self.posX += changeX # update new positions
         self.posY += changeY
 

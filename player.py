@@ -8,87 +8,87 @@ from maze import *
 
 class Player:
   def __init__(self, givenRotation, givenPosX, givenPosY):
-    self.mode = "chased"
-    self.speed = 1
-    self.startPosX = givenPosX
-    self.startPosY = givenPosY
-    self.posX = givenPosX
-    self.posY = givenPosY
-    self.rotate = givenRotation
+    self.__mode = "chased"
+    self.__speed = 1
+    self.__startPosX = givenPosX
+    self.__startPosY = givenPosY
+    self.__posX = givenPosX
+    self.__posY = givenPosY
+    self.__rotate = givenRotation
     
   # add getters and setters
   def getMode(self):
-    return self.mode
+    return self.__mode
   def setMode(self, givenMode):
-    self.mode = givenMode
+    self.__mode = givenMode
 
   def getSpeed(self):
-    return self.speed 
+    return self.__speed 
   def setSpeed(self, givenSpeed):
-    self.speed = givenSpeed   
+    self.__speed = givenSpeed   
   
   def getPosX(self):
-    return self.posX
+    return self.__posX
   def setPosX(self, givenPosX):
-    self.posX = givenPosX
+    self.__posX = givenPosX
   
   def getPosY(self):
-    return self.posY
+    return self.__posY
   def setPosY(self, givenPosY):
-    self.posY = givenPosY
+    self.__posY = givenPosY
   
   def getStartPosX(self):
-    return self.startPosX
+    return self.__startPosX
   def setStartPosX(self, givenPosX):
-    self.startPosX = givenPosX
+    self.__startPosX = givenPosX
   
   def getStartPosY(self):
-    return self.startPosY
+    return self.__startPosY
   def setStartPosY(self, givenPosY):
-    self.startPosY = givenPosY
+    self.__startPosY = givenPosY
 
   def resetPosition(self):
-    self.posX = self.startPosX
-    self.posY = self.startPosY
-    self.rotate = 0
+    self.__posX = self.__startPosX
+    self.__posY = self.__startPosY
+    self.__rotate = 0
 
 
   #rotate pacman image so it faces towards the direction it moves in
   def getRotate(self):
-    return self.rotate
+    return self.__rotate
   def setRotate(self, givenRotation):
-    self.rotate = givenRotation
+    self.__rotate = givenRotation
 
   def move(self, direction, maze):  # takes in direction of movement and updates player coordinates
     match direction:
       case "left": # move left
-        if (self.posX - 1, self.posY) in maze.getPaths():
-          self.posX -= 1
-          self.rotate = 180
+        if (self.__posX - 1, self.__posY) in maze.getPaths():
+          self.__posX -= 1
+          self.__rotate = 180
       case "right": # move right
-        if (self.posX + 1, self.posY) in maze.getPaths():
-          self.posX += 1
-          self.rotate = 0
+        if (self.__posX + 1, self.__posY) in maze.getPaths():
+          self.__posX += 1
+          self.__rotate = 0
       case "up": # move up
-        if (self.posX, self.posY-1) in maze.getPaths():          
-          self.posY -= 1
-          self.rotate = 90
+        if (self.__posX, self.__posY-1) in maze.getPaths():          
+          self.__posY -= 1
+          self.__rotate = 90
       case "down": # move down
-        if (self.posX, self.posY+1) in maze.getPaths():
-          self.posY += 1
-          self.rotate = 270
+        if (self.__posX, self.__posY+1) in maze.getPaths():
+          self.__posY += 1
+          self.__rotate = 270
 
   def collisions(self, maze): # after new movement check for collisions between players and ghosts/pills/powerups
-    if (self.posX, self.posY) in maze.getPills(): # check if player position is in pill position
+    if (self.__posX, self.__posY) in maze.getPills(): # check if player position is in pill position
       playSoundEffects(PILLSOUND)
       self.eatPills(maze)
       return "pills"
     for powerup in maze.getPowerups():
-      if (self.posX, self.posY) == (powerup.getPosX(), powerup.getPosY()):
+      if (self.__posX, self.__posY) == (powerup.getPosX(), powerup.getPosY()):
         playSoundEffects(POWERUPSOUND)
         return "powerups"
   
   def eatPills(self, maze): # remove pill vector from pills array if player is in same position
-    pillToBeEaten = maze.getPills().index((self.posX, self.posY))
+    pillToBeEaten = maze.getPills().index((self.__posX, self.__posY))
     maze.removePill(pillToBeEaten)
   

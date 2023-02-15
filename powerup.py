@@ -3,45 +3,45 @@ from player import *
 
 class Powerup:
     def __init__(self, givenType, givenMode, givenSpeed, givenPosX, givenPosY, givenScoreValue, givenImage):
-        self.image = givenImage
-        self.mode = givenMode
-        self.type = givenType
-        self.speedValue = givenSpeed
-        self.posX = givenPosX
-        self.posY = givenPosY
-        self.scoreValue = givenScoreValue
+        self.__image = givenImage
+        self.__mode = givenMode
+        self.__type = givenType
+        self.__speedValue = givenSpeed
+        self.__posX = givenPosX
+        self.__posY = givenPosY
+        self.__scoreValue = givenScoreValue
     
     def getMode(self):
-        return self.mode
+        return self.__mode
     def setMode(self, givenMode):
-        self.mode = givenMode
+        self.__mode = givenMode
     
     def getImage(self):
-        return self.image
+        return self.__image
     def setImage(self, givenImage):
-        self.image = givenImage
+        self.__image = givenImage
     
     def getType(self):
-        return self.type
+        return self.__type
     def setType(self, givenType):
-        self.type = givenType
+        self.__type = givenType
 
     def getSpeedValue(self):
-        return self.speedValue
+        return self.__speedValue
     def setSpeedValue(self, givenSpeedValue):
-        self.speedValue = givenSpeedValue
+        self.__speedValue = givenSpeedValue
     
     def getPosX(self):
-        return self.posX
+        return self.__posX
     def setPosX(self, givenPosX):
-        self.posX = givenPosX
+        self.__posX = givenPosX
 
     def getPosY(self):
-        return self.posY
+        return self.__posY
     def setPosX(self, givenPosY):
-        self.posY = givenPosY
+        self.__posY = givenPosY
 
     def getScoreValue(self):
-        return self.scoreValue
+        return self.__scoreValue
     def setScoreValue(self, givenScoreValue):
-        self.scoreValue = givenScoreValue
+        self.__scoreValue = givenScoreValue
