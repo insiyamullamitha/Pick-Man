@@ -31,7 +31,7 @@ class Game:
     self.stars = 0
     self.instructions = []
 
-  def draw_maze(self): # load maze on screen
+  def drawMaze(self): # load maze on screen
     for wall in self.maze.getWalls(): # draw walls
       pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (wall.x*30)), 65 + (wall.y*30), 30, 30),0)
     for path in self.maze.getPaths(): # draw white squares representing path
@@ -65,7 +65,7 @@ class Game:
       # redraw maze and wait a few seconds before continuing
       else:
         ghost.setMoving(False)
-        self.draw_maze()
+        self.drawMaze()
         pygame.display.flip()
         pygame.time.delay(2000)
         ghost.setMoving(True)
@@ -105,7 +105,7 @@ class Game:
         image = "yellowstar.png"
       # display star and its instruction next to it
       uploadImage(image, 0.08, 20, 200 + self.instructions.index(instruction)*100)
-      draw_text(instruction[1], 115, 240 + self.instructions.index(instruction) * 100, BLACK, 20 )
+      drawText(instruction[1], 115, 240 + self.instructions.index(instruction) * 100, BLACK, 20 )
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -179,7 +179,7 @@ class Game:
             if direction in ["left", "right", "up", "down"]: # if player has can move, move and check for collision with pill and increase score
               for x in range(self.player.getSpeed()): # move one place for every unit of speed
                 self.player.move(direction, self.maze)
-                self.draw_maze()
+                self.drawMaze()
                 pygame.display.flip()
                 if self.player.collisions(self.maze) == "pills": # check for collisions after each movement
                   self.score += 1
@@ -208,8 +208,8 @@ class Game:
         SCREEN.fill((WHITE))
         for x in range(300):
           uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png", "pacmandefault.PNG"]),0.5, random.randint(-30,1000), random.randint(-30,600))
-        draw_text("PICKMAN", -7, 175, BLACK, 300)
-        draw_text("BY INSIYA MULLAMITHA", 320, 400, BLACK, 40)
+        drawText("PICKMAN", -7, 175, BLACK, 300)
+        drawText("BY INSIYA MULLAMITHA", 320, 400, BLACK, 40)
         pygame.display.flip()
         pygame.time.delay(2500)
         self.state = "menu"
@@ -223,8 +223,8 @@ class Game:
           button.render()   
         for button in allButtons[1]:
           button.render()
-        draw_text("PICKMAN", 0, 0, BLACK, 300)
-        draw_text("PICKMAN", -8, 0, BLUE, 300)
+        drawText("PICKMAN", 0, 0, BLACK, 300)
+        drawText("PICKMAN", -8, 0, BLUE, 300)
 
       #background music game state
       elif self.state == "music":
@@ -240,33 +240,33 @@ class Game:
       #leaderboard/statistics game state
       elif self.state == "stats":
         SCREEN.fill(WHITE)
-        draw_text("LEADERBOARD AND STATISTICS", 0, 20, BLACK, 87)
+        drawText("LEADERBOARD AND STATISTICS", 0, 20, BLACK, 87)
         # statistics methods
       
       #powerups/stars game state
       elif self.state == "buy powerups":
         SCREEN.fill(WHITE)
-        draw_text("STARS AND POWERUPS", 10, 20, BLACK, 120)
-        draw_text("You currently have " + str(self.stars) + " stars", 10, 100, BLACK, 30)
+        drawText("STARS AND POWERUPS", 10, 20, BLACK, 120)
+        drawText("You currently have " + str(self.stars) + " stars", 10, 100, BLACK, 30)
 
       #help game state
       elif self.state == "help":#function displays new screen with help instructions
         SCREEN.fill((WHITE))
-        draw_text("HELP", 50, 0, BLACK, 200)
-        draw_text("HELP", 45, 0, BLUE, 200 )
+        drawText("HELP", 50, 0, BLACK, 200)
+        drawText("HELP", 45, 0, BLUE, 200 )
         pygame.draw.rect(SCREEN, BLUE, pygame.Rect(50, 125, 900, 425))
         #bullet points of game features 
-        draw_text("• Click the play button to begin the game.", 60, 140, BLACK, 30)
-        draw_text("• Instructions on how to earn will display just before you start!", 60, 170, BLACK, 30)
-        draw_text("• Use the up, down, left and right arrow keys on your keyboard to control movement", 60, 200, BLACK, 30)
-        draw_text("• Click on 'Change Character' to change default theme and character image", 60, 230, BLACK, 30)
-        draw_text("• Collect stars and use these to buy powerups", 60, 260, BLACK, 30)
-        draw_text("• Compete with your friends with the leaderboard feature!", 60, 290, BLACK, 30)
+        drawText("• Click the play button to begin the game.", 60, 140, BLACK, 30)
+        drawText("• Instructions on how to earn will display just before you start!", 60, 170, BLACK, 30)
+        drawText("• Use the up, down, left and right arrow keys on your keyboard to control movement", 60, 200, BLACK, 30)
+        drawText("• Click on 'Change Character' to change default theme and character image", 60, 230, BLACK, 30)
+        drawText("• Collect stars and use these to buy powerups", 60, 260, BLACK, 30)
+        drawText("• Compete with your friends with the leaderboard feature!", 60, 290, BLACK, 30)
 
       #change character and theme game state  
       elif self.state == "change character":
         SCREEN.fill(WHITE)
-        draw_text("CHANGE CHARACTER/THEME", 5, 20, BLACK, 95)
+        drawText("CHANGE CHARACTER/THEME", 5, 20, BLACK, 95)
         uploadImage("pacman.PNG", 0.1, 50, 150 )
         uploadImage("jellyfish.PNG", 0.1, 300, 160)
 
@@ -285,16 +285,16 @@ class Game:
             for star in range(stars): # display number of stars below level
               uploadImage("yellowstar.png", 0.02, 30 * star + button.x - 35, button.y + 40)
 
-        draw_text("LEVELS PAGE", 27, 0, BLACK, 200)
-        draw_text("LEVELS PAGE", 22, 0, BLUE, 200)
+        drawText("LEVELS PAGE", 27, 0, BLACK, 200)
+        drawText("LEVELS PAGE", 22, 0, BLUE, 200)
 
       elif self.state == "instructions": # display instructions for individual level
         self.previousState = "levels"
         SCREEN.fill(WHITE)
         for button in allButtons[0]: #display side buttons 
           button.render()
-        draw_text("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118)
-        draw_text("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118)
+        drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118)
+        drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118)
         uploadImage("pacmandefault.png", 1.5, 10, 215)
         for x in range(6):
           pygame.draw.circle(SCREEN, PINK, (60 + x*40, 235), 7.5, 0)
@@ -310,14 +310,14 @@ class Game:
         # display each instruction and star
         for instruction in range(3):
           uploadImage("emptystar.png", 0.1, 250 + 200*instruction, 170)
-          draw_text(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
-        #draw_text(self.instructions[1][1], 457, 290, BLACK, 15)
-        #draw_text(self.instructions[2][1], 665, 290, BLACK, 15)
+          drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
+        #drawText(self.instructions[1][1], 457, 290, BLACK, 15)
+        #drawText(self.instructions[2][1], 665, 290, BLACK, 15)
         if self.currentLevel == "1": # load level 1 maze 
-          self.maze.load_maze(level1Maze)
+          self.maze.loadMaze(level1Maze)
         elif self.currentLevel == "2": # load level 2 maze
           # level 2 instructions
-          self.maze.load_maze(level2Maze)
+          self.maze.loadMaze(level2Maze)
         # set initial coordinates for player
         self.player.setPosX(self.maze.getPlayer().x) 
         self.player.setPosY(self.maze.getPlayer().y)
@@ -331,35 +331,35 @@ class Game:
           self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
         #display input box for username button
         usernameButton.render()
-        draw_text("Enter username below and press enter", 350, 350, BLACK, 20)
+        drawText("Enter username below and press enter", 350, 350, BLACK, 20)
 
       #playing game state
       elif self.state == "play":
         self.previousState = "pause"
         SCREEN.fill(WHITE)
-        draw_text("LEVEL " + self.currentLevel, 2, 5, BLACK, 100)
-        draw_text("LEVEL " + self.currentLevel, -3, 5, BLUE, 100)
+        drawText("LEVEL " + self.currentLevel, 2, 5, BLACK, 100)
+        drawText("LEVEL " + self.currentLevel, -3, 5, BLUE, 100)
         for button in allButtons[0]: # display side buttons
           button.render()
         for button in allButtons[3]: # display play state specific buttons
           button.render()
-        self.draw_maze()
+        self.drawMaze()
         self.displayGameStars()
         self.displayLives()
         pygame.draw.rect(SCREEN, GREEN, pygame.Rect(70, 90, 150, 40), 0, 3)
-        draw_text("score: " + str(self.score), 75, 95, BLACK, 40)
+        drawText("score: " + str(self.score), 75, 95, BLACK, 40)
       
       #paused game state  
       elif self.state == "pause":
         self.previousState = "play"
         SCREEN.fill((WHITE))
-        draw_text("PAUSED", 0, 0, BLACK, 200)
+        drawText("PAUSED", 0, 0, BLACK, 200)
 
       elif self.state == "game over":
         self.previousState = "menu"
         SCREEN.fill(WHITE)
-        draw_text("GAME OVER", 24, 190, BLACK, 225)
-        draw_text("GAME OVER", 19, 190, BLUE, 225 )
+        drawText("GAME OVER", 24, 190, BLACK, 225)
+        drawText("GAME OVER", 19, 190, BLUE, 225 )
         for button in allButtons[0]:
           button.render()
         # update statistics text file

@@ -91,7 +91,7 @@ class Maze:
     def resetPlayer(self):
         self.player = None
 
-    def load_maze(self, maze): 
+    def loadMaze(self, maze): 
         self.resetDoors()
         self.resetPowerups()
         self.resetPills()

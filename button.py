@@ -21,10 +21,10 @@ class Button:
             pygame.draw.circle(SCREEN,  self.colour, (self.x, self.y), self.radius, 0)
             if self.image != "":
                 uploadImage(self.image, 0.6, self.x-20, self.y-22)
-            draw_text(self.text, self.x-5, self.y-5, BLACK, 25)
+            drawText(self.text, self.x-5, self.y-5, BLACK, 25)
         elif self.shape == "rectangle":
             pygame.draw.rect(SCREEN, self.colour, pygame.Rect(self.x, self.y, self.length, self.width), 0, 3)
-            draw_text(self.text, self.x + 23, self.y + 10, BLACK, 25)
+            drawText(self.text, self.x + 23, self.y + 10, BLACK, 25)
 
     def click(self): # checks for collision detection for button and returns true if button has been clicked
         mouseX, mouseY = pygame.mouse.get_pos()

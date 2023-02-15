@@ -4,7 +4,7 @@ pygame.init()
 from constants import *
 from pygame.locals import *
 
-def draw_text(string, x, y, colour, size):
+def drawText(string, x, y, colour, size):
     #function to render inputted string onto a given position
     font = pygame.font.SysFont(None, size)
     text = font.render(string, True, colour)
