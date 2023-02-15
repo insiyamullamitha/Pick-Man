@@ -339,6 +339,8 @@ class Game:
         SCREEN.fill(WHITE)
         drawText("LEVEL " + self.currentLevel, 2, 5, BLACK, 100)
         drawText("LEVEL " + self.currentLevel, -3, 5, BLUE, 100)
+        for x in range(18):
+          pygame.draw.circle(SCREEN, PINK, (300+ x*40, 35), 7.5, 0)
         for button in allButtons[0]: # display side buttons
           button.render()
         for button in allButtons[3]: # display play state specific buttons

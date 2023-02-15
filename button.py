@@ -50,7 +50,7 @@ menuPlayButton = Button("", "playsymbol.png", GREEN, "circle", WIDTH//2, HEIGHT/
 changeCharacterButton = Button("CHANGE CHARACTER/THEME", "", PINK, "rectangle", 350, 350, 0, 300, 40, "change character")
 level1Button = Button("1", "", GREEN, "circle", 60, 180, 35, 0, 0, "instructions")
 level2Button = Button("2", "", GREY, "circle", 200, 180, 35, 0, 0, "instructions")
-usernameButton = Button("", "", PURPLE, "rectangle", 350, 370, 0, 300, 40, "instructions")
+usernameButton = Button("", "", PINK, "rectangle", 350, 370, 0, 300, 40, "instructions")
 # add buttons for each game state to array within allButtons 2D array
 # allButtons[0] for side buttons, allButtons[1] for menu page, allButtons[2] for levels etc.
 allButtons = [[musicButton, soundButton, statsButton, starButton, helpButton], [menuPlayButton, changeCharacterButton],
