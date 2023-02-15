@@ -41,7 +41,7 @@ class Game:
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 255+powerup.getPosX()*30, 70+powerup.getPosY()*30)
     # draw player 
-    uploadImage(self.character, 1, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30)
+    uploadImage(self.character, 1, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
     for ghost in self.ghostObjects: # ghost objects must be instantiated
       ghost.move(self.maze) # ghost object move
       uploadImage(ghost.getImage(), 0.8, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
@@ -52,14 +52,14 @@ class Game:
   def ghostCollisions(self, ghost): # ghost and player collisions
     if self.player.getMode() == "chased": # if player being chased
       # reset all character positions
-      self.player.setPosX(self.player.getStartPosX()) 
-      self.player.setPosY(self.player.getStartPosY())
+      self.player.resetPosition()
       for ghostObject in self.ghostObjects:
         ghostObject.respawn()
         #ghostObject.setMoving(False)
       # play sound effects and update lives
       playSoundEffects(LOSINGLIFE)
       self.lives -= 1 
+      self.drawMaze()
       if self.lives <= 0:
         self.state = "game over"
       # redraw maze and wait a few seconds before continuing
@@ -69,8 +69,11 @@ class Game:
         pygame.display.flip()
         pygame.time.delay(2000)
         ghost.setMoving(True)
+    
     else: # player in kill mode (chasing)
       # reset ghost position and prevent it from moving
+      self.player.setMode("chased")
+      self.character = "pacmandefault.png"
       self.score += 30
       ghost.respawn()
       ghost.setMoving(False)
@@ -122,6 +125,7 @@ class Game:
             return
           self.previousState = self.state
           self.state = button.newState
+          SCREEN.fill(WHITE)
   
   # check that username is between 3 and 10 characters and save as game username
   def verifyUsername(self):
@@ -152,8 +156,12 @@ class Game:
           if event.key == pygame.K_SPACE: # pause/unpause game when space par is pressed 
             if self.state == "play":
               self.state = "pause"
+              #for ghost in self.ghostObjects():
+                #ghost.setMoving(False)
             elif self.state == "pause":
               self.state = "play"
+              #for ghost in self.ghostObjects():
+                #ghost.setMoving(True)
           if event.key == pygame.K_ESCAPE:
             self.state = self.previousState
           if self.state == "instructions": # input username
@@ -197,7 +205,8 @@ class Game:
                   elif powerupEaten.getType() == "speed": # change speed
                     self.player.setSpeed(powerupEaten.getSpeedValue())
                   elif powerupEaten.getType() == "mode": # change mode
-                    self.player.changeMode()
+                    self.player.setMode("chasing")
+                    self.character = "bluepacmandefault.png"
                   self.maze.getPowerups().remove(powerupEaten)
         if event.type == MOUSEBUTTONDOWN:
           if self.state != "start-up":

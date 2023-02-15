@@ -21,11 +21,6 @@ class Player:
     return self.mode
   def setMode(self, givenMode):
     self.mode = givenMode
-  def changeMode(self):
-    if self.mode == "chased":
-      self.mode = "chasing"
-    else:
-      self.mode = "chased"
 
   def getSpeed(self):
     return self.speed 
@@ -52,6 +47,11 @@ class Player:
   def setStartPosY(self, givenPosY):
     self.startPosY = givenPosY
 
+  def resetPosition(self):
+    self.posX = self.startPosX
+    self.posY = self.startPosY
+    self.rotate = 0
+
 
   #rotate pacman image so it faces towards the direction it moves in
   def getRotate(self):
@@ -64,15 +64,15 @@ class Player:
       case "left": # move left
         if (self.posX - 1, self.posY) in maze.getPaths():
           self.posX -= 1
-          self.rotate = 0
+          self.rotate = 180
       case "right": # move right
         if (self.posX + 1, self.posY) in maze.getPaths():
           self.posX += 1
-          self.rotate = 180
+          self.rotate = 0
       case "up": # move up
         if (self.posX, self.posY-1) in maze.getPaths():          
           self.posY -= 1
-          self.rotate = 270
+          self.rotate = 90
       case "down": # move down
         if (self.posX, self.posY+1) in maze.getPaths():
           self.posY += 1

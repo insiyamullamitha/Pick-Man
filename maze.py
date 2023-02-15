@@ -115,7 +115,7 @@ class Maze:
                 if "D" in maze[row][column]:#doors
                     self.doors.append(pygame.math.Vector2(column, row))
                 if maze[row][column] == "B":#booster
-                    newPowerup = Powerup(random.choice(["speed", "score", "mode"]), "positive", 2, column, row, random.choice([5, 10, 50, 100]), random.choice(["cherrypowerup.png", "grapepowerup.png"]))
+                    newPowerup = Powerup(random.choice(["mode", "mode", "mode"]), "positive", 2, column, row, random.choice([5, 10, 50, 100]), random.choice(["cherrypowerup.png", "grapepowerup.png"]))
                     self.powerups.append(newPowerup) # add to attribute of array of powerups
                 if "U" in maze[row][column]:#user sprite position
                     self.player = pygame.math.Vector2(column, row)
