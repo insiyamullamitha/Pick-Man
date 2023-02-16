@@ -6,3 +6,4 @@
 time,3
 stars,50
 powerups,8
+

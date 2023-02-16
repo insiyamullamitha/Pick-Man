@@ -93,3 +93,4 @@ class Statistics:
     self.changeFastestTime(time)
 
 stats = Statistics()
+

@@ -178,6 +178,7 @@ class Game:
       self.clock.tick(FRAMESPERSECOND)
 
       pygame.init()    
+      
       pygame.display.set_caption("PICKMAN")  
       pacman = pygame.image.load('media/pacmandefault.png')
       pygame.display.set_icon(pacman)
