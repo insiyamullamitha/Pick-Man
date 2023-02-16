@@ -3,6 +3,6 @@
 5,CATRIN
 4,HANNAH
 3,EVIE
-stars,0
-time,0
-powerups,0
+time,3
+stars,10
+powerups,8

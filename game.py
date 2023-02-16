@@ -78,6 +78,22 @@ class Game:
       ghost.respawn()
       ghost.setMoving(False)
 
+  def loadInstructions(self):
+    with open ("levelStarsInstructions.txt") as file: # find instructions for level and store in array
+      lines = file.readlines()
+      startInstruction = int(self.currentLevel) * 3 - 3
+      # update self.instructions with star status of zero (at the start of the game) and type of instruction
+      self.instructions = [[0, lines[startInstruction][1:].strip('\n')],
+                          [0, lines[startInstruction + 1][1:].strip('\n')], 
+                          [0, lines[startInstruction + 2][1:].strip('\n')]]
+      # display each instruction and star
+      for instruction in range(3):
+        image = "emptystar.png"
+        if lines[startInstruction + instruction][0] == "1":
+          image = "yellowstar.png"
+        uploadImage(image, 0.1, 250 + 200*instruction, 170)
+        drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
+
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 
       uploadImage("fulllife.png", 0.7, 35 + x * 70, 150)
@@ -305,17 +321,7 @@ class Game:
           pygame.draw.circle(SCREEN, PINK, (60 + x*40, 235), 7.5, 0)
         for x in range(8):
           pygame.draw.circle(SCREEN, PINK, (740 + x*40, 235), 7.5, 0)
-        with open ("levelStarsInstructions.txt") as file: # find instructions for level and store in array
-          lines = file.readlines()
-          startInstruction = int(self.currentLevel) * 3 - 3
-          # update self.instructions with star status of zero (at the start of the game) and type of instruction
-          self.instructions = [[0, lines[startInstruction][1:].strip('\n')],
-                              [0, lines[startInstruction + 1][1:].strip('\n')], 
-                              [0, lines[startInstruction + 2][1:].strip('\n')]]
-        # display each instruction and star
-        for instruction in range(3):
-          uploadImage("emptystar.png", 0.1, 250 + 200*instruction, 170)
-          drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
+        self.loadInstructions()
         if self.currentLevel == "1": # load level 1 maze 
           self.maze.loadMaze(level1Maze)
         elif self.currentLevel == "2": # load level 2 maze
