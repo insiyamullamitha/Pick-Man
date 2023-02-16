@@ -87,6 +87,4 @@ class Statistics:
       file.write(line)
     file.close()
 
-
-
 stats = Statistics()
