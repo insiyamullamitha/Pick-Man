@@ -94,8 +94,17 @@ class Game:
       image = "emptystar.png"
       if self.instructions[instruction][0] == 1:
         image = "yellowstar.png"
-      uploadImage(image, 0.1, 250 + 200*instruction, 170)
-      drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
+      uploadImage(image, 0.1, 245 + 200*instruction, 170)
+      drawText(self.instructions[instruction][1], 260 + instruction * 200, 290, BLACK, 15)
+      uploadImage("pacmandefault.png", 1.5, 3, 215)
+      for x in range(6):
+        pygame.draw.circle(SCREEN, PINK, (55 + x*40, 235), 7.5, 0)
+      for x in range(4):
+        pygame.draw.circle(SCREEN, PINK, (340 + x*40, 235), 7.5, 0)
+      for x in range(4):
+        pygame.draw.circle(SCREEN, PINK, (540+ x*40, 235), 7.5, 0)
+      for x in range(8):
+        pygame.draw.circle(SCREEN, PINK, (740 + x*40, 235), 7.5, 0)
 
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 
@@ -108,31 +117,26 @@ class Game:
   def updateStars(self): # change star status if instruction has been completed
     match self.currentLevel:
       case "1": # instructions for level 1
-        if self.instructions[0][0] != 1 and self.score >= 100:
+        if self.instructions[0][0] != 1 and self.score >= 50:
           self.instructions[0][0] = 1
           self.stars += 1
-        else:
-          return
-        if self.instructions[1][0] != 1 and self.score >= 200:
+        if self.instructions[1][0] != 1 and self.score >= 100:
           self.instructions[1][0] = 1
           self.stars += 1
-        else:
-          return
-        if self.instructions[2][0] != 1 and self.score >= 300:
+        if self.instructions[2][0] != 1 and self.score >= 150:
           self.instructions[2][0] = 1
           self.stars += 1
 
-  def updateFileStarStatus(self, instructionNumber):
-    startInstruction = int(self.currentLevel) * 3 - 3
-    file = open("statistics.txt", "r")
-    lines = file.readLines()
-    lines[startInstruction + instructionNumber][0] = "1"
-    stats.updateFile(lines)
+  def updateFileStarStatus(self, instructionNumber): # update which stars have been achieved at the end of game 
+    startInstruction = int(self.currentLevel) * 3 - 3 # find the line from which the level's instructions start
+    file = open("levelStarsInstructions.txt", "r")
+    lines = file.readlines()
+    lines[startInstruction + instructionNumber] = "1" + self.instructions[instructionNumber][1] + "\n" #change 0 to 1 to represent achieved
+    stats.updateFile(lines, "levelStarsInstructions.txt")#update file
 
   def displayLeaderboard(self):
     pass
     
-
   def displayGameStars(self): # displays stars and instructions during game
     self.updateStars()
     for instruction in self.instructions:
@@ -323,7 +327,7 @@ class Game:
             startLine = level * 3 - 3
             stars = int(lines[startLine][0]) + int(lines[startLine + 1][0]) + int(lines[startLine + 2][0])
             for star in range(stars): # display number of stars below level
-              uploadImage("yellowstar.png", 0.02, 30 * star + button.x - 35, button.y + 40)
+              uploadImage("yellowstar.png", 0.02, 25 * star + button.x - 36, button.y + 40)
 
         drawText("LEVELS PAGE", 27, 0, BLACK, 200)
         drawText("LEVELS PAGE", 22, 0, BLUE, 200)
@@ -335,11 +339,6 @@ class Game:
           button.render()
         drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118)
         drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118)
-        uploadImage("pacmandefault.png", 1.5, 10, 215)
-        for x in range(6):
-          pygame.draw.circle(SCREEN, PINK, (60 + x*40, 235), 7.5, 0)
-        for x in range(8):
-          pygame.draw.circle(SCREEN, PINK, (740 + x*40, 235), 7.5, 0)
         self.loadInstructions()
         if self.currentLevel == "1": # load level 1 maze 
           self.maze.loadMaze(level1Maze)
@@ -388,25 +387,26 @@ class Game:
       elif self.state == "game over":
         self.previousState = "menu"
         SCREEN.fill(WHITE)
-        drawText("GAME OVER", 200, 20, BLACK, 155)
-        drawText("GAME OVER", 195, 20, BLUE, 155 )
+        drawText("GAME OVER", 175, 20, BLACK, 155)
+        drawText("GAME OVER", 170, 20, BLUE, 155 )
         for button in allButtons[0]:
           button.render()
-        stats.updateStatistics(self.score, self.username, self.stars)
         for instruction in range(len(self.instructions)):
-          if self.instructions[instruction] == 1:
+          if self.instructions[instruction][0] == 1:
             self.updateFileStarStatus(instruction)
         self.displayInstructions()
-        if self.stars != 3:
-          message = "BETTER LUCK NEXT TIME"
+        if self.stars < 3: #or len(self.maze.getPills()) > 0:
+          drawText("TRY AGAIN TO COLLECT ALL STARS", 125, 350, BLACK, 40)
+          stats.updateStatistics(self.stars)
           # display replay button
         else:
-          message = "WELL DONE!!!!!!!!!!!!"
+          drawText("WELL DONE", 160, 350, BLACK, 40)
+          stats.updateStatistics(self.stars, self.score, self.username)
           # display next level button
-        drawText(message, 160, 350, BLACK, 40)
+        # reset current game statistics for next game
         self.score = 0
         self.stars = 0
-        # reset current game statistics
+        self.username = ""
       
       elif self.state == "end program":
         SCREEN.fill(BLACK)

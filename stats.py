@@ -35,7 +35,7 @@ class Statistics:
     for x in range(5):
       lines[x] = str(self.__leaderboard[x][0]) + ',' + self.__leaderboard[x][1] + '\n'
 
-    self.updateFile(lines)
+    self.updateFile(lines, "statistics.txt")
 
   def getFastestTime(self): # retrieve fastest time user has played level in from text file
     with open("statistics.txt") as file:
@@ -51,7 +51,7 @@ class Statistics:
     with open("statistics.txt") as file: # update line for time in file 
       lines = file.readlines()
       lines[5] = 'time,' + str(self.__time) + '\n'
-    self.updateFile(lines)
+    self.updateFile(lines, "statistics.txt")
 
   def getNumberOfStars(self): # get number of stars the user currently has available
     with open("statistics.txt") as file:
@@ -65,7 +65,7 @@ class Statistics:
     with open("statistics.txt") as file: # update line for stars in file
       lines = file.readlines()
       lines[6] = 'stars,' + str(self.__numberOfStars) + '\n'
-    self.updateFile(lines)
+    self.updateFile(lines, "statistics.txt")
   
   def getPowerups(self): # get number of extra powerups that user has bought
     with open("statistics.txt") as file:
@@ -79,15 +79,15 @@ class Statistics:
     with open("statistics.txt") as file: # update line for powerups in file
       lines = file.readlines()
       lines[7] = 'powerups,' + str(self.__powerups) + '\n'
-    self.updateFile(lines)
+    self.updateFile(lines, "statistics.txt")
 
-  def updateFile(self, updatedFile): # update file with new lines
-    with open("statistics.txt", "w") as file:
+  def updateFile(self, updatedFile, fileToWriteTo): # update file with new lines
+    with open(fileToWriteTo, "w") as file:
       for line in updatedFile:
         file.write(line)
       file.close()
   
-  def updateStatistics(self, score, username, stars, time = 100): # use to update all statistics at once
+  def updateStatistics(self, stars, score = 0, username = "", time = 100): # use to update all statistics at once
     self.updateLeaderboard(score, username)
     self.changeNumberOfStars(stars)
     self.changeFastestTime(time)
