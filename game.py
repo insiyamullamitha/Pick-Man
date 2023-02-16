@@ -86,13 +86,16 @@ class Game:
       self.instructions = [[0, lines[startInstruction][1:].strip('\n')],
                           [0, lines[startInstruction + 1][1:].strip('\n')], 
                           [0, lines[startInstruction + 2][1:].strip('\n')]]
+      self.displayInstructions()
+
+  def displayInstructions(self):
       # display each instruction and star
-      for instruction in range(3):
-        image = "emptystar.png"
-        if lines[startInstruction + instruction][0] == "1":
-          image = "yellowstar.png"
-        uploadImage(image, 0.1, 250 + 200*instruction, 170)
-        drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
+    for instruction in range(3):
+      image = "emptystar.png"
+      if self.instructions[instruction][0] == 1:
+        image = "yellowstar.png"
+      uploadImage(image, 0.1, 250 + 200*instruction, 170)
+      drawText(self.instructions[instruction][1], 262 + instruction * 200, 290, BLACK, 15)
 
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 
@@ -105,15 +108,30 @@ class Game:
   def updateStars(self): # change star status if instruction has been completed
     match self.currentLevel:
       case "1": # instructions for level 1
+        if self.instructions[0][0] != 1 and self.score >= 100:
+          self.instructions[0][0] = 1
+          self.stars += 1
+        else:
+          return
+        if self.instructions[1][0] != 1 and self.score >= 200:
+          self.instructions[1][0] = 1
+          self.stars += 1
+        else:
+          return
         if self.instructions[2][0] != 1 and self.score >= 300:
           self.instructions[2][0] = 1
           self.stars += 1
-        elif self.instructions[1][0] != 1 and self.score >= 200:
-          self.instructions[1][0] = 1
-          self.stars += 1
-        elif self.instructions[0][0] != 1 and self.score >= 100:
-          self.instructions[0][0] = 1
-          self.stars += 1
+
+  def updateFileStarStatus(self, instructionNumber):
+    startInstruction = int(self.currentLevel) * 3 - 3
+    file = open("statistics.txt", "r")
+    lines = file.readLines()
+    lines[startInstruction + instructionNumber][0] = "1"
+    stats.updateFile(lines)
+
+  def displayLeaderboard(self):
+    pass
+    
 
   def displayGameStars(self): # displays stars and instructions during game
     self.updateStars()
@@ -237,6 +255,7 @@ class Game:
 
       #menu gamestate
       if self.state == "menu": 
+        self.previousState = "menu"
         SCREEN.fill((WHITE)) 
         for x in range(5):
           uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png"]),0.8, random.randint(-30,1000), random.randint(-30,600))
@@ -369,14 +388,24 @@ class Game:
       elif self.state == "game over":
         self.previousState = "menu"
         SCREEN.fill(WHITE)
-        drawText("GAME OVER", 24, 190, BLACK, 225)
-        drawText("GAME OVER", 19, 190, BLUE, 225 )
+        drawText("GAME OVER", 200, 20, BLACK, 155)
+        drawText("GAME OVER", 195, 20, BLUE, 155 )
         for button in allButtons[0]:
           button.render()
-        # update statistics text file
-        # display number of stars/score/success or fail
-        # replay button
-        # next level button
+        stats.updateStatistics(self.score, self.username, self.stars)
+        for instruction in range(len(self.instructions)):
+          if self.instructions[instruction] == 1:
+            self.updateFileStarStatus(instruction)
+        self.displayInstructions()
+        if self.stars != 3:
+          message = "BETTER LUCK NEXT TIME"
+          # display replay button
+        else:
+          message = "WELL DONE!!!!!!!!!!!!"
+          # display next level button
+        drawText(message, 160, 350, BLACK, 40)
+        self.score = 0
+        self.stars = 0
         # reset current game statistics
       
       elif self.state == "end program":

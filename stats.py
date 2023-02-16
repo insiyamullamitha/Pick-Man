@@ -82,9 +82,14 @@ class Statistics:
     self.updateFile(lines)
 
   def updateFile(self, updatedFile): # update file with new lines
-    file = open("statistics.txt", "w")
-    for line in updatedFile:
-      file.write(line)
-    file.close()
+    with open("statistics.txt", "w") as file:
+      for line in updatedFile:
+        file.write(line)
+      file.close()
+  
+  def updateStatistics(self, score, username, stars, time = 100): # use to update all statistics at once
+    self.updateLeaderboard(score, username)
+    self.changeNumberOfStars(stars)
+    self.changeFastestTime(time)
 
 stats = Statistics()
