@@ -62,6 +62,9 @@ class Game:
       self.drawMaze()
       if self.lives <= 0:
         self.state = "game over"
+        for instruction in range(len(self.instructions)):
+          if self.instructions[instruction][0] == 1:
+            self.updateFileStarStatus(instruction)
       # redraw maze and wait a few seconds before continuing
       else:
         ghost.setMoving(False)
@@ -210,7 +213,6 @@ class Game:
               usertext += event.unicode
             usernameButton.text = usertext # update new input 
           elif self.state == "play": # detect arrow key movement during game 
-            direction = ""
             if event.key == pygame.K_LEFT: # move left
               direction = "left"
             elif event.key == pygame.K_RIGHT: # move right
@@ -226,8 +228,6 @@ class Game:
                 pygame.display.flip()
                 if self.player.collisions(self.maze) == "pills": # check for collisions after each movement
                   self.score += 1
-                  if len(self.maze.getPills()) == 0:
-                    self.state = "game over"
                 if self.player.collisions(self.maze) == "powerups": # if player collides with powerup, powerup should affect game 
                   found = False
                   while not found:
@@ -292,7 +292,7 @@ class Game:
       elif self.state == "buy powerups":
         SCREEN.fill(WHITE)
         drawText("STARS AND POWERUPS", 10, 20, BLACK, 120)
-        drawText("You currently have " + str(self.stars) + " stars", 10, 100, BLACK, 30)
+        drawText("You currently have " + str(stats.getNumberOfStars()) + " stars", 10, 100, BLACK, 30)
 
       #help game state
       elif self.state == "help":#function displays new screen with help instructions
@@ -323,11 +323,13 @@ class Game:
         for button in allButtons[2]: # display level number
           button.render()
           level = int(button.text)
-          with open ("levelStarsInstructions.txt") as file: # for each level find number of stars
+          # for each level find number of stars
+          with open ("levelStarsInstructions.txt") as file: 
             lines = file.readlines()
             startLine = level * 3 - 3
             stars = int(lines[startLine][0]) + int(lines[startLine + 1][0]) + int(lines[startLine + 2][0])
-            for star in range(stars): # display number of stars below level
+            # display number of stars below level
+            for star in range(stars): 
               uploadImage("yellowstar.png", 0.02, 25 * star + button.x - 36, button.y + 40)
 
         drawText("LEVELS PAGE", 27, 0, BLACK, 200)
@@ -392,9 +394,6 @@ class Game:
         drawText("GAME OVER", 170, 20, BLUE, 155 )
         for button in allButtons[0]:
           button.render()
-        for instruction in range(len(self.instructions)):
-          if self.instructions[instruction][0] == 1:
-            self.updateFileStarStatus(instruction)
         self.displayInstructions()
         if self.stars < 3: #or len(self.maze.getPills()) > 0:
           drawText("TRY AGAIN TO COLLECT ALL STARS", 125, 350, BLACK, 40)
@@ -403,11 +402,11 @@ class Game:
         else:
           drawText("WELL DONE", 160, 350, BLACK, 40)
           stats.updateStatistics(self.stars, self.score, self.username)
-          # display next level button
         # reset current game statistics for next game
         self.score = 0
         self.stars = 0
         self.username = ""
+        # display next level button
       
       elif self.state == "end program":
         SCREEN.fill(BLACK)
