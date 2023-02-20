@@ -1,9 +1,9 @@
+342,INSIYA
 307,INSIYA
 271,INSIYA
 267,INSIYA
 259,INSIYA
-228,INSIYA
 time,3
-stars,471
+stars,480
 powerups,8
 

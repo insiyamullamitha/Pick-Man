@@ -138,7 +138,10 @@ class Game:
     stats.updateFile(lines, "levelStarsInstructions.txt")#update file
 
   def displayLeaderboard(self):
-    pass
+    leaderboard = stats.getLeaderboard()
+    for leader in range(len(leaderboard)):
+      drawText(leaderboard[leader][1], 100, leader * 50 + 200, BLACK, 50)
+      drawText(leaderboard[leader][0], 200, leader * 50 + 200, BLACK, 50)
     
   def displayGameStars(self): # displays stars and instructions during game
     self.updateStars()
@@ -226,9 +229,9 @@ class Game:
                 self.player.move(direction, self.maze)
                 self.drawMaze()
                 pygame.display.flip()
-                if self.player.collisions(self.maze) == "pills": # check for collisions after each movement
+                if self.player.collisions(self.maze, direction) == "pills": # check for collisions after each movement
                   self.score += 1
-                if self.player.collisions(self.maze) == "powerups": # if player collides with powerup, powerup should affect game 
+                if self.player.collisions(self.maze, direction) == "powerups": # if player collides with powerup, powerup should affect game 
                   found = False
                   while not found:
                     for powerup in self.maze.getPowerups():
@@ -286,6 +289,7 @@ class Game:
       elif self.state == "stats":
         SCREEN.fill(WHITE)
         drawText("LEADERBOARD AND STATISTICS", 0, 20, BLACK, 87)
+        self.displayLeaderboard()
         # statistics methods
       
       #powerups/stars game state

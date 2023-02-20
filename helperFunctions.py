@@ -7,7 +7,7 @@ from pygame.locals import *
 def drawText(string, x, y, colour, size):
     #function to render inputted string onto a given position
     font = pygame.font.SysFont(None, size)
-    text = font.render(string, True, colour)
+    text = font.render(str(string), True, colour)
     SCREEN.blit(text, (x, y))
 
 def uploadImage(image, scale, x, y, rotation = 0):
