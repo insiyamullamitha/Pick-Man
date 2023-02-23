@@ -43,43 +43,8 @@ class Game:
     # draw player 
     uploadImage(self.character, 1, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
     for ghost in self.ghostObjects: # ghost objects must be instantiated
-      ghost.move(self.maze) # ghost object move
+      ghost.move(game) # ghost object move
       uploadImage(ghost.getImage(), 0.8, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
-      if ghost.kill(self.player): # if player and ghost collide then handle in ghostCollisions function based on player mode
-        pygame.display.flip()
-        self.ghostCollisions(ghost)
-
-  def ghostCollisions(self, ghost): # ghost and player collisions
-    if self.player.getMode() == "chased": # if player being chased
-      # reset all character positions
-      self.player.resetPosition()
-      for ghostObject in self.ghostObjects:
-        ghostObject.respawn()
-        #ghostObject.setMoving(False)
-      # play sound effects and update lives
-      playSoundEffects(LOSINGLIFE)
-      self.lives -= 1 
-      self.drawMaze()
-      if self.lives <= 0:
-        self.state = "game over"
-        for instruction in range(len(self.instructions)):
-          if self.instructions[instruction][0] == 1:
-            self.updateFileStarStatus(instruction)
-      # redraw maze and wait a few seconds before continuing
-      else:
-        ghost.setMoving(False)
-        self.drawMaze()
-        pygame.display.flip()
-        pygame.time.delay(2000)
-        ghost.setMoving(True)
-    
-    else: # player in kill mode (chasing)
-      # reset ghost position and prevent it from moving
-      self.player.setMode("chased")
-      self.character = "pacmandefault.png"
-      self.score += 30
-      ghost.respawn()
-      ghost.setMoving(False)
 
   def loadInstructions(self):
     with open ("levelStarsInstructions.txt") as file: # find instructions for level and store in array
@@ -136,13 +101,7 @@ class Game:
     lines = file.readlines()
     lines[startInstruction + instructionNumber] = "1" + self.instructions[instructionNumber][1] + "\n" #change 0 to 1 to represent achieved
     stats.updateFile(lines, "levelStarsInstructions.txt")#update file
-
-  def displayLeaderboard(self):
-    leaderboard = stats.getLeaderboard()
-    for leader in range(len(leaderboard)):
-      drawText(leaderboard[leader][1], 100, leader * 50 + 200, BLACK, 50)
-      drawText(leaderboard[leader][0], 200, leader * 50 + 200, BLACK, 50)
-    
+     
   def displayGameStars(self): # displays stars and instructions during game
     self.updateStars()
     for instruction in self.instructions:
@@ -215,40 +174,15 @@ class Game:
             elif event.unicode in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ": # only valid characters entered
               usertext += event.unicode
             usernameButton.text = usertext # update new input 
-          elif self.state == "play": # detect arrow key movement during game 
-            if event.key == pygame.K_LEFT: # move left
-              direction = "left"
-            elif event.key == pygame.K_RIGHT: # move right
-              direction = "right"
-            elif event.key == pygame.K_UP: # move up
-              direction = "up"
-            elif event.key == pygame.K_DOWN: # move down
-              direction = "down"
-            if direction in ["left", "right", "up", "down"]: # if player has can move, move and check for collision with pill and increase score
-              for x in range(self.player.getSpeed()): # move one place for every unit of speed
-                self.player.move(direction, self.maze)
-                self.drawMaze()
-                pygame.display.flip()
-                if self.player.collisions(self.maze, direction) == "pills": # check for collisions after each movement
-                  self.score += 1
-                if self.player.collisions(self.maze, direction) == "powerups": # if player collides with powerup, powerup should affect game 
-                  found = False
-                  while not found:
-                    for powerup in self.maze.getPowerups():
-                      if powerup.getPosX() == self.player.getPosX() and powerup.getPosY() == self.player.getPosY():
-                        powerupEaten = powerup
-                        found = True
-                  if powerupEaten.getType() == "score": # change score
-                    self.score += powerupEaten.getScoreValue()
-                  elif powerupEaten.getType() == "speed": # change speed
-                    self.player.setSpeed(powerupEaten.getSpeedValue())
-                  elif powerupEaten.getType() == "mode": # change mode
-                    self.player.setMode("chasing")
-                    self.character = "bluepacmandefault.png"
-                  self.maze.getPowerups().remove(powerupEaten)
+          if self.state == "play":
+            if event.key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_DOWN, pygame.K_UP]:
+              self.player.setDirection(event.key)
         if event.type == MOUSEBUTTONDOWN:
           if self.state != "start-up":
             self.clickButtons()
+        if event.type == pygame.KEYUP:
+          if event.key in [pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP]:
+            self.player.setDirection("")
 
       # start up screen game state
       if self.state == "start-up":
@@ -288,8 +222,9 @@ class Game:
       #leaderboard/statistics game state
       elif self.state == "stats":
         SCREEN.fill(WHITE)
-        drawText("LEADERBOARD AND STATISTICS", 0, 20, BLACK, 87)
-        self.displayLeaderboard()
+        drawText("LEADERBOARD AND STATISTICS", 2, 25, BLACK, 88)
+        drawText("LEADERBOARD AND STATISTICS", 2, 20, BLUE, 88)
+        stats.displayLeaderboard()
         # statistics methods
       
       #powerups/stars game state
@@ -379,9 +314,10 @@ class Game:
           button.render()
         for button in allButtons[3]: # display play state specific buttons
           button.render()
-        self.drawMaze()
+        self.player.move(self)
         self.displayGameStars()
         self.displayLives()
+        self.drawMaze()
         pygame.draw.rect(SCREEN, GREEN, pygame.Rect(50, 90, 150, 40), 0, 3)
         drawText("score: " + str(self.score), 55, 95, BLACK, 40)
       

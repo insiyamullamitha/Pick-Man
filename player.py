@@ -10,12 +10,15 @@ import math
 class Player:
   def __init__(self, givenRotation, givenPosX, givenPosY):
     self.__mode = "chased"
-    self.__speed = 1
+    self.__speed = 0.5
     self.__startPosX = givenPosX
     self.__startPosY = givenPosY
     self.__posX = givenPosX
     self.__posY = givenPosY
     self.__rotate = givenRotation
+    self.__direction = ""
+    self.__changeX = 0
+    self.__changeY = 0
     
   # add getters and setters
   def getMode(self):
@@ -38,6 +41,16 @@ class Player:
   def setPosY(self, givenPosY):
     self.__posY = givenPosY
   
+  def getChangeX(self):
+    return self.__changeX
+  def setChangeX(self, givenX):
+    self.__changeX = givenX
+  
+  def getChangeY(self):
+    return self.__changeY
+  def setChangeY(self, givenY):
+    self.__changeY = givenY
+
   def getStartPosX(self):
     return self.__startPosX
   def setStartPosX(self, givenPosX):
@@ -47,6 +60,21 @@ class Player:
     return self.__startPosY
   def setStartPosY(self, givenPosY):
     self.__startPosY = givenPosY
+
+  def getDirection(self):
+    return self.__direction
+  def setDirection(self, givenDirection):
+    match givenDirection:
+      case pygame.K_LEFT:
+        self.__direction = "left"
+      case pygame.K_RIGHT:
+        self.__direction = "right"
+      case pygame.K_UP:
+        self.__direction = "up"
+      case pygame.K_DOWN:
+        self.__direction = "down"
+      case "":
+        self.__direction = ""
 
   def resetPosition(self):
     self.__posX = self.__startPosX
@@ -60,45 +88,61 @@ class Player:
   def setRotate(self, givenRotation):
     self.__rotate = givenRotation
 
-  def move(self, direction, maze):  # takes in direction of movement and updates player coordinates
-    match direction:
-      case "left": # move left
-        if (math.floor(self.__posX - 0.2), self.__posY) in maze.getPaths():
-          self.__posX -= 0.2
-          self.__rotate = 180
-      case "right": # move right
-        if (math.ceil(self.__posX + 0.2), self.__posY) in maze.getPaths():
-          self.__posX += 0.2
-          self.__rotate = 0
-      case "up": # move up
-        if (self.__posX, math.floor(self.__posY-0.2)) in maze.getPaths():          
-          self.__posY -= 0.2
-          self.__rotate = 90
-      case "down": # move down
-        if (self.__posX, math.ceil(self.__posY+0.2)) in maze.getPaths():
-          self.__posY += 0.2
-          self.__rotate = 270
+  def move(self, game):  # takes in direction of movement and updates player coordinates
+    movement = False
+    for x in range(int(self.__speed/0.5)):
+      match self.__direction:
+        case "left":
+          if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
+            self.__changeX += -0.5
+            self.__rotate = 180
+            movement = True
+        case "right":
+          if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
+            self.__changeX += 0.5
+            self.__rotate = 0
+            movement = True
+        case "up":
+          if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
+            self.__changeY += -0.5
+            self.__rotate = 90
+            movement = True
+        case "down":
+          if (self.__posX, math.ceil(self.__posY+0.5)) in game.maze.getPaths():
+            self.__changeY += 0.5
+            self.__rotate = 270
+            movement = True
+        case __:
+          return
+      if movement:
+        self.update(game)
 
-  def collisions(self, maze, direction): # after new movement check for collisions between players and ghosts/pills/powerups
-    if (math.ceil(self.__posX), math.ceil(self.__posY)) in maze.getPills() or (math.ceil(self.__posX), math.floor(self.__posY)) in maze.getPills() or (math.floor(self.__posX), math.ceil(self.__posY)) in maze.getPills() or (math.floor(self.__posX), math.floor(self.__posY)) in maze.getPills(): # check if player position is in pill position
+  def collisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
+    if (round(self.__posX), round(self.__posY)) in game.maze.getPills(): # check if player position is in pill position
       playSoundEffects(PILLSOUND)
-      self.eatPills(maze, direction)
+      self.eatPills(game)
       return "pills"
-    for powerup in maze.getPowerups():
-      if (math.ceil(self.__posX), math.ceil(self.__posY)) in maze.getPowerups() or (math.ceil(self.__posX), math.floor(self.__posY)) in maze.getPowerups() or (math.floor(self.__posX), math.ceil(self.__posY)) in maze.getPowerups() or (math.floor(self.__posX), math.floor(self.__posY)) in maze.getPowerups(): # check if player position is in powerup position
+    for powerup in game.maze.getPowerups():
+      if (round(self.__posX), round(self.__posY)) == (powerup.getPosX(), powerup.getPosY()): # check if player position is in powerup position
         playSoundEffects(POWERUPSOUND)
-        return "powerups"
-  
-  def eatPills(self, maze, direction): # remove pill vector from pills array if player is in same position
-    match direction:
-      case "left":
-        pillToBeEaten = maze.getPills().index((math.floor(self.__posX), round(self.__posY)))
-      case "right":
-        pillToBeEaten = maze.getPills().index((math.ceil(self.__posX), round(self.__posY)))
-      case "up":
-        pillToBeEaten = maze.getPills().index((round(self.__posX), math.floor(self.__posY)))
-      case "down":
-        pillToBeEaten = maze.getPills().index((round(self.__posX), math.ceil(self.__posY)))
+        game.maze.getPowerups().remove(powerup)
+        if powerup.getType() == "score":
+          game.score += powerup.getScoreValue()
+        elif powerup.getType() == "speed":
+          self.__speed = powerup.getSpeedValue()
+        elif powerup.getType() == "mode":
+          self.__mode = "chasing"
+          game.character = "bluepacmandefault.png"
 
-    maze.removePill(pillToBeEaten)
-  
+  def update(self, game):
+    self.__posX += self.__changeX 
+    self.__posY += self.__changeY 
+    self.__changeX = 0
+    self.__changeY = 0
+    self.collisions(game)
+
+  def eatPills(self, game): # remove pill vector from pills array if player is in same position
+    game.score += 1
+    pillToBeEaten = game.maze.getPills().index((round(self.__posX), round(self.__posY)))
+    game.maze.removePill(pillToBeEaten)
+

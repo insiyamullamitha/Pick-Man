@@ -1,4 +1,5 @@
-#from constants import *
+from constants import *
+from helperFunctions import *
 
 class Statistics:
   def __init__(self):
@@ -9,6 +10,7 @@ class Statistics:
 
   def getLeaderboard(self): # retrieve leaderboard usernames and scores from text file
     with open("statistics.txt") as file:
+      self.__leaderboard = []
       lines = file.readlines()
       for x in range(5):
         # split each line into score and username
@@ -92,5 +94,14 @@ class Statistics:
     self.changeNumberOfStars(stars)
     self.changeFastestTime(time)
 
-stats = Statistics()
+  def displayLeaderboard(self):
+    self.__leaderboard = self.getLeaderboard()
+    for leader in range(len(self.__leaderboard)):
+      drawText(str(leader+1) + ".", 40, leader*50 + 150, BLACK, 75)
+      drawText(self.__leaderboard[leader][1], 130, leader * 50 + 150, BLACK, 75)
+      drawText(str(self.__leaderboard[leader][0]), 500, leader * 50 + 150, BLACK, 75)
 
+    uploadImage("yellowstar.png", 0.1, 40, 450)
+    drawText(self.getNumberOfStars(), 170, 490, BLACK, 50)
+
+stats = Statistics()
