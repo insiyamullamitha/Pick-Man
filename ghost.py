@@ -56,8 +56,8 @@ class Ghost:
     self.posX = self.__startPosX
     self.posY = self.__startPosY
 
-  def setTarget(self, game):
-    self.__target = (int(game.player.getPosX()-self.posX), int(game.player.getPosY()-self.posY))
+  def setTarget(self, player):
+    self.__target = (int(player.getPosX()-self.posX), int(player.getPosY()-self.posY))
     print(self.__target)
     directions = []
     changeX = 0
@@ -70,11 +70,12 @@ class Ghost:
       changeY = 1
     else:
       changeY = -1
-        
-    for change in abs(self.__target[0]):
-      directions.append(changeX, 0)
-    for change in abs(self.__target[1]):
-      directions.append(0, changeY)
+    for change in range(abs(self.__target[0])):
+      directions.append((changeX, 0))
+    for change in range(abs(self.__target[1])):
+      directions.append((0, changeY))
+
+    return directions
 
 
   #add move, draw, kill and reset methods
@@ -182,6 +183,10 @@ class WanderingGhost(Ghost):
         self.posY += changeY
 
 
+
+ghost = Ghost(3, 5, "redghost.png", "ghost")
+player = Player(0, 1, 7)
+print(ghost.setTarget(player))
 
 blinky = Ghost(None, None, "redghost.png", "Blinky")
 inky = Ghost(None, None, "blueghost.png", "Inky")
