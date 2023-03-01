@@ -133,6 +133,38 @@ class Player:
         elif powerup.getType() == "mode":
           self.__mode = "chasing"
           game.character = "bluepacmandefault.png"
+    for ghost in game.ghostObjects: # check for collisions with ghosts
+
+      # if player is in chased mode
+      if (math.ceil(self.__posX) == math.ceil(ghost.getPosX()) or math.floor(self.__posX) == math.floor(ghost.getPosX())) and (math.ceil(self.__posY) == math.ceil(ghost.getPosY()) or math.floor(self.__posY) == math.floor(ghost.getPosY())): 
+        if self.__mode == "chased":
+          self.resetPosition
+          ghost.respawn()
+          playSoundEffects(LOSINGLIFE)
+          # reduce lives and check if game over 
+          game.lives -= 1
+          if game.lives <= 0:
+            game.state = "game over"
+            for instruction in range(len(game.instructions)):
+              if game.instructions[instruction][0] == 1:
+                game.updateFileStarStatus(instruction)
+
+          else:
+            ghost.setMoving(False)
+            game.drawMaze()
+            pygame.display.flip()
+            pygame.time.delay(2000)
+            ghost.setMoving(True)
+        # if player is in kill mode reset
+        else:
+          self.__mode = "chased"
+          game.character = "pacmandefault.png"
+          game.score += 30
+          self.resetPosition()
+          ghost.respawn()
+          ghost.setMoving(False)
+          pygame.time.delay(2000)
+          ghost.setMoving(True)
 
   def update(self, game):
     self.__posX += self.__changeX 
@@ -140,6 +172,8 @@ class Player:
     self.__changeX = 0
     self.__changeY = 0
     self.collisions(game)
+    for ghost in game.ghostObjects:
+      ghost.setTarget(game)
 
   def eatPills(self, game): # remove pill vector from pills array if player is in same position
     game.score += 1

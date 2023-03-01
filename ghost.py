@@ -3,10 +3,9 @@ from helperFunctions import *
 from player import *
 import random
 import math
-from operator import xor
 
 class Ghost:
-  def __init__(self, givenX, givenY, givenImage, givenName):
+  def __init__(self, givenX, givenY, givenImage, givenName, givenNextX = 0, givenNextY = 0):
     self.posX = givenX
     self.posY = givenY
     self.__startPosX = givenX
@@ -14,7 +13,9 @@ class Ghost:
     self.__image = givenImage
     self.__name = givenName
     self.__moving = True
-    self.__target = None
+    self.__firstXMovement = givenNextX
+    self.__firstYMovement = givenNextY
+    self.__nextCoordinates = [0,0]
 
   #setters and getters
   def getName(self):
@@ -41,11 +42,19 @@ class Ghost:
     return self.__startPosX
   def setStartPosX(self, givenX):
     self.__startPosX = givenX
+    self.__nextCoordinates[0] = givenX + self.__firstXMovement
+  def resetStartPosX(self):
+    self.posX = self.__startPosX
+    self.__nextCoordinates[0] = self.posX + self.__firstXMovement
 
   def getStartPosY(self):
     return self.__startPosY
   def setStartPosY(self, givenY):
     self.__startPosY = givenY
+    self.__nextCoordinates[1] = givenY + self.__firstYMovement
+  def resetStartPosY(self):
+    self.posY = self.__startPosY
+    self.__nextCoordinates[1] = self.posY + self.__firstYMovement
 
   def getImage(self):
     return self.__image
@@ -53,88 +62,36 @@ class Ghost:
     self.__image = givenImage
 
   def respawn(self):
-    self.posX = self.__startPosX
-    self.posY = self.__startPosY
+    self.resetStartPosX()
+    self.resetStartPosY()
 
-  def setTarget(self, player):
-    self.__target = (int(player.getPosX()-self.posX), int(player.getPosY()-self.posY))
-    print(self.__target)
-    directions = []
-    changeX = 0
-    if self.__target[0] > 0:
-      changeX = 1
-    else:
-        changeX = -1
-    changeY = 0
-    if self.__target[1] > 0:
-      changeY = 1
-    else:
-      changeY = -1
-    for change in range(abs(self.__target[0])):
-      directions.append((changeX, 0))
-    for change in range(abs(self.__target[1])):
-      directions.append((0, changeY))
-
-    return directions
-
-
-  #add move, draw, kill and reset methods
-  def move(self, game):
-    if self.__moving:
-      moved = False
-      self.setTarget(game)
-      if self.__target != (0,0):
-          if self.__target[0] != 0:
-            if (self.posX - 1, self.posY) in game.maze.getPaths():
-              self.posX -= 1
-              moved = True
-            elif (self.posX + 1, self.posY) in game.maze.getPaths():
-              self.posX += 1
-              moved = True
-          
-          """if self.__target:
-          elif self.__target[1] < 0 or not moved:
-            if (self.posX, self.posY-1) in game.maze.getPaths():
-              self.posY -= 1
-              moved = True
-          elif self.__target[1] > 0 or not moved:
-            if (self.posX, self.posY+1) in game.maze.getPaths():
-              self.posY += 1
-              moved = True"""
-      
-      if moved:
-        self.kill(game)
-
-
+  def setTarget(self, game): # create list of directions for ghost to get to player
+    playerPosition = (int(game.player.getPosX()), int(game.player.getPosY()))
+    currentPosition = [self.posX, self.posY]
+    distanceFromPlayer = float('inf')
+    if distanceFromPlayer != 0: # if ghost and player have not collided find new position
+      potentialPositions = []
+      # for each direction the ghost can move in, add to potentialPositions array
+      if (math.floor(currentPosition[0] - 0.1), currentPosition[1]) not in game.maze.getWalls() and (math.floor(currentPosition[0] - 0.1), currentPosition[1]) not in game.maze.getGhosts():
+        potentialPositions.append((currentPosition[0] - 0.1, currentPosition[1])) 
+      if (math.ceil(currentPosition[0] + 0.1), currentPosition[1]) not in game.maze.getWalls() and (math.ceil(currentPosition[0] + 0.1), currentPosition[1]) not in game.maze.getGhosts():
+        potentialPositions.append((currentPosition[0] + 0.1, currentPosition[1]))
+      if (currentPosition[0], math.floor(currentPosition[1] - 0.1)) not in game.maze.getWalls() and (currentPosition[0], math.floor(currentPosition[1] - 0.1)) not in game.maze.getGhosts():
+        potentialPositions.append((currentPosition[0], currentPosition[1] - 0.1))
+      if (currentPosition[0], math.ceil(currentPosition[1] + 0.1)) not in game.maze.getWalls() and (currentPosition[0], math.ceil(currentPosition[1] + 0.1)) not in game.maze.getGhosts():
+        potentialPositions.append((currentPosition[0], currentPosition[1] + 0.1))
+      # check which position allows the ghost to be closest to the player
+      for position in potentialPositions:
+        if distanceFromPlayer > (abs(position[0] - playerPosition[0]) +  abs(position[1] - playerPosition[1])):
+          distanceFromPlayer = (abs(position[0] - playerPosition[0]) +  abs(position[1] - playerPosition[1]))
+          currentPosition = [position[0], position[1]]
+      self.__nextCoordinates = currentPosition
   
-  def kill(self, game):
-    # check for collisions with player. and return true if collision has occurred
-    if (math.ceil(self.posX) == math.ceil(game.player.getPosX()) or math.floor(self.posX) == math.floor(game.player.getPosX())) and (math.ceil(self.posY) == math.ceil(game.player.getPosY()) or math.floor(self.posY) == math.floor(game.player.getPosY())): 
-      if game.player.getMode() == "chased":
-        game.player.resetPosition()
-        self.respawn()
-        playSoundEffects(LOSINGLIFE)
-        game.lives -= 1 
-        if game.lives <= 0:
-          game.state = "game over"
-          for instruction in range(len(game.instructions)):
-            if game.instructions[instruction][0] == 1:
-              game.updateFileStarStatus(instruction)
-
-        else:
-          self.setMoving(False)
-          game.drawMaze()
-          pygame.display.flip()
-          pygame.time.delay(2000)
-          self.setMoving(True)
-    
-    else:
-      game.player.setMode("chased")
-      game.character = "pacmandefault.png"
-      game.score += 30
-      self.respawn()
-      self.setMoving(False)
-
+  def move(self, game): # update position of ghost
+    if self.__moving:
+      self.posX = self.__nextCoordinates[0]
+      self.posY = self.__nextCoordinates[1]
+      self.setTarget(game)
 
 class WanderingGhost(Ghost):
   def __init__(self, givenX, givenY, givenImage, givenName):
@@ -155,22 +112,21 @@ class WanderingGhost(Ghost):
 
   def move(self, game): # ghost move function
     if self.__moving:
-      print(self.setTarget(game))
       changeX, changeY = 0, 0
       match (self.__direction): # update changeX and changeY depending on direction of player
         # check if new coordinates would cause wall collision
         case "left":
-          if (math.floor(self.posX - 1), self.posY) in game.maze.getPaths() or (math.floor(self.posX - 1), self.posY) in game.maze.getGhosts(): 
-            changeX = -1
+          if (math.floor(self.posX - 0.1), self.posY) in game.maze.getPaths() or (math.floor(self.posX - 0.1), self.posY) in game.maze.getGhosts(): 
+            changeX = -0.1
         case "right":
-          if (math.ceil(self.posX + 1), self.posY) in game.maze.getPaths() or (math.ceil(self.posX + 1), self.posY) in game.maze.getGhosts(): 
-            changeX = 1
+          if (math.ceil(self.posX + 0.1), self.posY) in game.maze.getPaths() or (math.ceil(self.posX + 0.1), self.posY) in game.maze.getGhosts(): 
+            changeX = 0.1
         case "up":
-          if (self.posX, math.floor(self.posY - 1)) in game.maze.getPaths() or (self.posX, math.floor(self.posY - 1)) in game.maze.getGhosts(): 
-            changeY = -1
+          if (self.posX, math.floor(self.posY - 0.1)) in game.maze.getPaths() or (self.posX, math.floor(self.posY - 0.1)) in game.maze.getGhosts(): 
+            changeY = -0.1
         case "down":
-          if (self.posX, math.ceil(self.posY + 1)) in game.maze.getPaths() or (self.posX, math.ceil(self.posY + 1)) in game.maze.getGhosts(): 
-            changeY = 1
+          if (self.posX, math.ceil(self.posY + 0.1)) in game.maze.getPaths() or (self.posX, math.ceil(self.posY + 0.1)) in game.maze.getGhosts(): 
+            changeY = 0.1
 
       # if no movement or movement in one direction many times, reset movements and change direction
       if changeX == 0 and changeY == 0 or self.__movements <= 0: 
@@ -178,16 +134,10 @@ class WanderingGhost(Ghost):
         self.__movements = random.choice([10, 20, 30, 40, 50])
 
       else: # check if new coordinates collide with wall
-        self.__movements -= 1
+        self.__movements -= 0.1
         self.posX += changeX # update new positions
         self.posY += changeY
 
-
-
-ghost = Ghost(3, 5, "redghost.png", "ghost")
-player = Player(0, 1, 7)
-print(ghost.setTarget(player))
-
-blinky = Ghost(None, None, "redghost.png", "Blinky")
+blinky = Ghost(None, None, "redghost.png", "Blinky", 1, 0)
 inky = Ghost(None, None, "blueghost.png", "Inky")
-winky = Ghost(None, None, "purpleghost.png", "Winky")
+winky = Ghost(None, None, "purpleghost.png", "Winky", -1, 0)

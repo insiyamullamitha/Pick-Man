@@ -43,7 +43,7 @@ class Game:
     # draw player 
     uploadImage(self.character, 1, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
     for ghost in self.ghostObjects: # ghost objects must be instantiated
-      ghost.move(game) # ghost object move
+      ghost.move(self) # ghost object move
       uploadImage(ghost.getImage(), 0.8, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
 
   def loadInstructions(self):
