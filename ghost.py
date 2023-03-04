@@ -4,7 +4,7 @@ from player import *
 import random
 import math
 
-class Ghost:
+class PathFindingGhost:
   def __init__(self, givenX, givenY, givenImage, givenName, givenNextX = 0, givenNextY = 0):
     self.posX = givenX
     self.posY = givenY
@@ -62,26 +62,25 @@ class Ghost:
 
   def setTarget(self, game): # create list of directions for ghost to get to player
     playerPosition = (int(game.player.getPosX()), int(game.player.getPosY()))
+    potentialDirections = []
+    # for each direction the ghost can move in, add to potentialDirections array
+    if (self.posX - 1, self.posY) not in game.maze.getWalls() and (self.posX - 1, self.posY) not in game.maze.getGhosts():
+      potentialDirections.append((-1,0))
+    if (self.posX + 1, self.posY) not in game.maze.getWalls() and (self.posX + 1, self.posY) not in game.maze.getGhosts():
+      potentialDirections.append((1,0))
+    if (self.posX, self.posY - 1) not in game.maze.getWalls() and (self.posX, self.posY - 1) not in game.maze.getGhosts():
+      potentialDirections.append((0,-1))
+    if (self.posX, self.posY + 1) not in game.maze.getWalls() and (self.posX, self.posY + 1) not in game.maze.getGhosts():
+      potentialDirections.append((0,1))
+    # check which direction allows the ghost to be closest to the player
     distanceFromPlayer = float('inf')
-    if distanceFromPlayer != 0: # if ghost and player have not collided find new position
-      potentialDirections = []
-      # for each direction the ghost can move in, add to potentialDirections array
-      if (self.posX - 1, self.posY) not in game.maze.getWalls() and (self.posX - 1, self.posY) not in game.maze.getGhosts():
-        potentialDirections.append((-1,0))
-      if (self.posX + 1, self.posY) not in game.maze.getWalls() and (self.posX + 1, self.posY) not in game.maze.getGhosts():
-        potentialDirections.append((1,0))
-      if (self.posX, self.posY - 1) not in game.maze.getWalls() and (self.posX, self.posY - 1) not in game.maze.getGhosts():
-        potentialDirections.append((0,-1))
-      if (self.posX, self.posY + 1) not in game.maze.getWalls() and (self.posX, self.posY + 1) not in game.maze.getGhosts():
-        potentialDirections.append((0,1))
-      # check which direction allows the ghost to be closest to the player
-      for direction in potentialDirections:
-        if distanceFromPlayer > abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1]):
-          distanceFromPlayer = abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1])
-          directionToMove = direction
-      # change the direction the ghost should move in 
-      self.__nextDirection = [directionToMove[0], directionToMove[1]]
-      self.__movements = 10
+    for direction in potentialDirections:
+      if distanceFromPlayer > abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1]):
+        distanceFromPlayer = abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1])
+        directionToMove = direction
+    # change the direction the ghost should move in 
+    self.__nextDirection = [directionToMove[0], directionToMove[1]]
+    self.__movements = 10
   
   def move(self, game): # update position of ghost
     if self.__moving:
@@ -94,9 +93,9 @@ class Ghost:
       # decrease number of movements so that at 0 the direction can change
       self.__movements -= 1
 
-class WanderingGhost(Ghost):
+class WanderingGhost(PathFindingGhost):
   def __init__(self, givenX, givenY, givenImage, givenName):
-    Ghost.__init__(self, givenX, givenY, givenImage, givenName)
+    PathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName)
     self.__moving = True
     self.__direction = random.choice(["left", "right", "up", "down"])
     self.__movements = 10
@@ -139,6 +138,11 @@ class WanderingGhost(Ghost):
         self.posX += changeX # update new positions
         self.posY += changeY
 
-blinky = Ghost(None, None, "redghost.png", "Blinky", 1, 0)
+class AStarGhost(PathFindingGhost):
+  pass
+
+
+
+blinky = PathFindingGhost(None, None, "redghost.png", "Blinky", 1, 0)
 inky = WanderingGhost(None, None, "blueghost.png", "Inky")
-winky = Ghost(None, None, "purpleghost.png", "Winky", -1, 0)
+winky = PathFindingGhost(None, None, "purpleghost.png", "Winky", -1, 0)

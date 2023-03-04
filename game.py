@@ -30,6 +30,7 @@ class Game:
     self.maze = Maze()
     self.stars = 0
     self.instructions = []
+    self.success = False
 
   def drawMaze(self): # load maze on screen
     for wall in self.maze.getWalls(): # draw walls
@@ -336,7 +337,7 @@ class Game:
         for button in allButtons[0]:
           button.render()
         self.displayInstructions()
-        if self.stars < 3: #or len(self.maze.getPills()) > 0:
+        if self.success:
           drawText("TRY AGAIN TO COLLECT ALL STARS", 125, 350, BLACK, 40)
           stats.updateStatistics(self.stars)
           # display replay button

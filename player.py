@@ -144,6 +144,8 @@ class Player:
           game.lives -= 1
           if game.lives <= 0:
             game.state = "game over"
+            if game.stars == 3:
+              game.success = True
             for instruction in range(len(game.instructions)):
               if game.instructions[instruction][0] == 1:
                 game.updateFileStarStatus(instruction)
