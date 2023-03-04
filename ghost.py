@@ -15,7 +15,8 @@ class Ghost:
     self.__moving = True
     self.__firstXMovement = givenNextX
     self.__firstYMovement = givenNextY
-    self.__nextCoordinates = [0,0]
+    self.__nextDirection = [givenNextX, givenNextY]
+    self.__movements = 10
 
   #setters and getters
   def getName(self):
@@ -42,19 +43,11 @@ class Ghost:
     return self.__startPosX
   def setStartPosX(self, givenX):
     self.__startPosX = givenX
-    self.__nextCoordinates[0] = givenX + self.__firstXMovement
-  def resetStartPosX(self):
-    self.posX = self.__startPosX
-    self.__nextCoordinates[0] = self.posX + self.__firstXMovement
 
   def getStartPosY(self):
     return self.__startPosY
   def setStartPosY(self, givenY):
     self.__startPosY = givenY
-    self.__nextCoordinates[1] = givenY + self.__firstYMovement
-  def resetStartPosY(self):
-    self.posY = self.__startPosY
-    self.__nextCoordinates[1] = self.posY + self.__firstYMovement
 
   def getImage(self):
     return self.__image
@@ -62,36 +55,44 @@ class Ghost:
     self.__image = givenImage
 
   def respawn(self):
-    self.resetStartPosX()
-    self.resetStartPosY()
+    self.posX = self.__startPosX
+    self.posY = self.__startPosY
+    self.__nextDirection = [self.__firstXMovement, self.__firstYMovement]
+    self.__movements = 10
 
   def setTarget(self, game): # create list of directions for ghost to get to player
     playerPosition = (int(game.player.getPosX()), int(game.player.getPosY()))
-    currentPosition = [self.posX, self.posY]
     distanceFromPlayer = float('inf')
     if distanceFromPlayer != 0: # if ghost and player have not collided find new position
-      potentialPositions = []
-      # for each direction the ghost can move in, add to potentialPositions array
-      if (math.floor(currentPosition[0] - 0.1), currentPosition[1]) not in game.maze.getWalls() and (math.floor(currentPosition[0] - 0.1), currentPosition[1]) not in game.maze.getGhosts():
-        potentialPositions.append((currentPosition[0] - 0.1, currentPosition[1])) 
-      if (math.ceil(currentPosition[0] + 0.1), currentPosition[1]) not in game.maze.getWalls() and (math.ceil(currentPosition[0] + 0.1), currentPosition[1]) not in game.maze.getGhosts():
-        potentialPositions.append((currentPosition[0] + 0.1, currentPosition[1]))
-      if (currentPosition[0], math.floor(currentPosition[1] - 0.1)) not in game.maze.getWalls() and (currentPosition[0], math.floor(currentPosition[1] - 0.1)) not in game.maze.getGhosts():
-        potentialPositions.append((currentPosition[0], currentPosition[1] - 0.1))
-      if (currentPosition[0], math.ceil(currentPosition[1] + 0.1)) not in game.maze.getWalls() and (currentPosition[0], math.ceil(currentPosition[1] + 0.1)) not in game.maze.getGhosts():
-        potentialPositions.append((currentPosition[0], currentPosition[1] + 0.1))
-      # check which position allows the ghost to be closest to the player
-      for position in potentialPositions:
-        if distanceFromPlayer > (abs(position[0] - playerPosition[0]) +  abs(position[1] - playerPosition[1])):
-          distanceFromPlayer = (abs(position[0] - playerPosition[0]) +  abs(position[1] - playerPosition[1]))
-          currentPosition = [position[0], position[1]]
-      self.__nextCoordinates = currentPosition
+      potentialDirections = []
+      # for each direction the ghost can move in, add to potentialDirections array
+      if (self.posX - 1, self.posY) not in game.maze.getWalls() and (self.posX - 1, self.posY) not in game.maze.getGhosts():
+        potentialDirections.append((-1,0))
+      if (self.posX + 1, self.posY) not in game.maze.getWalls() and (self.posX + 1, self.posY) not in game.maze.getGhosts():
+        potentialDirections.append((1,0))
+      if (self.posX, self.posY - 1) not in game.maze.getWalls() and (self.posX, self.posY - 1) not in game.maze.getGhosts():
+        potentialDirections.append((0,-1))
+      if (self.posX, self.posY + 1) not in game.maze.getWalls() and (self.posX, self.posY + 1) not in game.maze.getGhosts():
+        potentialDirections.append((0,1))
+      # check which direction allows the ghost to be closest to the player
+      for direction in potentialDirections:
+        if distanceFromPlayer > abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1]):
+          distanceFromPlayer = abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1])
+          directionToMove = direction
+      # change the direction the ghost should move in 
+      self.__nextDirection = [directionToMove[0], directionToMove[1]]
+      self.__movements = 10
   
   def move(self, game): # update position of ghost
     if self.__moving:
-      self.posX = self.__nextCoordinates[0]
-      self.posY = self.__nextCoordinates[1]
-      self.setTarget(game)
+      if self.__movements <= 0:
+        # reset new direction if ghost has just moved 1 unit
+        self.setTarget(game)
+      # increment position by 0.1 * x and y movement to slow down
+      self.posX += self.__nextDirection[0]/10
+      self.posY += self.__nextDirection[1]/10
+      # decrease number of movements so that at 0 the direction can change
+      self.__movements -= 1
 
 class WanderingGhost(Ghost):
   def __init__(self, givenX, givenY, givenImage, givenName):
@@ -139,5 +140,5 @@ class WanderingGhost(Ghost):
         self.posY += changeY
 
 blinky = Ghost(None, None, "redghost.png", "Blinky", 1, 0)
-inky = Ghost(None, None, "blueghost.png", "Inky")
+inky = WanderingGhost(None, None, "blueghost.png", "Inky")
 winky = Ghost(None, None, "purpleghost.png", "Winky", -1, 0)

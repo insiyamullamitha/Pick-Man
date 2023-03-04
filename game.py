@@ -272,6 +272,7 @@ class Game:
               uploadImage("yellowstar.png", 0.02, 25 * star + button.x - 36, button.y + 40)
 
         drawText("LEVELS PAGE", 27, 0, BLACK, 200)
+
         drawText("LEVELS PAGE", 22, 0, BLUE, 200)
 
       elif self.state == "instructions": # display instructions for individual level

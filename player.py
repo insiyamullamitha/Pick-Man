@@ -134,7 +134,6 @@ class Player:
           self.__mode = "chasing"
           game.character = "bluepacmandefault.png"
     for ghost in game.ghostObjects: # check for collisions with ghosts
-
       # if player is in chased mode
       if (math.ceil(self.__posX) == math.ceil(ghost.getPosX()) or math.floor(self.__posX) == math.floor(ghost.getPosX())) and (math.ceil(self.__posY) == math.ceil(ghost.getPosY()) or math.floor(self.__posY) == math.floor(ghost.getPosY())): 
         if self.__mode == "chased":
@@ -172,8 +171,6 @@ class Player:
     self.__changeX = 0
     self.__changeY = 0
     self.collisions(game)
-    for ghost in game.ghostObjects:
-      ghost.setTarget(game)
 
   def eatPills(self, game): # remove pill vector from pills array if player is in same position
     game.score += 1
