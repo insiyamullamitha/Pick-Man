@@ -94,14 +94,28 @@ class Statistics:
     self.changeNumberOfStars(stars)
     self.changeFastestTime(time)
 
-  def displayLeaderboard(self):
+  def displayLeaderboard(self): # draw leaderboard table and other stats
     self.__leaderboard = self.getLeaderboard()
+    # draw table
+    pygame.draw.rect(SCREEN, LIGHTBLUE, pygame.Rect(100, 135, 800, 305), 0, 3)
+    pygame.draw.rect(SCREEN, BLACK, pygame.Rect(100, 135, 800, 305), 1, 3)
+    for x in range(5):
+      pygame.draw.line(SCREEN, BLACK, (100, 50 * x + 190), (900, 50 * x + 190))
+    for x in range(2):
+      pygame.draw.line(SCREEN, BLACK, (300 + x * 400, 135), (300 + x * 400, 440))
+    # table headers
+    drawText("RANK", 140, 145, BLACK, 50)
+    drawText("PLAYER", 420, 145, BLACK, 50)
+    drawText("SCORE", 745, 145, BLACK, 50)
+    # draw each leader's username and score
     for leader in range(len(self.__leaderboard)):
-      drawText(str(leader+1) + ".", 40, leader*50 + 150, BLACK, 75)
-      drawText(self.__leaderboard[leader][1], 130, leader * 50 + 150, BLACK, 75)
-      drawText(str(self.__leaderboard[leader][0]), 500, leader * 50 + 150, BLACK, 75)
-
-    uploadImage("yellowstar.png", 0.1, 40, 450)
-    drawText(self.getNumberOfStars(), 170, 490, BLACK, 50)
+      drawText(leader+1, 180, leader*50 + 200, BLACK, 50)
+      drawText(self.__leaderboard[leader][1], 427, leader * 50 + 200, BLACK, 50)
+      drawText(self.__leaderboard[leader][0], 770, leader * 50 + 200, BLACK, 50)
+    # upload star image and number of total stars
+    uploadImage("yellowstar.png", 0.08, 100, 470)
+    drawText(self.getNumberOfStars(), 200, 500, BLACK, 40)
+    # draw text for fastest time
+    drawText("FASTEST TIME: " + str(self.getFastestTime()) + " SECONDS", 450, 500, BLACK, 40)
 
 stats = Statistics()

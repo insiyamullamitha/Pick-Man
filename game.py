@@ -8,6 +8,7 @@ from player import *
 from powerup import *
 from button import *
 from stats import *
+import time
 
 class Game:
   """a class for initialising a game object for pick-man"""
@@ -15,15 +16,18 @@ class Game:
     self.state = "start-up"
     self.previousState = "menu"
     self.running = True
+    self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
     self.music = False
     self.soundEffects = False
     self.stars = 0
     self.lives = 3
+    self.time = [0, 0]
+    self.startTime = 0
     self.currentLevel = None
-    self.character = "pacmandefault.PNG"
-    self.theme = "default"
+    self.character = "flowergame.png "
+    self.theme = 0
     self.username = ""
     self.player = Player(0, None, None)
     self.ghostObjects = [blinky, inky, winky]
@@ -42,7 +46,7 @@ class Game:
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 0.7, 255+powerup.getPosX()*30, 70+powerup.getPosY()*30)
     # draw player 
-    uploadImage(self.character, 1, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
+    uploadImage(self.character, 1/7, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
     for ghost in self.ghostObjects: # ghost objects must be instantiated
       ghost.move(self) # ghost object move
       uploadImage(ghost.getImage(), 0.8, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
@@ -65,7 +69,7 @@ class Game:
         image = "yellowstar.png"
       uploadImage(image, 0.1, 245 + 200*instruction, 170)
       drawText(self.instructions[instruction][1], 260 + instruction * 200, 290, BLACK, 15)
-      uploadImage("pacmandefault.png", 1.5, 3, 215)
+      uploadImage(self.character, 0.25, 3, 215)
       for x in range(6):
         pygame.draw.circle(SCREEN, PINK, (55 + x*40, 235), 7.5, 0)
       for x in range(4):
@@ -119,16 +123,22 @@ class Game:
     for buttons in allButtons:
       for button in buttons:
         if button.click() != None:
+          if button in allButtons[0] and self.state not in ["menu", "levels", "instructions", "play", "game over"]:
+            return
           if button in allButtons[1] and self.state != "menu":
             return
-          if button in allButtons[2] and self.state == "levels":
-            self.currentLevel = button.text
-          if button in allButtons[2] and self.state != "levels":
-            return
+          if button in allButtons[2]:
+            if self.state == "levels":
+              self.currentLevel = button.text
+            else:
+              return
           if button in allButtons[3] and self.state != "play":
             return
           self.previousState = self.state
           self.state = button.newState
+          if button.newState == "play":
+            self.playingGame = True
+            self.startTime = pygame.time.get_ticks()
           SCREEN.fill(WHITE)
   
   # check that username is between 3 and 10 characters and save as game username
@@ -136,17 +146,26 @@ class Game:
     if len(usernameButton.text) > 2 and len(usernameButton.text) < 11:
       self.state = "play"
       self.username = usernameButton.text.upper()
+      self.playingGame = True
+
+  def gameTimer(self):
+    # find time in minutes and seconds and store as tuple
+    if self.playingGame:
+      self.time[1] += 0.001
+      if self.time[1] >= 60000:
+        self.time[0] += 1
+        self.time[1] = 0
+      #self.time = (abs(math.floor((pygame.time.get_ticks()-self.startTime)/1000))//60, int((pygame.time.get_ticks()-self.startTime)/1000) - (60 * (math.floor((pygame.time.get_ticks()-self.startTime)/1000)//60)))
 
   def playGame(self):
-
     while self.running:
 
       self.clock.tick(FRAMESPERSECOND)
 
       pygame.init()    
-      
+
       pygame.display.set_caption("PICKMAN")  
-      pacman = pygame.image.load('media/pacmandefault.png')
+      pacman = pygame.image.load('media/' + self.character)
       pygame.display.set_icon(pacman)
 
       if self.music:
@@ -161,8 +180,11 @@ class Game:
           if event.key == pygame.K_SPACE: # pause/unpause game when space par is pressed 
             if self.state == "play":
               self.state = "pause"
+              self.playingGame = False
             elif self.state == "pause":
               self.state = "play"
+              self.startTime = pygame.time.get_ticks()
+              self.playingGame = True
           if event.key == pygame.K_ESCAPE:
             self.state = self.previousState
           if self.state == "instructions": # input username
@@ -179,7 +201,40 @@ class Game:
             if event.key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_DOWN, pygame.K_UP]:
               self.player.setDirection(event.key)
         if event.type == MOUSEBUTTONDOWN:
-          if self.state != "start-up":
+          posX, posY = pygame.mouse.get_pos()
+          if self.state == "change theme":
+            # check if user has decided to change theme
+            changedTheme = False
+            if posY >= 120 and posY <= 520:
+              # bright theme = theme 0
+              if posX >= 85 and posX <= 489:
+                self.theme = 0
+                changedTheme = True
+              # ocean theme = theme 1
+              elif posX >= 515 and posX <= 919:
+                self.theme = 1
+                changedTheme = True
+            if changedTheme:
+              # if user has selected theme change game state to changing character
+              self.state = "change character"
+              self.previousState = "change theme"
+              # set default character in case the user forgets/exits before they select
+              if self.theme == 0:
+                if self.character not in defaultCharacters:
+                  self.character = defaultCharacters[0][0]
+              else:
+                if self.character not in oceanCharacters:
+                  self.character = oceanCharacters[0][0]
+          if self.state == "change character":
+            # change character if image is clicked
+            if posY >= 210 and posY <= 390:
+              for x in range(3):
+                if posX >= (90 + x*300) and posX <= (270 + x*300):
+                  if self.theme == 0:
+                    self.character = defaultCharacters[x][0]
+                  else:
+                    self.character = oceanCharacters[x][0]
+          elif self.state != "start-up":
             self.clickButtons()
         if event.type == pygame.KEYUP:
           if event.key in [pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP]:
@@ -189,7 +244,7 @@ class Game:
       if self.state == "start-up":
         SCREEN.fill((WHITE))
         for x in range(300):
-          uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png", "pacmandefault.PNG"]),0.5, random.randint(-30,1000), random.randint(-30,600))
+          uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png"]),0.5, random.randint(-30,1000), random.randint(-30,600))
         drawText("PICKMAN", -7, 175, BLACK, 300)
         drawText("BY INSIYA MULLAMITHA", 320, 400, BLACK, 40)
         pygame.display.flip()
@@ -249,11 +304,31 @@ class Game:
         drawText("• Compete with your friends with the leaderboard feature!", 60, 290, BLACK, 30)
 
       #change character and theme game state  
+      elif self.state == "change theme":
+        self.previousState = "menu"
+        SCREEN.fill(WHITE)
+        # display title
+        drawText("CHANGE THEME", 15, 20, BLACK, 170)
+        drawText("CHANGE THEME", 10, 20, BLUE, 170)
+        # upload theme choices
+        uploadImage("brighttheme.png", 0.4, 85, 120)
+        uploadImage("oceantheme.png", 0.4, 515, 120)
+        drawText("CLICK ON THE THEME YOU WANT TO APPLY", 265, 550, BLACK, 30)
+      
       elif self.state == "change character":
         SCREEN.fill(WHITE)
-        drawText("CHANGE CHARACTER/THEME", 5, 20, BLACK, 95)
-        uploadImage("pacman.PNG", 0.1, 50, 150 )
-        uploadImage("jellyfish.PNG", 0.1, 300, 160)
+        drawText("CHANGE CHARACTER", 40, 20, BLACK, 120)
+        drawText("CHANGE CHARACTER", 35, 20, BLUE, 120)
+        # display characters specific to theme chosen
+        if self.theme == 0:
+          charactersToDisplay = defaultCharacters
+        else:
+          charactersToDisplay = oceanCharacters
+        for x in range(len(charactersToDisplay)):
+          uploadImage(charactersToDisplay[x][0], 1, 90 + x* 300, 210)
+          # if character has been selected draw green box around the 
+          if charactersToDisplay[x][0] == self.character:
+            pygame.draw.rect(SCREEN, GREEN, pygame.Rect(80 + x*300, 200, 200, 200), 2, 3)
 
       elif self.state == "levels": #displays levels page
         self.previousState = "menu" # return to menu if escape key is pressed
@@ -306,6 +381,7 @@ class Game:
 
       #playing game state
       elif self.state == "play":
+        self.startTime = 0 
         self.previousState = "pause"
         SCREEN.fill(WHITE)
         drawText("LEVEL " + self.currentLevel, 2, 5, BLACK, 100)
@@ -320,6 +396,8 @@ class Game:
         self.displayGameStars()
         self.displayLives()
         self.drawMaze()
+        pygame.draw.rect(SCREEN, GREEN, pygame.Rect(570, 540, 120, 40), 0, 3)
+        #drawText(str(self.time[0]) + "m " + str(self.time[1]) + "s", 580, 545, BLACK, 40)
         pygame.draw.rect(SCREEN, GREEN, pygame.Rect(50, 90, 150, 40), 0, 3)
         drawText("score: " + str(self.score), 55, 95, BLACK, 40)
       
@@ -337,13 +415,13 @@ class Game:
         for button in allButtons[0]:
           button.render()
         self.displayInstructions()
-        if self.success:
+        if not self.success:
           drawText("TRY AGAIN TO COLLECT ALL STARS", 125, 350, BLACK, 40)
           stats.updateStatistics(self.stars)
           # display replay button
         else:
           drawText("WELL DONE", 160, 350, BLACK, 40)
-          stats.updateStatistics(self.stars, self.score, self.username)
+          stats.updateStatistics(self.stars, self.score, self.username, (self.time[0] * 60) + self.time[1])
         # reset current game statistics for next game
         self.score = 0
         self.stars = 0
