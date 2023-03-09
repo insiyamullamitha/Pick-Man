@@ -23,8 +23,11 @@ class Player:
   # add getters and setters
   def getMode(self):
     return self.__mode
-  def setMode(self, givenMode):
-    self.__mode = givenMode
+  def changeMode(self):
+    if self.__mode == "chased":
+      self.__mode = "chasing"
+    else:
+      self.__mode = "chased"
 
   def getSpeed(self):
     return self.__speed 
@@ -95,22 +98,26 @@ class Player:
         case "left":
           if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += -0.5
-            self.__rotate = 180
+            if game.character == "pacmandefault.png":
+              self.__rotate = 180
             movement = True
         case "right":
           if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += 0.5
-            self.__rotate = 0
+            if game.character == "pacmandefault.png":
+              self.__rotate = 0
             movement = True
         case "up":
           if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
             self.__changeY += -0.5
-            self.__rotate = 90
+            if game.character == "pacmandefault.png":
+              self.__rotate = 90
             movement = True
         case "down":
           if (self.__posX, math.ceil(self.__posY+0.5)) in game.maze.getPaths():
             self.__changeY += 0.5
-            self.__rotate = 270
+            if game.character == "pacmandefault.png":
+              self.__rotate = 270
             movement = True
         case __:
           return
@@ -131,8 +138,7 @@ class Player:
         elif powerup.getType() == "speed":
           self.__speed = powerup.getSpeedValue()
         elif powerup.getType() == "mode":
-          self.__mode = "chasing"
-          game.character = "bluepacmandefault.png"
+          self.changeMode()
     for ghost in game.ghostObjects: # check for collisions with ghosts
       # if player is in chased mode
       if (math.ceil(self.__posX) == math.ceil(ghost.getPosX()) or math.floor(self.__posX) == math.floor(ghost.getPosX())) and (math.ceil(self.__posY) == math.ceil(ghost.getPosY()) or math.floor(self.__posY) == math.floor(ghost.getPosY())): 
@@ -158,8 +164,7 @@ class Player:
             ghost.setMoving(True)
         # if player is in kill mode reset
         else:
-          self.__mode = "chased"
-          game.character = "pacmandefault.png"
+          self.changeMode()
           game.score += 30
           self.resetPosition()
           ghost.respawn()

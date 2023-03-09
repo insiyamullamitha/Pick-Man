@@ -92,6 +92,7 @@ class PathFindingGhost:
       self.posY += self.__nextDirection[1]/10
       # decrease number of movements so that at 0 the direction can change
       self.__movements -= 1
+      game.player.collisions(game)
 
 class WanderingGhost(PathFindingGhost):
   def __init__(self, givenX, givenY, givenImage, givenName):

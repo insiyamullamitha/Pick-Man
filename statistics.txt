@@ -1,9 +1,9 @@
 410,INSIYA
 342,INSIYA
+307,PRAGNA
 307,INSIYA
 304,INSIYA
-271,INSIYA
-time,3
-stars,491
+time,0
+stars,500
 powerups,8
 
