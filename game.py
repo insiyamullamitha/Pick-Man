@@ -44,9 +44,9 @@ class Game:
     for pill in self.maze.getPills(): # draw pills
       pygame.draw.circle(SCREEN, PINK[self.theme], (264+pill.x*30, 78+pill.y*30), 5, 0)
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
-      uploadImage(powerup.getImage(), 0.7, 255+powerup.getPosX()*30, 70+powerup.getPosY()*30)
+      uploadImage(powerup.getImage(), 1/7, 252+powerup.getPosX()*30, 68+powerup.getPosY()*30)
     # draw player 
-    uploadImage(self.character, 1/7, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
+    uploadImage(self.character, 1/6, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
     for ghost in self.ghostObjects: # ghost objects must be instantiated
       ghost.move(self) # ghost object move
       uploadImage(ghost.getImage(), 1/6, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
@@ -124,15 +124,20 @@ class Game:
     self.state = "change character"
     self.previousState = "change theme"
     # set default character in case the user forgets/exits before they select
-    if self.character not in allCharacters[self.theme][0]:
+    matchingCharacter = False
+    for characters in allCharacters[self.theme]:
+      if self.character == characters[0]:
+        matchingCharacter = True
+    if matchingCharacter == False:
       self.changeCharacter(0)
 
   def changeCharacter(self, givenCharacter):
     # change character
     self.character = allCharacters[self.theme][givenCharacter][0]
     # change ghosts images depending on character chosen
-    for ghost in range(3):
+    for ghost in range(len(self.ghostObjects)):
       self.ghostObjects[ghost].setImage(allCharacters[self.theme][givenCharacter][ghost + 1])
+    self.player.setRotate(0)
 
   def clickButtons(self):# detects whether button has been clicked and changes game state
     # if any button on the screen has been clicked change game state 
@@ -220,7 +225,6 @@ class Game:
           posX, posY = pygame.mouse.get_pos()
           if self.state == "change theme":
             # check if user has decided to change theme
-            changedTheme = False
             if posY >= 120 and posY <= 520:
               # bright theme = theme 0
               if posX >= 85 and posX <= 489:
@@ -228,12 +232,17 @@ class Game:
               # ocean theme = theme 1
               elif posX >= 515 and posX <= 919:
                 self.changeTheme(1)
-          if self.state == "change character":
+          elif self.state == "change character":
             # change character if image is clicked
             if posY >= 210 and posY <= 390:
               for x in range(3):
                 if posX >= (90 + x*300) and posX <= (270 + x*300):
                   self.changeCharacter(x)
+          elif self.state == "buy powerups":
+            # if user has enough stars then update number of stars and increase extra powerups
+            if stats.getNumberOfStars() >= 100:
+              stats.changeNumberOfStars(-100)
+              stats.changePowerups(1)
           elif self.state != "start-up":
             self.clickButtons()
         if event.type == pygame.KEYUP:
@@ -244,7 +253,7 @@ class Game:
       if self.state == "start-up":
         SCREEN.fill((WHITE[self.theme]))
         for x in range(300):
-          uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png"]),0.5, random.randint(-30,1000), random.randint(-30,600))
+          uploadImage(random.choice(["redghost.png", "purpleghost.png", "blueghost.png"]),0.1, random.randint(-30,1000), random.randint(-30,600))
         drawText("PICKMAN", -7, 175, BLACK, 300, self.theme)
         drawText("BY INSIYA MULLAMITHA", 320, 400, BLACK, 40, self.theme)
         pygame.display.flip()
@@ -255,10 +264,16 @@ class Game:
       if self.state == "menu": 
         self.previousState = "menu"
         SCREEN.fill((WHITE[self.theme])) 
+        # display ghosts specific to theme and character chosen
+        ghostImages = []
+        for ghost in self.ghostObjects:
+          ghostImages.append(ghost.getImage())
         for x in range(5):
-          uploadImage(random.choice(["redghost.png", "pinkghost.png", "purpleghost.png", "blueghost.png"]),0.8, random.randint(-30,1000), random.randint(-30,600))
+          uploadImage(random.choice(ghostImages),0.15, random.randint(-30,1000), random.randint(-30,600))
+        # display side buttons
         for button in allButtons[0]:
           button.render(self.theme)
+        # display change character/ play button
         for button in allButtons[1]:
           button.render(self.theme)
         drawText("PICKMAN", 0, 0, BLACK, 300, self.theme)
@@ -280,14 +295,25 @@ class Game:
         SCREEN.fill((WHITE[self.theme]))
         drawText("LEADERBOARD AND STATISTICS", 2, 25, BLACK, 88, self.theme)
         drawText("LEADERBOARD AND STATISTICS", 2, 20, BLUE, 88, self.theme)
-        stats.displayLeaderboard()
+        stats.displayLeaderboard(self.theme)
         # statistics methods
       
       #powerups/stars game state
       elif self.state == "buy powerups":
         SCREEN.fill((WHITE[self.theme]))
         drawText("STARS AND POWERUPS", 10, 20, BLACK, 120, self.theme)
-        drawText("You currently have " + str(stats.getNumberOfStars()) + " stars", 10, 100, BLACK, 30, self.theme)
+        drawText("STARS AND POWERUPS", 5, 20, BLUE, 120, self.theme)
+        # display number of powerups
+        drawText("YOU CURRENTLY HAVE " + str(stats.getNumberOfStars()) + " STARS", 10, 100, BLACK, 30, self.theme)
+        drawText("YOU CURRENTLY HAVE " + str(stats.getPowerups()) + " POWERUPS", 10, 130, BLACK, 30, self.theme)
+        # check if user has enough powerups and display good/bad message accordingly
+        if stats.getNumberOfStars() >= 100:
+          uploadImage("")
+          drawText("CLICK BELOW TO BUY EXTRA POWERUPS YOU CAN ADD TO YOUR NEXT GAME", 10, 160, BLACK, 30, self.theme)
+        else:
+          drawText("YOU NEED " + str(100 - stats.getNumberOfStars()) + " MORE STARS TO BUY EXTRA POWERUPS", 10, 160, BLACK, 30, self.theme)
+          drawText("PLAY MORE GAMES TO EARN MORE STARS!!", 10, 190, BLACK, 30, self.theme)
+        uploadImage(allCharacters[2][0][self.theme], 1, 30, 200)
 
       #help game state
       elif self.state == "help":#function displays new screen with help instructions
@@ -355,11 +381,12 @@ class Game:
         drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118, self.theme)
         drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118, self.theme)
         self.loadInstructions()
-        if self.currentLevel == "1": # load level 1 maze 
-          self.maze.loadMaze(level1Maze)
+        if self.currentLevel == "1": # load level 1 maze
+          mazeLayout = level1Maze
         elif self.currentLevel == "2": # load level 2 maze
           # level 2 instructions
-          self.maze.loadMaze(level2Maze)
+          mazeLayout = level2Maze
+        self.maze.loadMaze(mazeLayout, self.theme)
         # set initial coordinates for player
         self.player.setPosX(self.maze.getPlayer().x) 
         self.player.setPosY(self.maze.getPlayer().y)
@@ -374,6 +401,7 @@ class Game:
         #display input box for username button
         usernameButton.render(self.theme)
         drawText("Enter username below and press enter", 350, 350, BLACK, 20, self.theme)
+        self.success = False
 
       #playing game state
       elif self.state == "play":
@@ -426,7 +454,7 @@ class Game:
         # display next level button
       
       elif self.state == "end program":
-        SCREEN.fill(BLACK)
+        SCREEN.fill(BLACK[self.theme])
         # add animation
         playSoundEffects(LOSINGLIFE)
         pygame.display.update()
