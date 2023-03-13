@@ -9,7 +9,7 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CELLWIDTH = 2
 CELLHEIGHT = 2
 FRAMESPERSECOND = 60
-BLACK = [(0, 0, 0), (0,0,0)]
+BLACK = [(0, 0, 0), (0, 0, 0), (6,85,99)]
 WHITE = [(255, 255, 255), [65, 173, 116]]
 PINK = [(255, 0, 127), (0, 255, 153)]  
 GREEN = [(153, 250, 118), (0, 153, 51), (0, 204, 102)]
@@ -26,4 +26,5 @@ allCharacters = [[["pacmandefault.png", "redghost.png", "purpleghost.png", "blue
                   ["gru.png", "kevin.png", "stuart.png", "bob.png"]],
                  [["jellyfishgame.PNG", "lightbluenet.png", "bluenet.png", "purplenet.png"], 
                   ["nemo.png", "shark.png", "shark.png", "shark.png"], 
-                  ["turtle.png", "shark.png", "shark.png", "shark.png"]]]
+                  ["turtle.png", "shark.png", "shark.png", "shark.png"]],
+                 [["cherrypowerup.png", "seashellpowerup.png"]]]

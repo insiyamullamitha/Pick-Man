@@ -91,7 +91,7 @@ class Maze:
     def resetPlayer(self):
         self.__player = None
 
-    def loadMaze(self, maze): 
+    def loadMaze(self, maze, givenTheme): 
         self.resetDoors()
         self.resetPowerups()
         self.resetPills()
@@ -115,7 +115,7 @@ class Maze:
                 if "D" in maze[row][column]:#doors
                     self.__doors.append(pygame.math.Vector2(column, row))
                 if maze[row][column] == "B":#booster
-                    newPowerup = Powerup(random.choice(["score", "speed", "mode"]), "positive", 1, column, row, random.choice([5, 10, 50, 100]), random.choice(["cherrypowerup.png", "grapepowerup.png"]))
+                    newPowerup = Powerup(random.choice(["score", "speed", "mode"]), "positive", 1, column, row, random.choice([5, 10, 50, 100]), allCharacters[2][0][givenTheme])
                     self.__powerups.append(newPowerup) # add to attribute of array of powerups
                 if "U" in maze[row][column]:#user sprite position
                     self.__player = pygame.math.Vector2(column, row)
