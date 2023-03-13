@@ -296,7 +296,6 @@ class Game:
         drawText("LEADERBOARD AND STATISTICS", 2, 25, BLACK, 88, self.theme)
         drawText("LEADERBOARD AND STATISTICS", 2, 20, BLUE, 88, self.theme)
         stats.displayLeaderboard(self.theme)
-        # statistics methods
       
       #powerups/stars game state
       elif self.state == "buy powerups":
