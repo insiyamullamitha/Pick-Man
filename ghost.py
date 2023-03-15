@@ -16,7 +16,7 @@ class PathFindingGhost:
     self.__firstXMovement = givenNextX
     self.__firstYMovement = givenNextY
     self.__nextDirection = [givenNextX, givenNextY]
-    self.__movements = 10
+    self.__movements = 4
 
   #setters and getters
   def getName(self):
@@ -58,7 +58,7 @@ class PathFindingGhost:
     self.posX = self.__startPosX
     self.posY = self.__startPosY
     self.__nextDirection = [self.__firstXMovement, self.__firstYMovement]
-    self.__movements = 10
+    self.__movements = 4
 
   def setTarget(self, game): # create list of directions for ghost to get to player
     playerPosition = (int(game.player.getPosX()), int(game.player.getPosY()))
@@ -80,7 +80,7 @@ class PathFindingGhost:
         directionToMove = direction
     # change the direction the ghost should move in 
     self.__nextDirection = [directionToMove[0], directionToMove[1]]
-    self.__movements = 10
+    self.__movements = 4
   
   def move(self, game): # update position of ghost
     if self.__moving:
@@ -88,8 +88,8 @@ class PathFindingGhost:
         # reset new direction if ghost has just moved 1 unit
         self.setTarget(game)
       # increment position by 0.1 * x and y movement to slow down
-      self.posX += self.__nextDirection[0]/10
-      self.posY += self.__nextDirection[1]/10
+      self.posX += self.__nextDirection[0]/4
+      self.posY += self.__nextDirection[1]/4
       # decrease number of movements so that at 0 the direction can change
       self.__movements -= 1
       game.player.collisions(game)

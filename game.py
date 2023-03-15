@@ -13,7 +13,7 @@ import time
 class Game:
   """a class for initialising a game object for pick-man"""
   def __init__(self):
-    self.state = "start-up"
+    self.state = "buy powerups"
     self.previousState = "menu"
     self.running = True
     self.playingGame = False
@@ -239,10 +239,11 @@ class Game:
                 if posX >= (90 + x*300) and posX <= (270 + x*300):
                   self.changeCharacter(x)
           elif self.state == "buy powerups":
+            if posX >= 620 and posX <= 820 and posY >= 285 and posY <= 335:
             # if user has enough stars then update number of stars and increase extra powerups
-            if stats.getNumberOfStars() >= 100:
-              stats.changeNumberOfStars(-100)
-              stats.changePowerups(1)
+              if stats.getNumberOfStars() >= 100:
+                stats.changeNumberOfStars(-100)
+                stats.changePowerups(1)
           elif self.state != "start-up":
             self.clickButtons()
         if event.type == pygame.KEYUP:
@@ -302,17 +303,22 @@ class Game:
         SCREEN.fill((WHITE[self.theme]))
         drawText("STARS AND POWERUPS", 10, 20, BLACK, 120, self.theme)
         drawText("STARS AND POWERUPS", 5, 20, BLUE, 120, self.theme)
-        # display number of powerups
-        drawText("YOU CURRENTLY HAVE " + str(stats.getNumberOfStars()) + " STARS", 10, 100, BLACK, 30, self.theme)
-        drawText("YOU CURRENTLY HAVE " + str(stats.getPowerups()) + " POWERUPS", 10, 130, BLACK, 30, self.theme)
-        # check if user has enough powerups and display good/bad message accordingly
+        uploadImage("yellowstar.png", 0.35, 80, 150 )
+        # display number of stars
+        drawText(stats.getNumberOfStars(), 230, 325, BLACK, 50, self.theme)
+        drawText("Earn more stars by playing more games!", 70, 530, BLACK, 30, self.theme)
+        # display powerup image and buy button
+        uploadImage(allCharacters[2][0][self.theme], 2, 550, 140)
+        # change buy button to red/green depending on whether user has enough stars
         if stats.getNumberOfStars() >= 100:
-          uploadImage("")
-          drawText("CLICK BELOW TO BUY EXTRA POWERUPS YOU CAN ADD TO YOUR NEXT GAME", 10, 160, BLACK, 30, self.theme)
+          colour = GREEN[1]
         else:
-          drawText("YOU NEED " + str(100 - stats.getNumberOfStars()) + " MORE STARS TO BUY EXTRA POWERUPS", 10, 160, BLACK, 30, self.theme)
-          drawText("PLAY MORE GAMES TO EARN MORE STARS!!", 10, 190, BLACK, 30, self.theme)
-        uploadImage(allCharacters[2][0][self.theme], 1, 30, 200)
+          colour = RED
+        pygame.draw.rect(SCREEN, colour, pygame.Rect(620, 285, 200, 50), 0, 0)
+        pygame.draw.rect(SCREEN, BLACK[0], pygame.Rect(620, 285, 200, 50), 1, 0)
+        drawText("BUY", 676, 292, BLACK, 60, self.theme)
+        drawText("You currently have " + str(stats.getPowerups()) + " powerups", 570, 530, BLACK, 30, self.theme)
+
 
       #help game state
       elif self.state == "help":#function displays new screen with help instructions
