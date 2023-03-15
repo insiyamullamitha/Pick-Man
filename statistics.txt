@@ -4,6 +4,6 @@
 316,INSIYA
 307,PRAGNA
 time,0
-stars,629
-powerups,14
+stars,1250
+powerups,51
 
