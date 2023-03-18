@@ -35,6 +35,7 @@ class Game:
     self.stars = 0
     self.instructions = []
     self.success = False
+    self.extraPowerups = 1
 
   def drawMaze(self): # load maze on screen
     for wall in self.maze.getWalls(): # draw walls
@@ -43,6 +44,7 @@ class Game:
       pygame.draw.rect(SCREEN, WHITE[self.theme], pygame.Rect((250 + (path.x*30)), 65 + (path.y*30), 30, 30),0)
     for pill in self.maze.getPills(): # draw pills
       pygame.draw.circle(SCREEN, PINK[self.theme], (264+pill.x*30, 78+pill.y*30), 5, 0)
+      pygame.draw.circle(SCREEN, BLACK[self.theme], (264+pill.x*30, 78+pill.y*30), 5, 1)
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 1/7, 252+powerup.getPosX()*30, 68+powerup.getPosY()*30)
     # draw player 
@@ -72,12 +74,36 @@ class Game:
       uploadImage(self.character, 0.25, 3, 215)
       for x in range(6):
         pygame.draw.circle(SCREEN, PINK[self.theme], (55 + x*40, 235), 7.5, 0)
+        pygame.draw.circle(SCREEN, BLACK[self.theme], (55 + x*40, 235), 7.5, 1)
       for x in range(4):
         pygame.draw.circle(SCREEN, PINK[self.theme], (340 + x*40, 235), 7.5, 0)
+        pygame.draw.circle(SCREEN, BLACK[self.theme], (340 + x*40, 235), 7.5, 1)
       for x in range(4):
         pygame.draw.circle(SCREEN, PINK[self.theme], (540+ x*40, 235), 7.5, 0)
+        pygame.draw.circle(SCREEN, BLACK[self.theme], (540 + x*40, 235), 7.5, 1)
       for x in range(8):
         pygame.draw.circle(SCREEN, PINK[self.theme], (740 + x*40, 235), 7.5, 0)
+        pygame.draw.circle(SCREEN, BLACK[self.theme], (740 + x*40, 235), 7.5, 1)
+
+  def setupMazeAndObjects(self):
+    if self.currentLevel == "1": # load level 1 maze
+      mazeLayout = level1Maze
+    elif self.currentLevel == "2": # load level 2 maze
+      # level 2 instructions
+      mazeLayout = level2Maze
+    self.maze.loadMaze(mazeLayout, self.theme)
+    # set initial coordinates for player
+    self.player.setPosX(self.maze.getPlayer().x) 
+    self.player.setPosY(self.maze.getPlayer().y)
+    self.player.setStartPosX(self.maze.getPlayer().x)
+    self.player.setStartPosY(self.maze.getPlayer().y)
+    # set initial coordinates for each ghost
+    for ghost in range(len(self.ghostObjects)):
+      self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
+      self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
+      self.ghostObjects[ghost].setStartPosX(self.maze.getGhosts()[ghost].x)
+      self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
+      self.ghostObjects[ghost].resetNextDirection()
 
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 
@@ -160,8 +186,53 @@ class Game:
           if button.newState == "play":
             self.playingGame = True
             self.startTime = pygame.time.get_ticks()
+          if button.newState == "stats":
+            self.displayLeaderboard()
+          if button.newState == "instructions":
+            self.setupMazeAndObjects()
+            usernameButton.text = ""
           SCREEN.fill((WHITE[self.theme]))
   
+  def buyPowerup(self):
+    if stats.getNumberOfStars() >= 100:
+      stats.changeNumberOfStars(-100)
+      stats.changePowerups(1)
+
+  def displayLeaderboard(self): # draw leaderboard table and other stats
+    # draw table
+    SCREEN.fill((WHITE[self.theme]))
+    drawText("LEADERBOARD AND STATISTICS", 2, 25, BLACK, 88, self.theme)
+    drawText("LEADERBOARD AND STATISTICS", 2, 20, BLUE, 88, self.theme)
+    pygame.draw.rect(SCREEN, LIGHTBLUE[self.theme], pygame.Rect(100, 135, 800, 305), 0, 3)
+    pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(100, 135, 800, 305), 1, 3)
+    for x in range(5):
+      pygame.draw.line(SCREEN, BLACK[self.theme], (100, 50 * x + 190), (900, 50 * x + 190))
+    for x in range(2):
+      pygame.draw.line(SCREEN, BLACK[self.theme], (300 + x * 400, 135), (300 + x * 400, 440))
+    # table headers
+    drawText("RANK", 140, 145, BLACK, 50, self.theme)
+    drawText("PLAYER", 420, 145, BLACK, 50, self.theme)
+    drawText("SCORE", 745, 145, BLACK, 50, self.theme)
+    # draw each leader's username and score
+    for leader in range(len(stats.getLeaderboard())):
+      drawText(leader+1, 180, leader*50 + 200, BLACK, 50, self.theme)
+      drawText(stats.getLeaderboard()[leader][1], 427, leader * 50 + 200, BLACK, 50, self.theme)
+      drawText(stats.getLeaderboard()[leader][0], 770, leader * 50 + 200, BLACK, 50, self.theme)
+    # upload star image and number of total stars
+    uploadImage("yellowstar.png", 0.08, 100, 470)
+    drawText(stats.getNumberOfStars(), 200, 500, BLACK, 40, self.theme)
+    # draw text for fastest time
+    drawText("FASTEST TIME: " + str(stats.getFastestTime()) + " SECONDS", 450, 500, BLACK, 40, self.theme)
+  
+  def setUsername(self, event):
+    if event.key == pygame.K_RETURN: # verify if enter is clicked
+      self.verifyUsername()
+      usernameButton.text = ""
+    elif event.key == pygame.K_BACKSPACE: # remove last character when backspace
+      usernameButton.text = usernameButton.text[0:-1]
+    elif event.unicode in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ": # only valid characters entered
+      usernameButton.text += event.unicode
+
   # check that username is between 3 and 10 characters and save as game username
   def verifyUsername(self):
     if len(usernameButton.text) > 2 and len(usernameButton.text) < 11:
@@ -209,15 +280,7 @@ class Game:
           if event.key == pygame.K_ESCAPE:
             self.state = self.previousState
           if self.state == "instructions": # input username
-            usertext = usernameButton.text
-            if event.key == pygame.K_RETURN: # verify if enter is clicked
-              self.verifyUsername()
-              usertext = ""
-            elif event.key == pygame.K_BACKSPACE: # remove last character when backspace
-              usertext = usernameButton.text[0:-1]
-            elif event.unicode in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ": # only valid characters entered
-              usertext += event.unicode
-            usernameButton.text = usertext # update new input 
+            self.setUsername(event)
           if self.state == "play":
             if event.key in [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_DOWN, pygame.K_UP]:
               self.player.setDirection(event.key)
@@ -237,18 +300,18 @@ class Game:
             if posY >= 210 and posY <= 390:
               for x in range(3):
                 if posX >= (90 + x*300) and posX <= (270 + x*300):
-                  self.changeCharacter(x)
+                  self.changeCharacter(x)         
+            if posX >= 380 and posX <= 630 and posY >= 460 and posY <= 510:
+              self.state = "menu"
           elif self.state == "buy powerups":
             if posX >= 620 and posX <= 820 and posY >= 285 and posY <= 335:
             # if user has enough stars then update number of stars and increase extra powerups
-              if stats.getNumberOfStars() >= 100:
-                stats.changeNumberOfStars(-100)
-                stats.changePowerups(1)
+              self.buyPowerup()
           elif self.state != "start-up":
             self.clickButtons()
         if event.type == pygame.KEYUP:
           if event.key in [pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP]:
-            self.player.setDirection("")
+            self.player.setDirection(None)
 
       # start up screen game state
       if self.state == "start-up":
@@ -296,7 +359,7 @@ class Game:
         SCREEN.fill((WHITE[self.theme]))
         drawText("LEADERBOARD AND STATISTICS", 2, 25, BLACK, 88, self.theme)
         drawText("LEADERBOARD AND STATISTICS", 2, 20, BLUE, 88, self.theme)
-        stats.displayLeaderboard(self.theme)
+        self.displayLeaderboard()
       
       #powerups/stars game state
       elif self.state == "buy powerups":
@@ -356,6 +419,9 @@ class Game:
           # if character has been selected draw green box around the 
           if allCharacters[self.theme][x][0] == self.character:
             pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(80 + x*300, 200, 200, 200), 2, 3)
+        pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(380, 460, 250, 50), 0, 3)
+        pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(380, 460, 250, 50), 1, 3)
+        drawText("RETURN TO MENU", 388, 475, BLACK, 38, self.theme)
 
       elif self.state == "levels": #displays levels page
         self.previousState = "menu" # return to menu if escape key is pressed
@@ -386,28 +452,20 @@ class Game:
         drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", 4, 5, BLACK, 118, self.theme)
         drawText("LEVEL " + self.currentLevel + " INSTRUCTIONS", -1, 5, BLUE, 118, self.theme)
         self.loadInstructions()
-        if self.currentLevel == "1": # load level 1 maze
-          mazeLayout = level1Maze
-        elif self.currentLevel == "2": # load level 2 maze
-          # level 2 instructions
-          mazeLayout = level2Maze
-        self.maze.loadMaze(mazeLayout, self.theme)
-        # set initial coordinates for player
-        self.player.setPosX(self.maze.getPlayer().x) 
-        self.player.setPosY(self.maze.getPlayer().y)
-        self.player.setStartPosX(self.maze.getPlayer().x)
-        self.player.setStartPosY(self.maze.getPlayer().y)
-        # set initial coordinates for each ghost
-        for ghost in range(len(self.ghostObjects)):
-          self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
-          self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
-          self.ghostObjects[ghost].setStartPosX(self.maze.getGhosts()[ghost].x)
-          self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
         #display input box for username button
         usernameButton.render(self.theme)
         drawText("Enter username below and press enter", 350, 350, BLACK, 20, self.theme)
         self.success = False
-
+        #add powerup button
+        if self.extraPowerups > 0:
+          pygame.draw.circle(SCREEN, RED, (550, 560), 9.5, 0)
+          pygame.draw.circle(SCREEN, BLACK[self.theme], (550, 560), 9.5, 1)
+        if stats.getPowerups() - self.extraPowerups - 1 >= 0:
+          pygame.draw.circle(SCREEN, GREEN[self.theme], (650, 560), 9.5, 0)
+          pygame.draw.circle(SCREEN, BLACK[self.theme], (650, 560), 9.5, 1)
+        drawText(self.extraPowerups, 610, 555, BLACK, 50, self.theme)
+        pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(600, 545, 50, 50), 1, 3)
+        
       #playing game state
       elif self.state == "play":
         self.startTime = 0 
@@ -417,6 +475,7 @@ class Game:
         drawText("LEVEL " + self.currentLevel, -3, 5, BLUE, 100, self.theme)
         for x in range(18):
           pygame.draw.circle(SCREEN, PINK[self.theme], (300+ x*40, 35), 7.5, 0)
+          pygame.draw.circle(SCREEN, BLACK[self.theme], (300 + x*40, 35), 7.5, 1)
         for button in allButtons[0]: # display side buttons
           button.render(self.theme)
         for button in allButtons[3]: # display play state specific buttons
@@ -426,8 +485,10 @@ class Game:
         self.displayLives()
         self.drawMaze()
         pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(570, 540, 120, 40), 0, 3)
+        pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(570, 540, 120, 40), 1, 3)
         #drawText(str(self.time[0]) + "m " + str(self.time[1]) + "s", 580, 545, BLACK, 40)
         pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(50, 90, 150, 40), 0, 3)
+        pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(50, 90, 150, 40), 1, 3)
         drawText("score: " + str(self.score), 55, 95, BLACK, 40, self.theme)
       
       #paused game state  

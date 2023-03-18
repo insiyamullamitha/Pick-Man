@@ -76,7 +76,7 @@ class Player:
         self.__direction = "up"
       case pygame.K_DOWN:
         self.__direction = "down"
-      case "":
+      case None:
         self.__direction = ""
 
   def resetPosition(self):

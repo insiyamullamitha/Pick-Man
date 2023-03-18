@@ -94,28 +94,6 @@ class Statistics:
     self.changeNumberOfStars(stars)
     self.changeFastestTime(time)
 
-  def displayLeaderboard(self, givenTheme): # draw leaderboard table and other stats
-    self.__leaderboard = self.getLeaderboard()
-    # draw table
-    pygame.draw.rect(SCREEN, LIGHTBLUE[givenTheme], pygame.Rect(100, 135, 800, 305), 0, 3)
-    pygame.draw.rect(SCREEN, BLACK[givenTheme], pygame.Rect(100, 135, 800, 305), 1, 3)
-    for x in range(5):
-      pygame.draw.line(SCREEN, BLACK[givenTheme], (100, 50 * x + 190), (900, 50 * x + 190))
-    for x in range(2):
-      pygame.draw.line(SCREEN, BLACK[givenTheme], (300 + x * 400, 135), (300 + x * 400, 440))
-    # table headers
-    drawText("RANK", 140, 145, BLACK, 50, givenTheme)
-    drawText("PLAYER", 420, 145, BLACK, 50, givenTheme)
-    drawText("SCORE", 745, 145, BLACK, 50, givenTheme)
-    # draw each leader's username and score
-    for leader in range(len(self.__leaderboard)):
-      drawText(leader+1, 180, leader*50 + 200, BLACK, 50, givenTheme)
-      drawText(self.__leaderboard[leader][1], 427, leader * 50 + 200, BLACK, 50, givenTheme)
-      drawText(self.__leaderboard[leader][0], 770, leader * 50 + 200, BLACK, 50, givenTheme)
-    # upload star image and number of total stars
-    uploadImage("yellowstar.png", 0.08, 100, 470)
-    drawText(self.getNumberOfStars(), 200, 500, BLACK, 40, givenTheme)
-    # draw text for fastest time
-    drawText("FASTEST TIME: " + str(self.getFastestTime()) + " SECONDS", 450, 500, BLACK, 40, givenTheme)
+
 
 stats = Statistics()

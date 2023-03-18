@@ -53,6 +53,11 @@ class PathFindingGhost:
     return self.__image
   def setImage(self, givenImage):
     self.__image = givenImage
+  
+  def getNextDirection(self):
+    return self.__nextDirection
+  def resetNextDirection(self):
+    self.__nextDirection = [self.__firstXMovement, self.__firstYMovement]
 
   def respawn(self):
     self.posX = self.__startPosX
