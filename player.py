@@ -132,18 +132,23 @@ class Player:
     for powerup in game.maze.getPowerups():
       if (round(self.__posX), round(self.__posY)) == (powerup.getPosX(), powerup.getPosY()): # check if player position is in powerup position
         playSoundEffects(POWERUPSOUND)
+        pygame.draw.rect(SCREEN, RED, pygame.Rect(self.__posX, self.__posY, 30, 30))
         game.maze.getPowerups().remove(powerup)
         if powerup.getType() == "score":
           game.score += powerup.getScoreValue()
+          drawText("+" + str(powerup.getScoreValue()), self.__posX + 2, self.__posY + 2, BLACK, 30, game.theme)
         elif powerup.getType() == "speed":
           self.__speed = powerup.getSpeedValue()
+          drawText("+" + str(powerup.getSpeedValue()), self.__posX + 2, self.__posY + 2, BLACK, 30, game.theme)
         elif powerup.getType() == "mode":
           self.changeMode()
+          drawText(self.__mode, self.__posX + 2, self.__posY + 2, BLACK, 30, game.theme)
+        pygame.time.delay(3000)
     for ghost in game.ghostObjects: # check for collisions with ghosts
       # if player is in chased mode
       if (math.ceil(self.__posX) == math.ceil(ghost.getPosX()) or math.floor(self.__posX) == math.floor(ghost.getPosX())) and (math.ceil(self.__posY) == math.ceil(ghost.getPosY()) or math.floor(self.__posY) == math.floor(ghost.getPosY())): 
         if self.__mode == "chased":
-          self.resetPosition
+          self.resetPosition()
           ghost.respawn()
           playSoundEffects(LOSINGLIFE)
           # reduce lives and check if game over 
@@ -157,11 +162,8 @@ class Player:
                 game.updateFileStarStatus(instruction)
 
           else:
-            ghost.setMoving(False)
-            game.drawMaze()
-            pygame.display.flip()
-            pygame.time.delay(2000)
-            ghost.setMoving(True)
+            ghost.respawn()
+            pygame.time.delay(3000)
         # if player is in kill mode reset
         else:
           self.changeMode()

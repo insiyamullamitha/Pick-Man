@@ -120,6 +120,14 @@ class Maze:
                 if "U" in maze[row][column]:#user sprite position
                     self.__player = pygame.math.Vector2(column, row)
 
+    def addPowerup(self, givenTheme): # append new powerup object 
+        # choose random pill to convert to powerup
+        powerupPosition = random.choice(self.__pills)
+        newPowerup = Powerup(random.choice(["score", "speed", "mode"]), "positive", 1, powerupPosition.x, powerupPosition.y, random.choice([5, 10, 50, 100]), allCharacters[2][0][givenTheme])
+        # update new powerup and pill object arrays
+        self.__powerups.append(newPowerup)
+        self.__pills.remove(powerupPosition)
+
 
 level1Maze = [["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
               ["1", "P", "P", "P", "P", "P", "1", "P", "P", "P", "P", "B", "P", "P", "P", "P", "P", "1", "P", "P", "P", "P", "P", "1"],

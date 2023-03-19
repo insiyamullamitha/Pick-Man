@@ -16,7 +16,7 @@ class PathFindingGhost:
     self.__firstXMovement = givenNextX
     self.__firstYMovement = givenNextY
     self.__nextDirection = [givenNextX, givenNextY]
-    self.__movements = 4
+    self.__movements = 0
 
   #setters and getters
   def getName(self):
@@ -49,6 +49,11 @@ class PathFindingGhost:
   def setStartPosY(self, givenY):
     self.__startPosY = givenY
 
+  def getMovements(self):
+    return self.__movements
+  def setMovements(self, givenMovements):
+    self.__movements = givenMovements
+
   def getImage(self):
     return self.__image
   def setImage(self, givenImage):
@@ -63,7 +68,7 @@ class PathFindingGhost:
     self.posX = self.__startPosX
     self.posY = self.__startPosY
     self.__nextDirection = [self.__firstXMovement, self.__firstYMovement]
-    self.__movements = 4
+    self.__movements = 0
 
   def setTarget(self, game): # create list of directions for ghost to get to player
     playerPosition = (int(game.player.getPosX()), int(game.player.getPosY()))
@@ -85,18 +90,18 @@ class PathFindingGhost:
         directionToMove = direction
     # change the direction the ghost should move in 
     self.__nextDirection = [directionToMove[0], directionToMove[1]]
-    self.__movements = 4
+    self.__movements = 0
   
   def move(self, game): # update position of ghost
     if self.__moving:
-      if self.__movements <= 0:
+      if self.__movements >= 4:
         # reset new direction if ghost has just moved 1 unit
         self.setTarget(game)
       # increment position by 0.1 * x and y movement to slow down
       self.posX += self.__nextDirection[0]/4
       self.posY += self.__nextDirection[1]/4
       # decrease number of movements so that at 0 the direction can change
-      self.__movements -= 1
+      self.__movements += 1
       game.player.collisions(game)
 
 class WanderingGhost(PathFindingGhost):
@@ -104,17 +109,12 @@ class WanderingGhost(PathFindingGhost):
     PathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName)
     self.__moving = True
     self.__direction = random.choice(["left", "right", "up", "down"])
-    self.__movements = 10
+    self.__movements = 0
   
   def getDirection(self):
     return self.__direction
   def setDirection(self, givenDirection):
     self.__direction = givenDirection
-
-  def getMovements(self):
-    return self.__movements
-  def setMovements(self, givenMovements):
-    self.__movements = givenMovements
 
   def move(self, game): # ghost move function
     if self.__moving:
@@ -140,7 +140,7 @@ class WanderingGhost(PathFindingGhost):
         self.__movements = random.choice([10, 20, 30, 40, 50])
 
       else: # check if new coordinates collide with wall
-        self.__movements -= 0.1
+        self.__movements += 0.1
         self.posX += changeX # update new positions
         self.posY += changeY
 
