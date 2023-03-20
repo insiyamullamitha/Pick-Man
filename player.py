@@ -126,12 +126,12 @@ class Player:
 
   def collisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
     if (round(self.__posX), round(self.__posY)) in game.maze.getPills(): # check if player position is in pill position
-      playSoundEffects(PILLSOUND)
+      playSoundEffects(game.soundEffects, PILLSOUND)
       self.eatPills(game)
       return "pills"
     for powerup in game.maze.getPowerups():
       if (round(self.__posX), round(self.__posY)) == (powerup.getPosX(), powerup.getPosY()): # check if player position is in powerup position
-        playSoundEffects(POWERUPSOUND)
+        playSoundEffects(game.soundEffects, POWERUPSOUND)
         pygame.draw.rect(SCREEN, RED, pygame.Rect(self.__posX, self.__posY, 30, 30))
         game.maze.getPowerups().remove(powerup)
         if powerup.getType() == "score":
@@ -150,7 +150,7 @@ class Player:
         if self.__mode == "chased":
           self.resetPosition()
           ghost.respawn()
-          playSoundEffects(LOSINGLIFE)
+          playSoundEffects(game.soundEffects, LOSINGLIFE)
           # reduce lives and check if game over 
           game.lives -= 1
           if game.lives <= 0:

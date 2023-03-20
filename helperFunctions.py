@@ -18,5 +18,7 @@ def uploadImage(image, scale, x, y, rotation = 0):
     screenToUpload = pygame.transform.rotate(imageToUpload, rotation)
     SCREEN.blit(screenToUpload, (x, y))
 
-def playSoundEffects(audio):#generate sound effect when pacman eats a pill
-    audio.play()
+#generate given sound effect if sound effect settings are turned on
+def playSoundEffects(soundEffects, audio):
+    if soundEffects:
+        audio.play()

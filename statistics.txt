@@ -5,5 +5,5 @@
 307,PRAGNA
 time,0
 stars,79
-powerups,53
+powerups,48
 

@@ -19,8 +19,8 @@ class Game:
     self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
-    self.music = False
-    self.soundEffects = False
+    self.music = True
+    self.soundEffects = True
     self.stars = 0
     self.lives = 3
     self.time = [0, 0]
@@ -120,6 +120,24 @@ class Game:
           self.instructions[2][0] = 1
           self.stars += 1
 
+  def changeMusicSettings(self): # turn background music off/on and change button image
+    if self.music:
+      self.music = False
+      musicButton.image = "musicoffsymbol.png"
+    else:
+      self.music = True
+      musicButton.image = "musicsymbol.png"
+    self.state = "menu"
+
+  def changeSoundSettings(self): # turn sound effects off/on and change button image
+    if self.soundEffects:
+      self.soundEffects = False
+      soundButton.image = "soundoffsymbol.png"
+    else:
+      self.soundEffects = True
+      soundButton.image = "soundsymbol.png"
+    self.state = "menu"
+
   def updateFileStarStatus(self, instructionNumber): # update which stars have been achieved at the end of game 
     startInstruction = int(self.currentLevel) * 3 - 3 # find the line from which the level's instructions start
     file = open("levelStarsInstructions.txt", "r")
@@ -191,7 +209,10 @@ class Game:
           if self.state == "instructions":
             self.setupMazeAndObjects()
             usernameButton.text = ""
-          SCREEN.fill((WHITE[self.theme]))
+          if self.state == "music":
+            self.changeMusicSettings()
+          if self.state == "sound":
+            self.changeSoundSettings()
   
   def buyPowerup(self):
     if stats.getNumberOfStars() >= 100:
@@ -351,9 +372,6 @@ class Game:
           pass
         else:
           pass
-      
-      elif self.state == "sound":
-        SCREEN.fill((WHITE[self.theme]))
 
       #leaderboard/statistics game state
       elif self.state == "stats":
