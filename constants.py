@@ -17,11 +17,14 @@ GREEN = [(153, 250, 118), (0, 153, 51), (0, 204, 102)]
 BLUE = [(39, 160, 194), (255, 255, 255)]
 LIGHTBLUE = [(31,176,245),(45,117,50) ]
 GREY = [(157, 154, 161), (255,114,118)]
+PURPLE = [(191, 0, 255), (144, 109, 203)]
 FONT = pygame.font.SysFont(None, 36)
-MUSIC = pygame.mixer.Sound('media/backgroundmusic.wav')
-PILLSOUND = pygame.mixer.Sound('media/wakkawakkasound.wav')
-LOSINGLIFE = pygame.mixer.Sound('media/losinglifesound.wav')
-POWERUPSOUND = pygame.mixer.Sound('media/powerupsound.wav')
+PILLSOUND = 'media/wakkawakkasound.wav'
+LOSINGLIFESOUND = 'media/losinglifesound.wav'
+POWERUPSOUND = 'media/earnstarsound.wav'
+STARSOUND = "media/powerupsound.wav"
+KILLGHOSTSOUND = "media/playerkillssound.wav"
+INTRODUCTIONMUSIC = "media/intromusic.wav"
 allCharacters = [[["pacmandefault.png", "redghost.png", "purpleghost.png", "blueghost.png"], 
                   ["jerry.png", "tom.png", "tom.png", "tom.png"], 
                   ["gru.png", "kevin.png", "stuart.png", "bob.png"]],

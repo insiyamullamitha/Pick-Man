@@ -20,5 +20,7 @@ def uploadImage(image, scale, x, y, rotation = 0):
 
 #generate given sound effect if sound effect settings are turned on
 def playSoundEffects(soundEffects, audio):
-    if soundEffects:
-        audio.play()
+    pass
+    #pygame.mixer.Sound(audio)
+    #if soundEffects:
+        #audio.play()

@@ -42,18 +42,21 @@ class Button:
                 return self.newState
 
 # initialise all buttons
-musicButton = Button("", 'musicsymbol.png', BLUE, "circle", 60, 555, 35, 0, 0, "music")
-soundButton = Button("", 'soundsymbol.png', BLUE, "circle", 150, 555, 35, 0, 0, "sound")
-statsButton = Button("", 'statssymbol.png', BLUE, "circle", 240, 555, 35, 0, 0, "stats")
-starButton = Button("", 'starsymbol.png', BLUE, "circle", 330, 555, 35, 0, 0, "buy powerups")
-helpButton = Button("", 'helpsymbol.png', BLUE, "circle", 420, 555, 35, 0, 0, "help")
-pauseButton = Button("", 'pausedsymbol.png', BLUE, "circle", 510, 555, 35, 0, 0, "pause")
+soundButton = Button("", 'soundsymbol.png', BLUE, "circle", 60, 555, 35, 0, 0, "sound")
+statsButton = Button("", 'statssymbol.png', BLUE, "circle", 150, 555, 35, 0, 0, "stats")
+starButton = Button("", 'starsymbol.png', BLUE, "circle", 240, 555, 35, 0, 0, "buy powerups")
+helpButton = Button("", 'helpsymbol.png', BLUE, "circle", 330, 555, 35, 0, 0, "help")
+pauseButton = Button("", 'pausedsymbol.png', BLUE, "circle", 420, 555, 35, 0, 0, "pause")
 menuPlayButton = Button("", "playsymbol.png", GREEN, "circle", WIDTH//2, HEIGHT//2, 35, 0, 0, "levels")
 changeCharacterButton = Button("CHANGE CHARACTER/THEME", "", PINK, "rectangle", 350, 350, 0, 300, 40, "change theme")
 level1Button = Button("1", "", GREEN, "circle", 60, 180, 35, 0, 0, "instructions")
 level2Button = Button("2", "", GREY, "circle", 200, 180, 35, 0, 0, "instructions")
 usernameButton = Button("", "", PINK, "rectangle", 350, 370, 0, 300, 40, "instructions")
+replayButton = Button("", "replaysymbol.png", PURPLE, "circle", 400, 400, 35, 0, 0, "instructions")
+nextLevelButton = Button("", "playsymbol.png", PURPLE, "circle", 600, 400, 35, 0, 0, "instructions")
+continuePlayButton = Button("", "playsymbol.png", PURPLE, "circle", 500, 400, 35, 0, 0, "play")
+returnHomeButton = Button("", "homesymbol.png", PURPLE, "circle", 600, 400, 35, 0, 0, "menu" )
 # add buttons for each game state to array within allButtons 2D array
 # allButtons[0] for side buttons, allButtons[1] for menu page, allButtons[2] for levels etc.
-allButtons = [[musicButton, soundButton, statsButton, starButton, helpButton], [menuPlayButton, changeCharacterButton],
-              [level1Button, level2Button], [pauseButton]]
+allButtons = [[soundButton, statsButton, starButton, helpButton], [menuPlayButton, changeCharacterButton],
+              [level1Button, level2Button], [pauseButton], [replayButton, continuePlayButton, returnHomeButton], [replayButton, nextLevelButton]]

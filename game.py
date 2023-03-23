@@ -19,7 +19,6 @@ class Game:
     self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
-    self.music = True
     self.soundEffects = True
     self.stars = 0
     self.lives = 3
@@ -65,7 +64,7 @@ class Game:
 
   def displayInstructions(self):
     for x in range(25):
-      if x*40 not in[240, 440, 640]:
+      if x not in[6, 11, 16]:
         pygame.draw.circle(SCREEN, PINK[self.theme], (55 + x*40, 235), 7.5, 0)
         pygame.draw.circle(SCREEN, BLACK[self.theme], (55 + x*40, 235), 7.5, 1)
     # display each instruction and star#
@@ -108,26 +107,21 @@ class Game:
       uploadImage("emptylife.png", 0.7, 105, 150)
 
   def updateStars(self): # change star status if instruction has been completed
+    increaseStars = False
     match self.currentLevel:
       case "1": # instructions for level 1
         if self.instructions[0][0] != 1 and self.score >= 50:
           self.instructions[0][0] = 1
-          self.stars += 1
+          increaseStars = True
         if self.instructions[1][0] != 1 and self.score >= 100:
           self.instructions[1][0] = 1
-          self.stars += 1
+          increaseStars = True
         if self.instructions[2][0] != 1 and self.score >= 150:
           self.instructions[2][0] = 1
-          self.stars += 1
-
-  def changeMusicSettings(self): # turn background music off/on and change button image
-    if self.music:
-      self.music = False
-      musicButton.image = "musicoffsymbol.png"
-    else:
-      self.music = True
-      musicButton.image = "musicsymbol.png"
-    self.state = "menu"
+          increaseStars = True
+    if increaseStars:
+      self.stars += 1
+      playSoundEffects(self.soundEffects, STARSOUND)
 
   def changeSoundSettings(self): # turn sound effects off/on and change button image
     if self.soundEffects:
@@ -136,7 +130,7 @@ class Game:
     else:
       self.soundEffects = True
       soundButton.image = "soundsymbol.png"
-    self.state = "menu"
+    self.state = self.previousState
 
   def updateFileStarStatus(self, instructionNumber): # update which stars have been achieved at the end of game 
     startInstruction = int(self.currentLevel) * 3 - 3 # find the line from which the level's instructions start
@@ -188,10 +182,13 @@ class Game:
     for buttons in allButtons:
       for button in buttons:
         if button.click() != None:
-          if button in allButtons[0] and self.state not in ["menu", "levels", "instructions", "play", "game over"]:
+          # side buttons only clicked in certain states
+          if button in allButtons[0] and self.state not in ["menu", "levels", "instructions", "play", "game over", "pause"]:
             return
+          # change character and play button only available in menu
           if button in allButtons[1] and self.state != "menu":
             return
+          # level buttons only available in levels game state
           if button in allButtons[2]:
             if self.state == "levels":
               self.currentLevel = button.text
@@ -199,18 +196,29 @@ class Game:
               return
           if button in allButtons[3] and self.state != "play":
             return
+          if button in allButtons[4] and self.state != "pause":
+            if button == replayButton and self.state == "game over":
+              pass
+            else:
+              return
+          if button in allButtons[5] and self.state != "game over":
+            if button == replayButton and self.state == "pause":
+              pass
+            else:
+              return
+          # change game state
           self.previousState = self.state
           self.state = button.newState
           if self.state == "play":
             self.playingGame = True
             self.startTime = pygame.time.get_ticks()
-          if self.state == "stats":
-            self.displayLeaderboard()
+          # increase level if next level button and set up new maze
           if self.state == "instructions":
+            if button == nextLevelButton:
+              self.currentLevel = str(int(self.currentLevel) + 1)
             self.setupMazeAndObjects()
             usernameButton.text = ""
-          if self.state == "music":
-            self.changeMusicSettings()
+            self.extraPowerups = 0
           if self.state == "sound":
             self.changeSoundSettings()
   
@@ -272,13 +280,10 @@ class Game:
       #self.time = (abs(math.floor((pygame.time.get_ticks()-self.startTime)/1000))//60, int((pygame.time.get_ticks()-self.startTime)/1000) - (60 * (math.floor((pygame.time.get_ticks()-self.startTime)/1000)//60)))
 
   def playGame(self):
+
     while self.running:
 
-      self.clock.tick(FRAMESPERSECOND)   
-
-      if self.music:
-        pass
-        #MUSIC.play(12)
+      self.clock.tick(FRAMESPERSECOND)  
 
       #event handling for ending game, key presses, mouse clicks, arrow key movement
       for event in pygame.event.get(): # check if user has quit
@@ -320,15 +325,15 @@ class Game:
             if posX >= 380 and posX <= 630 and posY >= 460 and posY <= 510:
               self.state = "menu"
           elif self.state == "buy powerups":
-            if posX >= 620 and posX <= 820 and posY >= 285 and posY <= 335:
-            # if user has enough stars then update number of stars and increase extra powerups
+            if posX >= 620 and posX <= 820 and posY >= 285 and posY <= 335 and self.previousState != "pause":
+              # update number of stars and increase extra powerups
               self.buyPowerup()
           elif self.state == "instructions":
             if SCREEN.get_at((posX, posY)) == RED:
               self.extraPowerups -= 1
             elif SCREEN.get_at((posX, posY)) == GREEN[self.theme]:
               self.extraPowerups += 1
-          elif self.state != "start-up":
+          if self.state != "start-up":
             self.clickButtons()
         if event.type == pygame.KEYUP:
           if event.key in [pygame.K_RIGHT, pygame.K_LEFT, pygame.K_DOWN, pygame.K_UP]:
@@ -365,14 +370,6 @@ class Game:
         drawText("PICKMAN", 0, 0, BLACK, 300, self.theme)
         drawText("PICKMAN", -8, 0, BLUE, 300, self.theme)
 
-      #background music game state
-      elif self.state == "music":
-        SCREEN.fill((WHITE[self.theme]))
-        if self.music == True:
-          pass
-        else:
-          pass
-
       #leaderboard/statistics game state
       elif self.state == "stats":
         SCREEN.fill((WHITE[self.theme]))
@@ -392,7 +389,7 @@ class Game:
         # display powerup image and buy button
         uploadImage(allCharacters[2][0][self.theme], 2, 550, 140)
         # change buy button to red/green depending on whether user has enough stars
-        if stats.getNumberOfStars() >= 100:
+        if stats.getNumberOfStars() >= 100 and self.previousState != "pause":
           colour = GREEN[1]
         else:
           colour = RED
@@ -400,7 +397,6 @@ class Game:
         pygame.draw.rect(SCREEN, BLACK[0], pygame.Rect(620, 285, 200, 50), 1, 0)
         drawText("BUY", 676, 292, BLACK, 60, self.theme)
         drawText("You currently have " + str(stats.getPowerups()) + " powerups", 570, 530, BLACK, 30, self.theme)
-
 
       #help game state
       elif self.state == "help":#function displays new screen with help instructions
@@ -490,6 +486,9 @@ class Game:
         drawText("EXTRA POWERUPS", 630, 550, BLACK, 30, self.theme)
         drawText(self.extraPowerups, 540, 545, BLACK, 50, self.theme)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(525, 535, 50, 50), 1, 3)
+        self.score = 0
+        self.stars = 0
+        self.lives = 3
         
       #playing game state
       elif self.state == "play":
@@ -520,8 +519,16 @@ class Game:
       elif self.state == "pause":
         self.previousState = "play"
         SCREEN.fill((WHITE[self.theme]))
-        drawText("PAUSED", 0, 0, BLACK, 200, self.theme)
-        drawText("PAUSED", 0, -5, BLUE, 200, self.theme)
+        self.displayInstructions()
+        for button in allButtons[4]:
+          button.render(self.theme)
+        for button in allButtons[0]:
+          button.render(self.theme)
+        drawText("REPLAY", 375, 450, BLACK, 20, self.theme)
+        drawText("CONTINUE", 470, 450, BLACK, 20, self.theme)
+        drawText("MENU", 582, 450, BLACK, 20, self.theme)
+        drawText("PAUSED", 220, 0, BLACK, 200, self.theme)
+        drawText("PAUSED", 215, -5, BLUE, 200, self.theme)
 
       elif self.state == "game over":
         self.previousState = "menu"
@@ -530,13 +537,15 @@ class Game:
         drawText("GAME OVER", 170, 20, BLUE, 155, self.theme )
         for button in allButtons[0]:
           button.render(self.theme)
+        for button in allButtons[5]:
+          button.render(self.theme)
+        drawText("REPLAY", 365, 450, BLACK, 30, self.theme)
+        drawText("NEXT LEVEL", 550, 450, BLACK, 30, self.theme)
         self.displayInstructions()
         if not self.success:
-          drawText("TRY AGAIN TO COLLECT ALL STARS", 125, 350, BLACK, 40, self.theme)
           stats.updateStatistics(self.stars)
           # display replay button
         else:
-          drawText("WELL DONE", 160, 350, BLACK, 40, self.theme)
           stats.updateStatistics(self.stars, self.score, self.username, (self.time[0] * 60) + self.time[1])
         # reset current game statistics for next game
         self.score = 0
@@ -547,13 +556,22 @@ class Game:
       elif self.state == "end program":
         SCREEN.fill(BLACK[self.theme])
         # add animation
-        playSoundEffects(LOSINGLIFE)
         pygame.display.update()
         pygame.time.delay(2000)
         pygame.quit()
   
       pygame.display.update()
 
+# initialise game object
 game = Game()
+
+# initialise pygame
+pygame.mixer.init()
 pygame.init()
+
+# load background music 
+pygame.mixer.music.load(INTRODUCTIONMUSIC)  
+pygame.mixer.music.play()
+
+# play game
 game.playGame()
