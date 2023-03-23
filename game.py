@@ -77,6 +77,25 @@ class Game:
       uploadImage(self.character, 0.25, 3, 215)
 
 
+  # visually display powerup function to user
+  def displayPowerupAlert(self, powerup):
+    self.drawMaze()
+    # display number of points awarded
+    if powerup.getType() == "score":
+      pygame.draw.circle(SCREEN, PINK[self.theme], (265 + powerup.getPosX() * 30, 80 + powerup.getPosY()*30), 15, 0)
+      pygame.draw.circle(SCREEN, BLACK[self.theme], (265 + powerup.getPosX() * 30, 80 + powerup.getPosY()*30), 15, 1)
+      drawText("+ " + str(powerup.getScoreValue()), 256 + powerup.getPosX()*30, 78 + powerup.getPosY()*30, BLACK, 15, self.theme)
+    # display speed multiplier
+    elif powerup.getType() == "speed":
+      pygame.draw.circle(SCREEN, BLACK[self.theme], (265 + powerup.getPosX() * 30, 80 + powerup.getPosY()*30), 15, 0)
+      drawText("2X", 256 + powerup.getPosX()*30, 78 + powerup.getPosY()*30, WHITE, 15)
+    # display skull representing kill modeS
+    else:
+      uploadImage("skull.png", 1/6, 250 + powerup.getPosX() * 30, 65 + powerup.getPosY() * 30)
+    pygame.display.flip()
+    pygame.time.delay(1000)
+
+
   def setupMazeAndObjects(self):
     if self.currentLevel == "1": # load level 1 maze
       mazeLayout = level1Maze
@@ -504,7 +523,6 @@ class Game:
           button.render(self.theme)
         for button in allButtons[3]: # display play state specific buttons
           button.render(self.theme)
-        self.player.move(self)
         self.displayGameStars()
         self.displayLives()
         self.drawMaze()
@@ -514,6 +532,9 @@ class Game:
         pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(50, 90, 150, 40), 0, 3)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(50, 90, 150, 40), 1, 3)
         drawText("score: " + str(self.score), 55, 95, BLACK, 40, self.theme)
+        movePowerupCollision = self.player.move(self)
+        if movePowerupCollision != None:
+          self.displayPowerupAlert(movePowerupCollision)
       
       #paused game state  
       elif self.state == "pause":
