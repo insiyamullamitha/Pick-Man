@@ -23,11 +23,8 @@ class Player:
   # add getters and setters
   def getMode(self):
     return self.__mode
-  def changeMode(self):
-    if self.__mode == "chased":
-      self.__mode = "chasing"
-    else:
-      self.__mode = "chased"
+  def setMode(self, givenMode):
+    self.__mode = givenMode
 
   def getSpeed(self):
     return self.__speed 
@@ -122,27 +119,26 @@ class Player:
         case __:
           return
       if movement:
-        self.update(game)
+        return self.update(game)
 
   def collisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
     if (round(self.__posX), round(self.__posY)) in game.maze.getPills(): # check if player position is in pill position
       playSoundEffects(game.soundEffects, PILLSOUND)
-      self.eatPills(game)
-      return "pills"
+      # remove eaten pill from maze pill array and increase score
+      game.maze.getPills().remove((round(self.__posX), round(self.__posY)))
+      game.score += 1
+      return
     for powerup in game.maze.getPowerups():
       if (round(self.__posX), round(self.__posY)) == (powerup.getPosX(), powerup.getPosY()): # check if player position is in powerup position
         playSoundEffects(game.soundEffects, POWERUPSOUND)
-        pygame.draw.rect(SCREEN, RED, pygame.Rect(250+self.__posX*30, 65 + self.__posY*30, 30, 30))
         game.maze.getPowerups().remove(powerup)
         if powerup.getType() == "score":
           game.score += powerup.getScoreValue()
-          drawText("+" + str(powerup.getScoreValue()), 252+self.__posX*30, 67 + self.__posY*30, BLACK, 30, game.theme)
         elif powerup.getType() == "speed":
           self.__speed = powerup.getSpeedValue()
-          drawText("+" + str(powerup.getSpeedValue()), 252+self.__posX*30, 67 + self.__posY*30, BLACK, 30, game.theme)
         elif powerup.getType() == "mode":
-          self.changeMode()
-          drawText(self.__mode, self.__posX + 2, self.__posY + 2, BLACK, 30, game.theme)
+          self.__mode = "chasing"
+        return powerup
     for ghost in game.ghostObjects: # check for collisions with ghosts
       # if player is in chased mode
       if (math.ceil(self.__posX) == math.ceil(ghost.getPosX()) or math.floor(self.__posX) == math.floor(ghost.getPosX())) and (math.ceil(self.__posY) == math.ceil(ghost.getPosY()) or math.floor(self.__posY) == math.floor(ghost.getPosY())): 
@@ -159,30 +155,28 @@ class Player:
             for instruction in range(len(game.instructions)):
               if game.instructions[instruction][0] == 1:
                 game.updateFileStarStatus(instruction)
-
           else:
             ghost.respawn()
             pygame.time.delay(3000)
         # if player is in kill mode reset
         else:
           playSoundEffects(game.soundEffects, KILLGHOSTSOUND)
-          self.changeMode()
+          self.__mode = "chased"
           game.score += 30
           self.resetPosition()
           ghost.respawn()
           ghost.setMoving(False)
           pygame.time.delay(2000)
           ghost.setMoving(True)
+        
+        return
 
   def update(self, game):
+    # change player position and check for collisions
     self.__posX += self.__changeX 
     self.__posY += self.__changeY 
     self.__changeX = 0
     self.__changeY = 0
-    self.collisions(game)
-
-  def eatPills(self, game): # remove pill vector from pills array if player is in same position
-    game.score += 1
-    pillToBeEaten = game.maze.getPills().index((round(self.__posX), round(self.__posY)))
-    game.maze.removePill(pillToBeEaten)
-
+    returnValue = self.collisions(game)
+    if returnValue != None:
+      return returnValue
