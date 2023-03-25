@@ -115,7 +115,7 @@ class Game:
       self.ghostObjects[ghost].setStartPosX(self.maze.getGhosts()[ghost].x)
       self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
       self.ghostObjects[ghost].resetNextDirection()
-      self.ghostObjects[ghost].setMovements(0)
+      self.ghostObjects[ghost].resetMovements()
 
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 

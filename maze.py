@@ -17,6 +17,8 @@ class Maze:
         self.__powerups = []
         self.__paths = []
         self.__player = None
+        self.__mazeLayout = None
+        self.__elements = []
 
     #render maze on screen 
     def getMaze(self):
@@ -90,8 +92,12 @@ class Maze:
         self.__player = givenPlayer
     def resetPlayer(self):
         self.__player = None
+    
+    def getElements(self):
+        return self.__elements
 
-    def loadMaze(self, maze, givenTheme): 
+    def loadMaze(self, maze, givenTheme):
+        self.__mazeLayout = maze 
         self.resetDoors()
         self.resetPowerups()
         self.resetPills()
@@ -100,24 +106,25 @@ class Maze:
         self.resetPaths()
         self.resetWalls()
         # reset arrays for each component so they do not end up having more vectors than there are every time the method is run
-        for row in range(0, len(maze)):
-            for column in range(0, len(maze[row])):
-                if maze[row][column] == "1":#walls
+        for row in range(0, len(self.__mazeLayout)):
+            for column in range(0, len(self.__mazeLayout[row])):
+                self.__elements.append((column, row))
+                if self.__mazeLayout[row][column] == "1":#walls
                     self.__walls.append(pygame.math.Vector2(column, row))
-                elif maze[row][column] != "G":
+                elif self.__mazeLayout[row][column] != "G":
                     self.__paths.append(pygame.math.Vector2(column, row))
-                if "P" in maze[row][column]:#pills
+                if "P" in self.__mazeLayout[row][column]:#pills
                     self.__pills.append(pygame.math.Vector2(column, row))
-                if "G" in maze[row][column]:#ghosts
+                if "G" in self.__mazeLayout[row][column]:#ghosts
                     self.__ghosts.append(pygame.math.Vector2(column, row))
                     #pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (column*30)), 65 + (row*30), 30, 30),0)
                     pass
-                if "D" in maze[row][column]:#doors
+                if "D" in self.__mazeLayout[row][column]:#doors
                     self.__doors.append(pygame.math.Vector2(column, row))
-                if maze[row][column] == "B":#booster
+                if self.__mazeLayout[row][column] == "B":#booster
                     newPowerup = Powerup(random.choice(["score", "speed", "mode"]), "positive", 1, column, row, random.choice([5, 10, 50, 100]), allCharacters[2][0][givenTheme])
                     self.__powerups.append(newPowerup) # add to attribute of array of powerups
-                if "U" in maze[row][column]:#user sprite position
+                if "U" in self.__mazeLayout[row][column]:#user sprite position
                     self.__player = pygame.math.Vector2(column, row)
 
     def addPowerup(self, givenTheme): # append new powerup object 

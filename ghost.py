@@ -3,6 +3,7 @@ from helperFunctions import *
 from player import *
 import random
 import math
+from maze import *
 
 class PathFindingGhost:
   def __init__(self, givenX, givenY, givenImage, givenName, givenNextX = 0, givenNextY = 0):
@@ -53,6 +54,8 @@ class PathFindingGhost:
     return self.__movements
   def setMovements(self, givenMovements):
     self.__movements = givenMovements
+  def resetMovements(self):
+    self.__movements = 0
 
   def getImage(self):
     return self.__image
@@ -144,11 +147,101 @@ class WanderingGhost(PathFindingGhost):
         self.posX += changeX # update new positions
         self.posY += changeY
 
+
+
+
 class AStarGhost(PathFindingGhost):
-  pass
+  
+  def __init__(self, givenX, givenY, givenImage, givenName, givenNextX, givenNextY):
+    PathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName, givenNextX, givenNextY)
+    self.__moving = True
+    self.__route = []
+  
+
+  def getHeuristic(self, givenPosX, givenPosY, playerPosX, playerPosY):
+    # find manhattan distance from given position to goal
+    return abs(givenPosX -  playerPosX) + abs(givenPosY - playerPosY)
+
+  def getPath(self, startPosX, startPosY, givenMaze, playerPosX, playerPosY):
+    # list of possible four positions ghost can move to
+    neighbours = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    # list items that have been considered
+    closedList = []
+    # list of items whose neighbours should be considered
+    openList = []
+    # contains dictionary of previous nodes to each visited node
+    previousPositions = {}
+    # movement cost from start to current
+    gMovementCost = {(startPosX, startPosY): 0}
+    # heuristic movement cost from current to goal 
+    fHeuristic = {(startPosX, startPosY): self.getHeuristic(startPosX, startPosY, playerPosX, playerPosY)}
+    # place start position in open list to be considered
+    openList.append((fHeuristic[(startPosX, startPosY)], (startPosX, startPosY)))
+
+    while len(openList) > 0:
+
+      # find position of node with the lowest heuristic cost and set this as current node
+
+      lowestFScore = float('inf')
+      for item in openList:
+        if item[0] < lowestFScore:
+          lowestFScore = item[0]
+          currentNode = item[1]
+      
+      # if current node is the goal node (i.e. player has been found) then return found route
+
+      if currentNode == (playerPosX, playerPosY):
+        route = []
+        while currentNode in previousPositions:
+          # backtrack and find each previous node 
+          route.append(currentNode)
+          currentNode = previousPositions[currentNode]
+        # flip route as it is currently player to ghost
+        self.__route = route.reverse()
+        return
+      
+      # otherwise place current node in closed list as its neighbours will be considered
+
+      closedList.append(currentNode)
+
+      # find neighbour to current node with the smaller costs and add this to the open list
+
+      for neighbour in neighbours:
+        # calculate new neighbour position and total distance
+        currentNeighbour = (currentNode[0] + neighbour[0], currentNode[1] + neighbour[1])
+        currentGScore = gMovementCost[(currentNode)] + self.getHeuristic(currentNode[0], currentNode[1], currentNeighbour[0], currentNeighbour[1])
+        # check whether neighbour is a viable maze position 
+        if currentNeighbour in givenMaze.getElements():
+          # check whether neighbour is a wall
+          if currentNeighbour not in givenMaze.getWalls():
+            # check whether neighbour has been considered and has a lower g cost
+            if not (currentNeighbour in closedList and currentGScore >= gMovementCost.get(currentNeighbour, 0)):
+              if currentGScore < gMovementCost.get(currentNeighbour, 0) or currentNeighbour not in [i[1] for i in openList]:
+                # add the current node as the previous position to the neighbour
+                previousPositions[currentNeighbour] = currentNode
+                # add the costs for the neighbour
+                gMovementCost[currentNeighbour] = currentGScore
+                fHeuristic[currentNeighbour] = currentGScore + self.getHeuristic(currentNeighbour[0], currentNeighbour[1], playerPosX, playerPosY)
+                # add the neighbour in the open list so its neighbours can be considered
+                openList.append((fHeuristic[currentNeighbour], currentNeighbour))
+                print(openList)
+      return False
+  
+  def move(self, game):
+    if self.__moving:
+
+      if len(self.__route) <= 0:
+        print("true")
+        self.getPath(round(self.posX), round(self.posY), game.maze, round(game.player.getPosX()), round(game.player.getPosY()))
+      
+      self.posX = self.__route[0][0]
+      self.posY = self.__route[0][1]
+
+      self.__route.pop(0)
+
+      game.player.collisions()
 
 
-
-blinky = PathFindingGhost(None, None, "redghost.png", "Blinky", 1, 0)
-inky = WanderingGhost(None, None, "blueghost.png", "Inky")
+blinky = WanderingGhost(None, None, "redghost.png", "Blinky")
+inky = AStarGhost(None, None, "blueghost.png", "Inky", 1, 0)
 winky = PathFindingGhost(None, None, "purpleghost.png", "Winky", -1, 0)
