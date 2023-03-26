@@ -163,8 +163,8 @@ class AStarGhost(PathFindingGhost):
     return abs(givenPosX -  playerPosX) + abs(givenPosY - playerPosY)
 
   def getPath(self, startPosX, startPosY, givenMaze, playerPosX, playerPosY):
-    # list of possible four positions ghost can move to
-    neighbours = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    # list of possible four directions ghost can move in
+    neighbours = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     # list items that have been considered
     closedList = []
     # list of items whose neighbours should be considered
@@ -187,17 +187,20 @@ class AStarGhost(PathFindingGhost):
         if item[0] < lowestFScore:
           lowestFScore = item[0]
           currentNode = item[1]
+          indexToRemove = openList.index(item)
+
+      openList.pop(indexToRemove)
+      print(currentNode)
       
       # if current node is the goal node (i.e. player has been found) then return found route
 
       if currentNode == (playerPosX, playerPosY):
-        route = []
         while currentNode in previousPositions:
           # backtrack and find each previous node 
-          route.append(currentNode)
+          self.__route.append(currentNode)
           currentNode = previousPositions[currentNode]
         # flip route as it is currently player to ghost
-        self.__route = route.reverse()
+        self.__route.reverse()
         return
       
       # otherwise place current node in closed list as its neighbours will be considered
@@ -224,8 +227,8 @@ class AStarGhost(PathFindingGhost):
                 fHeuristic[currentNeighbour] = currentGScore + self.getHeuristic(currentNeighbour[0], currentNeighbour[1], playerPosX, playerPosY)
                 # add the neighbour in the open list so its neighbours can be considered
                 openList.append((fHeuristic[currentNeighbour], currentNeighbour))
-                print(openList)
-      return False
+      
+    return False
   
   def move(self, game):
     if self.__moving:
@@ -234,12 +237,14 @@ class AStarGhost(PathFindingGhost):
         print("true")
         self.getPath(round(self.posX), round(self.posY), game.maze, round(game.player.getPosX()), round(game.player.getPosY()))
       
+      print(self.__route)
+
       self.posX = self.__route[0][0]
       self.posY = self.__route[0][1]
 
       self.__route.pop(0)
 
-      game.player.collisions()
+      game.player.collisions(game)
 
 
 blinky = WanderingGhost(None, None, "redghost.png", "Blinky")
