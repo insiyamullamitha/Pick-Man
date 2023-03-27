@@ -19,6 +19,7 @@ class Player:
     self.__direction = ""
     self.__changeX = 0
     self.__changeY = 0
+    self.__image = "pacmandefault.png"
     
   # add getters and setters
   def getMode(self):
@@ -60,6 +61,11 @@ class Player:
     return self.__startPosY
   def setStartPosY(self, givenPosY):
     self.__startPosY = givenPosY
+  
+  def getImage(self):
+    return self.__image
+  def setImage(self, givenImage):
+    self.__image = givenImage
 
   def getDirection(self):
     return self.__direction
@@ -95,30 +101,24 @@ class Player:
         case "left":
           if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += -0.5
-            if game.character == "pacmandefault.png":
-              self.__rotate = 180
             movement = True
         case "right":
           if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += 0.5
-            if game.character == "pacmandefault.png":
-              self.__rotate = 0
             movement = True
         case "up":
           if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
             self.__changeY += -0.5
-            if game.character == "pacmandefault.png":
-              self.__rotate = 90
             movement = True
         case "down":
           if (self.__posX, math.ceil(self.__posY+0.5)) in game.maze.getPaths():
             self.__changeY += 0.5
-            if game.character == "pacmandefault.png":
-              self.__rotate = 270
             movement = True
         case __:
           return
       if movement:
+        if self.__image == "pacmandefault.png":
+          self.__rotate = playerRotations[self.__direction]
         return self.update(game)
 
   def collisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
@@ -156,7 +156,6 @@ class Player:
               if game.instructions[instruction][0] == 1:
                 game.updateFileStarStatus(instruction)
           else:
-            ghost.respawn()
             pygame.time.delay(3000)
         # if player is in kill mode reset
         else:
@@ -180,3 +179,9 @@ class Player:
     returnValue = self.collisions(game)
     if returnValue != None:
       return returnValue
+  
+  def setUpInitialPosition(self, givenPosX, givenPosY):
+    self.__posX = givenPosX
+    self.__posY = givenPosY
+    self.__startPosX = givenPosX
+    self.__startPosY = givenPosY

@@ -19,8 +19,6 @@ def uploadImage(image, scale, x, y, rotation = 0):
     SCREEN.blit(screenToUpload, (x, y))
 
 #generate given sound effect if sound effect settings are turned on
-def playSoundEffects(soundEffects, audio):
-    pass
-    #pygame.mixer.Sound(audio)
-    #if soundEffects:
-        #audio.play()
+def playSoundEffects(soundEffects, sound):
+    if soundEffects:
+        sound.play()

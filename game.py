@@ -25,7 +25,6 @@ class Game:
     self.time = [0, 0]
     self.startTime = 0
     self.currentLevel = None
-    self.character = "pacmandefault.png"
     self.theme = 0
     self.username = ""
     self.player = Player(0, None, None)
@@ -47,10 +46,12 @@ class Game:
     for powerup in self.maze.getPowerups(): # powerup objects must be instantiated
       uploadImage(powerup.getImage(), 1/7, 252+powerup.getPosX()*30, 68+powerup.getPosY()*30)
     # draw player 
-    uploadImage(self.character, 1/6, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
+    uploadImage(self.player.getImage(), 1/6, 250+self.player.getPosX()*30, 65 + self.player.getPosY()*30, self.player.getRotate())
     for ghost in self.ghostObjects: # ghost objects must be instantiated
       ghost.move(self) # ghost object move
       uploadImage(ghost.getImage(), 1/6, 250+ghost.getPosX()*30, 65 + ghost.getPosY()*30)
+    pygame.display.flip()
+    self.player.collisions(self)
 
   def loadInstructions(self):
     with open ("levelStarsInstructions.txt") as file: # find instructions for level and store in array
@@ -74,8 +75,7 @@ class Game:
         image = "yellowstar.png"
       uploadImage(image, 0.1, 245 + 200*instruction, 170)
       drawText(self.instructions[instruction][1], 260 + instruction * 200, 290, BLACK, 15, self.theme)
-      uploadImage(self.character, 0.25, 3, 215)
-
+      uploadImage(self.player.getImage(), 0.25, 3, 215)
 
   # visually display powerup function to user
   def displayPowerupAlert(self, powerup):
@@ -97,25 +97,18 @@ class Game:
 
 
   def setupMazeAndObjects(self):
-    if self.currentLevel == "1": # load level 1 maze
-      mazeLayout = level1Maze
-    elif self.currentLevel == "2": # load level 2 maze
-      # level 2 instructions
-      mazeLayout = level2Maze
+    # load correct level maze
+    match self.currentLevel:
+      case "1":
+        mazeLayout = level1Maze
+      case "2":
+        mazeLayout = level2Maze
     self.maze.loadMaze(mazeLayout, self.theme)
     # set initial coordinates for player
-    self.player.setPosX(self.maze.getPlayer().x) 
-    self.player.setPosY(self.maze.getPlayer().y)
-    self.player.setStartPosX(self.maze.getPlayer().x)
-    self.player.setStartPosY(self.maze.getPlayer().y)
+    self.player.setUpInitialPosition(self.maze.getPlayer().x, self.maze.getPlayer().y)
     # set initial coordinates for each ghost
-    for ghost in range(len(self.ghostObjects)):
-      self.ghostObjects[ghost].setPosX(self.maze.getGhosts()[ghost].x)
-      self.ghostObjects[ghost].setPosY(self.maze.getGhosts()[ghost].y)
-      self.ghostObjects[ghost].setStartPosX(self.maze.getGhosts()[ghost].x)
-      self.ghostObjects[ghost].setStartPosY(self.maze.getGhosts()[ghost].y)
-      self.ghostObjects[ghost].resetNextDirection()
-      self.ghostObjects[ghost].resetMovements()
+    for g, ghost in enumerate(self.ghostObjects):
+      ghost.setUpInitialPosition(self.maze.getGhosts()[g].x, self.maze.getGhosts()[g].y)
 
   def displayLives(self): # display number of lives using red/empty hearts during game
     for x in range(self.lives): # display red hearts for lives still remaining 
@@ -177,7 +170,7 @@ class Game:
     # set default character in case the user forgets/exits before they select
     matchingCharacter = False
     for characters in allCharacters[self.theme]:
-      if self.character == characters[0]:
+      if self.player.getImage() == characters[0]:
         matchingCharacter = True
     if matchingCharacter == False:
       self.changeCharacter(0)
@@ -190,7 +183,7 @@ class Game:
 
   def changeCharacter(self, givenCharacter):
     # change character
-    self.character = allCharacters[self.theme][givenCharacter][0]
+    self.player.setImage(allCharacters[self.theme][givenCharacter][0])
     # change ghosts images depending on character chosen
     for ghost in range(len(self.ghostObjects)):
       self.ghostObjects[ghost].setImage(allCharacters[self.theme][givenCharacter][ghost + 1])
@@ -366,8 +359,8 @@ class Game:
         drawText("PICKMAN", 0, 175, BLACK, 300, self.theme)
         drawText("PICKMAN", -8, 175, BLUE, 300, self.theme)
         drawText("BY INSIYA MULLAMITHA", 320, 400, BLACK, 40, self.theme)
-        pygame.display.flip()
-        pygame.time.delay(2500)
+        pygame.display.flip() 
+        pygame.time.delay(2000)
         self.state = "menu"
 
       #menu gamestate
@@ -451,7 +444,7 @@ class Game:
         for x in range(len(allCharacters[self.theme])):
           uploadImage(allCharacters[self.theme][x][0], 1, 90 + x* 300, 210)
           # if character has been selected draw green box around the 
-          if allCharacters[self.theme][x][0] == self.character:
+          if allCharacters[self.theme][x][0] == self.player.getImage():
             pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(80 + x*300, 200, 200, 200), 2, 3)
         pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(380, 460, 250, 50), 0, 3)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(380, 460, 250, 50), 1, 3)
@@ -523,15 +516,12 @@ class Game:
           button.render(self.theme)
         for button in allButtons[3]: # display play state specific buttons
           button.render(self.theme)
-        self.displayGameStars()
-        self.displayLives()
-        self.drawMaze()
-        pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(570, 540, 120, 40), 0, 3)
-        pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(570, 540, 120, 40), 1, 3)
-        #drawText(str(self.time[0]) + "m " + str(self.time[1]) + "s", 580, 545, BLACK, 40)
         pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(50, 90, 150, 40), 0, 3)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(50, 90, 150, 40), 1, 3)
         drawText("score: " + str(self.score), 55, 95, BLACK, 40, self.theme)
+        self.displayGameStars()
+        self.displayLives()
+        self.drawMaze()
         movePowerupCollision = self.player.move(self)
         if movePowerupCollision != None:
           self.displayPowerupAlert(movePowerupCollision)
@@ -587,6 +577,7 @@ class Game:
 game = Game()
 
 # initialise pygame
+pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.mixer.init()
 pygame.init()
 

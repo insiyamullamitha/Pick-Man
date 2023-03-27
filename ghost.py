@@ -5,7 +5,7 @@ import random
 import math
 from maze import *
 
-class PathFindingGhost:
+class SimplePathFindingGhost:
   def __init__(self, givenX, givenY, givenImage, givenName, givenNextX = 0, givenNextY = 0):
     self.posX = givenX
     self.posY = givenY
@@ -105,11 +105,18 @@ class PathFindingGhost:
       self.posY += self.__nextDirection[1]/4
       # decrease number of movements so that at 0 the direction can change
       self.__movements += 1
-      game.player.collisions(game)
+  
+  def setUpInitialPosition(self, posX, posY):
+    self.posX = posX
+    self.posY = posY
+    self.__startPosX = posX
+    self.__startPosY = posY
+    self.resetNextDirection()
+    self.resetMovements()
 
-class WanderingGhost(PathFindingGhost):
+class WanderingGhost(SimplePathFindingGhost):
   def __init__(self, givenX, givenY, givenImage, givenName):
-    PathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName)
+    SimplePathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName)
     self.__moving = True
     self.__direction = random.choice(["left", "right", "up", "down"])
     self.__movements = 0
@@ -148,21 +155,31 @@ class WanderingGhost(PathFindingGhost):
         self.posY += changeY
 
 
-
-
-class AStarGhost(PathFindingGhost):
+class AStarGhost(SimplePathFindingGhost):
   
   def __init__(self, givenX, givenY, givenImage, givenName, givenNextX, givenNextY):
-    PathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName, givenNextX, givenNextY)
+    SimplePathFindingGhost.__init__(self, givenX, givenY, givenImage, givenName, givenNextX, givenNextY)
+    self.__startPosX = givenX
+    self.__startPosY = givenY
     self.__moving = True
     self.__route = []
+    self.__movements = 0
+    self.__nextDirection = []
   
+  def respawn(self):
+    self.posX = self.__startPosX
+    self.posY = self.__startPosY
+    self.__route = []
+    self.__movements = 0
+    self.__nextDirection = []
+    self.__route = [(self.posX, self.posY)]
 
   def getHeuristic(self, givenPosX, givenPosY, playerPosX, playerPosY):
     # find manhattan distance from given position to goal
     return abs(givenPosX -  playerPosX) + abs(givenPosY - playerPosY)
 
-  def getPath(self, startPosX, startPosY, givenMaze, playerPosX, playerPosY):
+  def getPath(self, givenMaze, playerPosX, playerPosY):
+    currentPosition = (round(self.posX), round(self.posY))
     # list of possible four directions ghost can move in
     neighbours = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     # list items that have been considered
@@ -172,15 +189,17 @@ class AStarGhost(PathFindingGhost):
     # contains dictionary of previous nodes to each visited node
     previousPositions = {}
     # movement cost from start to current
-    gMovementCost = {(startPosX, startPosY): 0}
+    gMovementCost = {(currentPosition[0], currentPosition[1]): 0}
     # heuristic movement cost from current to goal 
-    fHeuristic = {(startPosX, startPosY): self.getHeuristic(startPosX, startPosY, playerPosX, playerPosY)}
+    fHeuristic = {(currentPosition[0], currentPosition[1]): self.getHeuristic(currentPosition[0], currentPosition[1], playerPosX, playerPosY)}
     # place start position in open list to be considered
-    openList.append((fHeuristic[(startPosX, startPosY)], (startPosX, startPosY)))
+    openList.append((fHeuristic[(currentPosition[0], currentPosition[1])], (currentPosition[0], currentPosition[1])))
+    # list of directions ghost will follow
+    self.__route = []
 
     while len(openList) > 0:
 
-      # find position of node with the lowest heuristic cost and set this as current node
+      # find position of node with the lowest heuristic cost in the open list and set this as current node
 
       lowestFScore = float('inf')
       for item in openList:
@@ -190,7 +209,6 @@ class AStarGhost(PathFindingGhost):
           indexToRemove = openList.index(item)
 
       openList.pop(indexToRemove)
-      print(currentNode)
       
       # if current node is the goal node (i.e. player has been found) then return found route
 
@@ -201,6 +219,7 @@ class AStarGhost(PathFindingGhost):
           currentNode = previousPositions[currentNode]
         # flip route as it is currently player to ghost
         self.__route.reverse()
+        print(self.__route)
         return
       
       # otherwise place current node in closed list as its neighbours will be considered
@@ -233,20 +252,38 @@ class AStarGhost(PathFindingGhost):
   def move(self, game):
     if self.__moving:
 
-      if len(self.__route) <= 0:
-        print("true")
-        self.getPath(round(self.posX), round(self.posY), game.maze, round(game.player.getPosX()), round(game.player.getPosY()))
-      
-      print(self.__route)
+      # check if ghost has moved one full unit 
+      if self.__movements >= 5 or self.__nextDirection == []:
+        # remove coordinate of position ghost is currently in from route
+        self.__route.pop(0)
+        # check if the current route is empty and reset if so
+        if len(self.__route) <= 0:
+          self.getPath(game.maze, round(game.player.getPosX()), round(game.player.getPosY()))
+        # reset number of movements
+        self.__movements = 0
+        # create direction for player to move in in the form (0, 0)/(1,0) etc. by finding the difference between current and next coordinate
+        self.__nextDirection = [(self.__route[0][0]-round(self.posX)), (self.__route[0][1]-round(self.posY))]
 
-      self.posX = self.__route[0][0]
-      self.posY = self.__route[0][1]
+      # update current position at a speed of 0.2
+      self.posX += self.__nextDirection[0]/5
+      self.posY += self.__nextDirection[1]/5
+      # increment number of movements 
+      self.__movements += 1
 
-      self.__route.pop(0)
 
-      game.player.collisions(game)
+  def setUpInitialPosition(self, posX, posY):
+    self.posX = posX
+    self.posY = posY
+    self.__startPosX = posX
+    self.__startPosY = posY
+    self.__movements = 0 
+    self.__route = [(self.posX, self.posY)]
+    self.__nextDirection = []
+  
+  
+
 
 
 blinky = WanderingGhost(None, None, "redghost.png", "Blinky")
 inky = AStarGhost(None, None, "blueghost.png", "Inky", 1, 0)
-winky = PathFindingGhost(None, None, "purpleghost.png", "Winky", -1, 0)
+winky = SimplePathFindingGhost(None, None, "purpleghost.png", "Winky", -1, 0)
