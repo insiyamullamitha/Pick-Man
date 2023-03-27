@@ -4,6 +4,6 @@
 316,CATRIN
 307,EVIE
 time,0
-stars,101
-powerups,1028
+stars,2
+powerups,1024
 

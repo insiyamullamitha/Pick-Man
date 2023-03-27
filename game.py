@@ -210,7 +210,7 @@ class Game:
             return
           if button in allButtons[4] and self.state != "pause":
             if button == replayButton and self.state == "game over":
-              pass
+                pass
             else:
               return
           if button in allButtons[5] and self.state != "game over":
