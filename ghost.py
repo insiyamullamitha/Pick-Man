@@ -19,7 +19,8 @@ class SimplePathFindingGhost:
     self.__nextDirection = [givenNextX, givenNextY]
     self.__movements = 0
 
-  #setters and getters
+  # getters and setters for private attributes
+
   def getName(self):
     return self.__name 
   def setName(self, givenName):
@@ -68,12 +69,15 @@ class SimplePathFindingGhost:
     self.__nextDirection = [self.__firstXMovement, self.__firstYMovement]
 
   def respawn(self):
+    # reset ghost position to start
     self.posX = self.__startPosX
     self.posY = self.__startPosY
+    # reset preprogrammed first movement the ghost should make
     self.__nextDirection = [self.__firstXMovement, self.__firstYMovement]
     self.__movements = 0
 
-  def setTarget(self, game): # create list of directions for ghost to get to player
+  def setTarget(self, game): 
+    # create direction for ghost to get to player
     playerPosition = (int(game.player.getPosX()), int(game.player.getPosY()))
     potentialDirections = []
     # for each direction the ghost can move in, add to potentialDirections array
@@ -85,9 +89,9 @@ class SimplePathFindingGhost:
       potentialDirections.append((0,-1))
     if (self.posX, self.posY + 1) not in game.maze.getWalls() and (self.posX, self.posY + 1) not in game.maze.getGhosts():
       potentialDirections.append((0,1))
-    # check which direction allows the ghost to be closest to the player
     distanceFromPlayer = float('inf')
     for direction in potentialDirections:
+      # # check which potential direction allows the ghost to be closest to the player
       if distanceFromPlayer > abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1]):
         distanceFromPlayer = abs(self.posX + direction[0] - playerPosition[0]) + abs(self.posY + direction[1] - playerPosition[1])
         directionToMove = direction
@@ -107,8 +111,10 @@ class SimplePathFindingGhost:
       self.__movements += 1
   
   def setUpInitialPosition(self, posX, posY):
+    # set up initial start coordiates
     self.posX = posX
     self.posY = posY
+    # also use start attributes with coordinates ghost can return to
     self.__startPosX = posX
     self.__startPosY = posY
     self.resetNextDirection()
@@ -167,15 +173,17 @@ class AStarGhost(SimplePathFindingGhost):
     self.__nextDirection = []
   
   def respawn(self):
+    # reset ghost start position
     self.posX = self.__startPosX
     self.posY = self.__startPosY
+    # reset current path of ghost
     self.__route = []
     self.__movements = 0
     self.__nextDirection = []
     self.__route = [(self.posX, self.posY)]
 
   def getHeuristic(self, givenPosX, givenPosY, playerPosX, playerPosY):
-    # find manhattan distance from given position to goal
+    # find manhattan distance from given position to goal (number of x units + number of y units)
     return abs(givenPosX -  playerPosX) + abs(givenPosY - playerPosY)
 
   def getPath(self, givenMaze, playerPosX, playerPosY):
@@ -219,7 +227,6 @@ class AStarGhost(SimplePathFindingGhost):
           currentNode = previousPositions[currentNode]
         # flip route as it is currently player to ghost
         self.__route.reverse()
-        print(self.__route)
         return
       
       # otherwise place current node in closed list as its neighbours will be considered
@@ -272,17 +279,15 @@ class AStarGhost(SimplePathFindingGhost):
 
 
   def setUpInitialPosition(self, posX, posY):
+    # set up initial starting position of ghost
     self.posX = posX
     self.posY = posY
+    # start attributes ghost can use to respawn
     self.__startPosX = posX
     self.__startPosY = posY
     self.__movements = 0 
     self.__route = [(self.posX, self.posY)]
     self.__nextDirection = []
-  
-  
-
-
 
 blinky = WanderingGhost(None, None, "redghost.png", "Blinky")
 inky = AStarGhost(None, None, "blueghost.png", "Inky", 1, 0)

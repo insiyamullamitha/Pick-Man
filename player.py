@@ -21,7 +21,8 @@ class Player:
     self.__changeY = 0
     self.__image = "pacmandefault.png"
     
-  # add getters and setters
+  # getters and setters for private attributes
+
   def getMode(self):
     return self.__mode
   def setMode(self, givenMode):
@@ -66,122 +67,97 @@ class Player:
     return self.__image
   def setImage(self, givenImage):
     self.__image = givenImage
-
-  def getDirection(self):
-    return self.__direction
-  def setDirection(self, givenDirection):
-    match givenDirection:
-      case pygame.K_LEFT:
-        self.__direction = "left"
-      case pygame.K_RIGHT:
-        self.__direction = "right"
-      case pygame.K_UP:
-        self.__direction = "up"
-      case pygame.K_DOWN:
-        self.__direction = "down"
-      case None:
-        self.__direction = ""
-
-  def resetPosition(self):
-    self.__posX = self.__startPosX
-    self.__posY = self.__startPosY
-    self.__rotate = 0
-
-
-  #rotate pacman image so it faces towards the direction it moves in
+  
+  # rotate = direction player is facing according to their key movement (i.e. right/left etc.)
   def getRotate(self):
     return self.__rotate
   def setRotate(self, givenRotation):
     self.__rotate = givenRotation
 
+  def getDirection(self):
+    return self.__direction
+  def setDirection(self, givenDirection):
+    # set direction of player according to key movement given in event loop
+    match givenDirection:
+      case pygame.K_LEFT: # left
+        self.__direction = "left"
+      case pygame.K_RIGHT: # right
+        self.__direction = "right"
+      case pygame.K_UP: # up
+        self.__direction = "up"
+      case pygame.K_DOWN: # down
+        self.__direction = "down"
+      case None:
+        self.__direction = ""
+
+  def resetPosition(self): 
+    # return to starting position of pacman
+    self.__posX = self.__startPosX
+    self.__posY = self.__startPosY
+    self.__rotate = 0
+
   def move(self, game):  # takes in direction of movement and updates player coordinates
     movement = False
     for x in range(int(self.__speed/0.5)):
+      # check direction
       match self.__direction:
         case "left":
+          # check if movement would cause wall collisionand update change in coordinates
           if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += -0.5
             movement = True
         case "right":
+          # check if movement would cause wall collision and update change in coordinates
           if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += 0.5
             movement = True
         case "up":
+          # check if movement would cause wall collision and update change in coordinates
           if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
             self.__changeY += -0.5
             movement = True
         case "down":
+          # check if movement would cause wall collision and update change in coordinates
           if (self.__posX, math.ceil(self.__posY+0.5)) in game.maze.getPaths():
             self.__changeY += 0.5
             movement = True
         case __:
           return
+      # if movement has occurred update new position
       if movement:
+        # change rotation of player according to their direction if they are original pacman
         if self.__image == "pacmandefault.png":
           self.__rotate = playerRotations[self.__direction]
-        return self.update(game)
+        return self.update()
 
-  def collisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
-    if (round(self.__posX), round(self.__posY)) in game.maze.getPills(): # check if player position is in pill position
-      playSoundEffects(game.soundEffects, PILLSOUND)
-      # remove eaten pill from maze pill array and increase score
-      game.maze.getPills().remove((round(self.__posX), round(self.__posY)))
-      game.score += 1
-      return
+  def checkForCollisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
+    returnValue = None, None
+    # check for pill collision and return pill coordinate
+    if (round(self.__posX), round(self.__posY)) in game.maze.getPills(): 
+      returnValue =  "pill", (round(self.__posX), round(self.__posY))
+    # check if player position is in powerup position and return powerup object
     for powerup in game.maze.getPowerups():
-      if (round(self.__posX), round(self.__posY)) == (powerup.getPosX(), powerup.getPosY()): # check if player position is in powerup position
-        playSoundEffects(game.soundEffects, POWERUPSOUND)
-        game.maze.getPowerups().remove(powerup)
-        if powerup.getType() == "score":
-          game.score += powerup.getScoreValue()
-        elif powerup.getType() == "speed":
-          self.__speed = powerup.getSpeedValue()
-        elif powerup.getType() == "mode":
-          self.__mode = "chasing"
-        return powerup
-    for ghost in game.ghostObjects: # check for collisions with ghosts
+      if (round(self.__posX), round(self.__posY)) == (powerup.getPosX(), powerup.getPosY()): 
+        returnValue = "powerup", powerup
+    # check for collisions with ghosts and return ghost object
+    for ghost in game.ghostObjects: 
       # if player is in chased mode
       if (math.ceil(self.__posX) == math.ceil(ghost.getPosX()) or math.floor(self.__posX) == math.floor(ghost.getPosX())) and (math.ceil(self.__posY) == math.ceil(ghost.getPosY()) or math.floor(self.__posY) == math.floor(ghost.getPosY())): 
-        if self.__mode == "chased":
-          self.resetPosition()
-          ghost.respawn()
-          playSoundEffects(game.soundEffects, LOSINGLIFESOUND)
-          # reduce lives and check if game over 
-          game.lives -= 1
-          if game.lives <= 0:
-            game.state = "game over"
-            if game.stars == 3:
-              game.success = True
-            for instruction in range(len(game.instructions)):
-              if game.instructions[instruction][0] == 1:
-                game.updateFileStarStatus(instruction)
-          else:
-            pygame.time.delay(3000)
-        # if player is in kill mode reset
-        else:
-          playSoundEffects(game.soundEffects, KILLGHOSTSOUND)
-          self.__mode = "chased"
-          game.score += 30
-          self.resetPosition()
-          ghost.respawn()
-          ghost.setMoving(False)
-          pygame.time.delay(2000)
-          ghost.setMoving(True)
-        
-        return
+        returnValue = "ghost", ghost
+    return returnValue
 
-  def update(self, game):
-    # change player position and check for collisions
+  def update(self):
+    # change player position
     self.__posX += self.__changeX 
     self.__posY += self.__changeY 
+    # reset changes in coordinates so that the position is not continually updated
     self.__changeX = 0
     self.__changeY = 0
-    returnValue = self.collisions(game)
-    if returnValue != None:
-      return returnValue
   
   def setUpInitialPosition(self, givenPosX, givenPosY):
+    # set player coordinates to start position
     self.__posX = givenPosX
     self.__posY = givenPosY
+    # also set separate start coordinates player can return to when resetting
     self.__startPosX = givenPosX
     self.__startPosY = givenPosY

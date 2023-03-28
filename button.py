@@ -16,7 +16,8 @@ class Button:
         self.width = givenWidth
         self.newState = givenState
     
-    def render(self, givenTheme):# draws shape of button onto screen with image or text
+    def render(self, givenTheme):
+        # draws shape of button onto screen with image or text
         if self.shape == "circle":
             pygame.draw.circle(SCREEN,  self.colour[givenTheme], (self.x, self.y), self.radius, 0)
             pygame.draw.circle(SCREEN, BLACK[givenTheme], (self.x, self.y), self.radius, 1)
@@ -28,7 +29,8 @@ class Button:
             pygame.draw.rect(SCREEN, BLACK[givenTheme], pygame.Rect(self.x, self.y, self.length, self.width), 1, 3)
             drawText(self.text, self.x + 23, self.y + 10, BLACK, 25, givenTheme)
 
-    def click(self): # checks for collision detection for button and returns true if button has been clicked
+    def click(self): 
+        # checks for collision detection for button and returns true if button has been clicked
         mouseX, mouseY = pygame.mouse.get_pos()
 
         if self.shape == "circle":
@@ -58,5 +60,9 @@ continuePlayButton = Button("", "playsymbol.png", PURPLE, "circle", 500, 400, 35
 returnHomeButton = Button("", "homesymbol.png", PURPLE, "circle", 600, 400, 35, 0, 0, "menu" )
 # add buttons for each game state to array within allButtons 2D array
 # allButtons[0] for side buttons, allButtons[1] for menu page, allButtons[2] for levels etc.
-allButtons = [[soundButton, statsButton, starButton, helpButton], [menuPlayButton, changeCharacterButton],
-              [level1Button, level2Button], [pauseButton], [replayButton, continuePlayButton, returnHomeButton], [replayButton, nextLevelButton]]
+allButtons = [[soundButton, statsButton, starButton, helpButton], 
+              [menuPlayButton, changeCharacterButton],
+              [level1Button, level2Button], 
+              [pauseButton], 
+              [replayButton, continuePlayButton, returnHomeButton], 
+              [replayButton, nextLevelButton]]
