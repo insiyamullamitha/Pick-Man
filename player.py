@@ -1,7 +1,4 @@
 from constants import *
-import pygame
-#from ghost import *
-from pygame.locals import *
 from helperFunctions import *
 from maze import *
 import math
@@ -106,11 +103,21 @@ class Player:
           if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += -0.5
             movement = True
+          # check if new user position would cause them to move into a door and change coordinates
+          else:
+            if (math.floor(self.__posX), self.__posY) == game.maze.getDoor1():
+              self.__posX = game.maze.getDoor2().x
+              self.__posY = game.maze.getDoor2().y
         case "right":
           # check if movement would cause wall collision and update change in coordinates
           if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
             self.__changeX += 0.5
             movement = True
+          else:
+            # check if new user position would cause them to move into a door and change coordinates
+            if (math.ceil(self.__posX), self.__posY) == game.maze.getDoor2():
+              self.__posX = game.maze.getDoor1().x
+              self.__posY = game.maze.getDoor1().y
         case "up":
           # check if movement would cause wall collision and update change in coordinates
           if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          

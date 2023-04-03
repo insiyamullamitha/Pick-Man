@@ -8,7 +8,6 @@ from player import *
 from powerup import *
 from button import *
 from stats import *
-import time
 
 class Game:
   """a class for initialising a game object for pick-man"""
@@ -19,7 +18,7 @@ class Game:
     self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
-    self.soundEffects = True
+    self.soundEffects = False
     self.stars = 0
     self.lives = 3
     self.time = [0, 0]
@@ -63,16 +62,18 @@ class Game:
     # check what type of collision has occurred and accordingly make changes to maze/score/lives/mode
     soundEffect = None
     match collisionObject[0]:
+
       # pill collision
       case "pill":
         # remove pill collided with from pill array
         pillPosition = collisionObject[1]
         self.maze.getPills().remove(pillPosition)
         # play sound effect
-        playSoundEffects(self.soundEffects, PILLSOUND)
+        self.playSoundEffects(PILLSOUND)
         # increase score
         self.score += 1
       # powerup collision
+
       case "powerup":
         # find specific powerup collided with
         powerup = collisionObject[1]
@@ -81,7 +82,7 @@ class Game:
         # visually display type of powerup to user
         self.displayPowerupAlert(powerup)
         # play sound effect
-        playSoundEffects(self.soundEffects, POWERUPSOUND)
+        self.playSoundEffects(POWERUPSOUND)
         # determine type of powerup and accordingly adjust game/player values
         if powerup.getType() == "score": # increase score
           game.score += powerup.getScoreValue()
@@ -89,6 +90,7 @@ class Game:
           self.player.setSpeed(self.player.getSpeed() + powerup.getSpeedValue())
         else: # change player mode
           self.player.setMode("chasing")
+
       # ghost collision
       case "ghost":
         # reset player and ghost positions
@@ -109,7 +111,7 @@ class Game:
           self.player.setMode("chased")
           self.score += 30
         # play sound effects
-        playSoundEffects(self.soundEffects, soundEffect)
+        self.playSoundEffects(soundEffect)
         pygame.time.delay(3000)
 
 
@@ -126,6 +128,12 @@ class Game:
                           [0, lines[startInstruction + 2][1:].strip('\n')]]
       # display instructions on screen
       self.displayInstructions()
+  
+  def playSoundEffects(self, soundFile):
+    if self.soundEffects:
+      print(True)
+      print(soundFile)
+      soundFile.play()
 
   def displayInstructions(self):
     # display instructions and matching star status on screen
@@ -148,7 +156,7 @@ class Game:
   def beginGameOver(self):
     # check if user has completed game successfully (win 3 stars) and set self.success
     self.state = "game over"
-    playSoundEffects(self.soundEffects, LOSINGLIFESOUND)
+    self.playSoundEffects(LOSINGLIFESOUND)
     # update stars that the user has achieved to the text file
     for instruction in range(len(self.instructions)):
       # check if player has achieved task that completes at the end of the game
@@ -219,7 +227,9 @@ class Game:
     # increase number of stars and play sound effect
     if increaseStars:
       self.stars += 1
-      playSoundEffects(self.soundEffects, STARSOUND)
+      self.playSoundEffects(STARSOUND)
+      if self.stars == 3:
+        self.state = "game over"
 
   def changeSoundSettings(self): 
     # toggle sound effect settings and change sound effect button image to represent state
@@ -316,19 +326,19 @@ class Game:
           # change game state
           self.previousState = self.state
           self.state = button.newState
-          print(self.state)
           if self.state == "play":
             self.playingGame = True
           # increase level if next level button and set up new maze
           elif self.state == "instructions":
             if button == nextLevelButton:
+              # cast level number into integer, increment, and cast into string again
               self.currentLevel = str(int(self.currentLevel) + 1)
             self.setupMazeAndObjects()
             usernameButton.text = ""
             self.extraPowerups = 0
           elif self.state == "sound":
             self.changeSoundSettings()
-  
+   
   def buyPowerup(self):
     # check if user has enough stars to buy powerup
     if stats.getNumberOfStars() >= 100:
@@ -492,8 +502,8 @@ class Game:
       elif self.state == "stats":
         SCREEN.fill((WHITE[self.theme]))
         # title
-        drawText("LEADERBOARD AND STATISTICS", 2, 25, BLACK, 88, self.theme)
-        drawText("LEADERBOARD AND STATISTICS", 2, 20, BLUE, 88, self.theme)
+        drawText("LEADERBOARD AND STATISTICS", 2, 20, BLACK, 88, self.theme)
+        drawText("LEADERBOARD AND STATISTICS", -3, 20, BLUE, 88, self.theme)
         # draw table
         self.displayLeaderboard()
       
@@ -530,12 +540,15 @@ class Game:
         # text box layout ish
         pygame.draw.rect(SCREEN, BLUE[self.theme], pygame.Rect(50, 125, 900, 425))
         #bullet points of game features 
-        drawText("• Click the play button to begin the game.", 60, 140, BLACK, 30)
-        drawText("• Instructions on how to earn will display just before you start!", 60, 170, BLACK, 30, self.theme)
+        drawText("• Use the escape key on the keyboard to return to the previous page.", 60, 140, BLACK, 30, self.theme)
+        drawText("• Click the play button to begin the game.", 60, 170, BLACK, 30, self.theme)
         drawText("• Use the up, down, left and right arrow keys on your keyboard to control movement", 60, 200, BLACK, 30, self.theme)
-        drawText("• Click on 'Change Character' to change default theme and character image", 60, 230, BLACK, 30, self.theme)
-        drawText("• Collect stars and use these to buy powerups", 60, 260, BLACK, 30, self.theme)
-        drawText("• Compete with your friends with the leaderboard feature!", 60, 290, BLACK, 30, self.theme)
+        drawText("• Avoid the ghosts as you only have three lives...", 60, 230, BLACK, 30, self.theme)
+        drawText("• Powerups can give you more points, higher speed or ability to kill ghosts!", 60, 260, BLACK, 30, self.theme)
+        drawText("• Collect stars and use these to buy powerups", 60, 290, BLACK, 30, self.theme)
+        drawText("• Instructions on how to earn stars will display just before you start!", 60, 320, BLACK, 30, self.theme)
+        drawText("• Click on 'Change Character' to change default theme and character image", 60, 350, BLACK, 30, self.theme)
+        drawText("• Compete with your friends with the leaderboard feature!", 60, 380, BLACK, 30, self.theme)
 
       #change character and theme game state  
       elif self.state == "change theme":
@@ -602,7 +615,7 @@ class Game:
         self.loadInstructions()
         #display input box for username button
         usernameButton.render(self.theme)
-        drawText("Enter username below and press enter", 350, 350, BLACK, 20, self.theme)
+        drawText("Enter username (between 3-10 characters) and press enter", 320, 350, BLACK, 20, self.theme)
         # red remove extra powerup button if user has more than 1
         if self.extraPowerups > 0:
           pygame.draw.circle(SCREEN, RED, (500, 555), 12, 0)
@@ -644,6 +657,7 @@ class Game:
         # score box
         pygame.draw.rect(SCREEN, GREEN[self.theme], pygame.Rect(50, 90, 150, 40), 0, 3)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(50, 90, 150, 40), 1, 3)
+        # draw current game score 
         drawText("score: " + str(self.score), 55, 95, BLACK, 40, self.theme)
         # display stars and instructions
         self.displayGameStars()
@@ -688,14 +702,13 @@ class Game:
         # display level instructions and stars (and whether they have been achieved)
         self.displayInstructions()
         # update all statistics (stars, leaderboard, time) if fully successful game (3 stars) and only number of stars if not successful
-        if not self.success:
-          stats.updateStatistics(self.stars)
+        if self.success:
+          stats.updateStatistics(self.stars, self.score, self.username)
         else:
-          stats.updateStatistics(self.stars, self.score, self.username, (self.time[0] * 60) + self.time[1])
+          stats.updateStatistics(self.stars)
       
       elif self.state == "end program":
         SCREEN.fill(BLACK[self.theme])
-        # add animation
         pygame.display.update()
         pygame.time.delay(2000)
         pygame.quit()
@@ -705,12 +718,12 @@ class Game:
 # initialise game object
 game = Game()
 
-# initialise pygame
-pygame.init()
-
 # load background music 
-pygame.mixer.music.load(INTRODUCTIONMUSIC)  
+pygame.mixer.music.load('media/intromusic.wav')  
 pygame.mixer.music.play()
+
 
 # play game
 game.playGame()
+
+

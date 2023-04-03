@@ -1,5 +1,4 @@
 from helperFunctions import *
-from pygame.locals import *
 from constants import *
 import math
 

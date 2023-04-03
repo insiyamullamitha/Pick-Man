@@ -1,7 +1,5 @@
 from constants import*
 from helperFunctions import *
-import pygame
-from pygame.locals import *
 import random
 from powerup import *
 vec = pygame.math.Vector2()
@@ -13,7 +11,8 @@ class Maze:
         self.__walls = []
         self.__pills = []
         self.__ghosts = []
-        self.__doors = []
+        self.__door1 = None
+        self.__door2 = None
         self.__powerups = []
         self.__paths = []
         self.__player = None
@@ -66,14 +65,15 @@ class Maze:
     def resetGhosts(self):
         self.__ghosts = []
 
-    def getDoors(self):
-        return self.__doors
-    def getADoor(self, pos):
-        return self.__doors[pos]
-    def appendDoors(self, givenDoor):
-        self.__doors.append(givenDoor)
-    def resetDoors(self):
-        self.__doors = []
+    def getDoor1(self):
+        return self.__door1
+    def resetDoor1(self):
+        self.__door1 = None
+    
+    def getDoor2(self):
+        return self.__door2
+    def resetDoor2(self):
+        self.__door2 = None
     
     def getPowerups(self):
         return self.__powerups
@@ -98,7 +98,8 @@ class Maze:
 
     def loadMaze(self, maze, givenTheme):
         self.__mazeLayout = maze 
-        self.resetDoors()
+        self.resetDoor1()
+        self.resetDoor2()
         self.resetPowerups()
         self.resetPills()
         self.resetGhosts()
@@ -120,7 +121,12 @@ class Maze:
                     #pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (column*30)), 65 + (row*30), 30, 30),0)
                     pass
                 if "D" in self.__mazeLayout[row][column]:#doors
-                    self.__doors.append(pygame.math.Vector2(column, row))
+                    # door 1 user moves left into
+                    if "1" in self.__mazeLayout[row][column]:
+                        self.__door1 = pygame.math.Vector2(column, row)
+                    # door 2 moves right into
+                    elif "2" in self.__mazeLayout[row][column]:
+                        self.__door2 = pygame.math.Vector2(column, row)
                 if self.__mazeLayout[row][column] == "B":#booster
                     newPowerup = Powerup(random.choice(["score", "speed", "mode"]), "positive", 1, column, row, random.choice([5, 10, 50, 100]), allCharacters[2][0][givenTheme])
                     self.__powerups.append(newPowerup) # add to attribute of array of powerups
@@ -137,7 +143,7 @@ class Maze:
 
 
 level1Maze = [["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-              ["1", "P", "P", "P", "P", "P", "1", "P", "P", "P", "P", "B", "P", "P", "P", "P", "P", "1", "P", "P", "P", "P", "P", "1"],
+              ["1", "P", "P", "P", "P", "P", "1", "P", "P", "P", "P", "B", "P", "P", "P", "P", "PD2", "1", "P", "P", "P", "P", "P", "1"],
               ["1", "P", "1", "1", "1", "P", "1", "P", "1", "1", "1", "1", "1", "1", "1", "1", "P", "1", "P", "P", "P", "B", "P", "1"],
               ["1", "P", "1", "B", "P", "P", "1", "P", "P", "P", "P", "1", "P", "P", "P", "P", "P", "1", "P", "P", "P", "P", "P", "1"],
               ["1", "P", "P", "P", "1", "P", "1", "P", "1", "1", "P", "1", "P", "1", "1", "1", "P", "1", "1", "1", "P", "P", "P", "1"],
@@ -149,7 +155,7 @@ level1Maze = [["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", 
               ["1", "P", "P", "P", "1", "P", "1", "1", "1", "P", "P", "1", "P", "P", "P", "1", "P", "1", "1", "1", "P", "P", "P", "1"],
               ["1", "P", "P", "P", "1", "P", "1", "P", "P", "P", "P", "1", "P", "P", "P", "P", "P", "1", "P", "P", "P", "1", "P", "1"],
               ["1", "P", "1", "1", "1", "P", "1", "P", "1", "1", "1", "1", "1", "1", "1", "1", "P", "1", "P", "1", "1", "1", "P", "1"],
-              ["1", "B", "1", "P", "P", "P", "P", "P", "P", "P", "P", "U", "P", "P", "P", "P", "P", "1", "P", "B", "P", "P", "P", "1"],
+              ["1", "B", "1", "PD1", "P", "P", "P", "P", "P", "P", "P", "U", "P", "P", "P", "P", "P", "1", "P", "B", "P", "P", "P", "1"],
               ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1"]]
 
 
@@ -160,7 +166,7 @@ level2Maze = [["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","
               ["1","B","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","1","1","P","1","P","1","1","0","1","1","P","1","P","1","1","1"],
-              ["1","DU","P","P","P","P","1","G","G","G","1","P","P","P","P","DP","1"],
+              ["1","UPD1","P","P","P","P","1","G","G","G","1","P","P","P","P","PD2","1"],
               ["1","1","1","P","1","P","1","1","1","1","1","P","1","B","1","1","1"],
               ["1","1","1","P","1","P","P","P","P","P","P","P","1","P","1","1","1"],
               ["1","P","P","P","1","P","P","1","P","1","P","P","1","P","P","P","1"],

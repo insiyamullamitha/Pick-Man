@@ -1,8 +1,5 @@
 #helper function file to contain functions that are used repeatedly throughout the game
-import pygame
-pygame.init()
 from constants import *
-from pygame.locals import *
 
 def drawText(string, x, y, colour, size, givenTheme = 0):
     #function to render inputted string onto a given position
@@ -10,8 +7,9 @@ def drawText(string, x, y, colour, size, givenTheme = 0):
     text = font.render(str(string), True, colour[givenTheme])
     SCREEN.blit(text, (x, y))
 
-def uploadImage(image, scale, x, y, rotation = 0): # scale, rotate and upload image on to screen
-    imageToUpload = pygame.image.load("media/" + image).convert_alpha()
+def uploadImage(imageFileName, scale, x, y, rotation = 0): # scale, rotate and upload image on to screen
+    # load image file to pygame
+    imageToUpload = pygame.image.load("media/" + imageFileName).convert_alpha()
     width = imageToUpload.get_rect().width
     height = imageToUpload.get_rect().height
     # scale
@@ -21,8 +19,4 @@ def uploadImage(image, scale, x, y, rotation = 0): # scale, rotate and upload im
     # blit
     SCREEN.blit(screenToUpload, (x, y))
 
-#generate given sound effect if sound effect settings are turned on
-def playSoundEffects(soundEffects, sound):
-    if soundEffects:
-        print(sound)
-        sound.play()
+

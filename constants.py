@@ -1,6 +1,16 @@
 #declare constant values that will not change while the game is running
 import pygame
 from pygame.locals import *
+
+pygame.mixer.init()
+
+# sound effects/music
+PILLSOUND = pygame.mixer.Sound("media/pillsound.wav")
+LOSINGLIFESOUND = pygame.mixer.Sound("media/losinglifesound.wav")
+POWERUPSOUND = pygame.mixer.Sound("media/powerupsound.wav")
+STARSOUND = pygame.mixer.Sound("media/earnstarsound.wav")
+KILLGHOSTSOUND = pygame.mixer.Sound("media/playerkillssound.wav")
+
 pygame.init()
 
 # screen size
@@ -21,13 +31,6 @@ LIGHTBLUE = [(31,176,245),(45,117,50) ]
 GREY = [(157, 154, 161), (255,114,118)]
 PURPLE = [(191, 0, 255), (144, 109, 203)]
 FONT = pygame.font.SysFont(None, 36)
-# sound effects/ music
-PILLSOUND = pygame.mixer.Sound('media/wakkawakkasound.wav')
-LOSINGLIFESOUND = pygame.mixer.Sound('media/losinglifesound.wav')
-POWERUPSOUND = pygame.mixer.Sound('media/powerupsound.wav')
-STARSOUND = pygame.mixer.Sound("media/earnstarsound.wav")
-KILLGHOSTSOUND = pygame.mixer.Sound("media/playerkillssound.wav")
-INTRODUCTIONMUSIC = "media/intromusic.wav"
 # maze element images
 allCharacters = [[["pacmandefault.png", "redghost.png", "purpleghost.png", "blueghost.png"], 
                   ["jerry.png", "tom.png", "tom.png", "tom.png"], 
