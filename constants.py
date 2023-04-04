@@ -4,11 +4,11 @@ from pygame.locals import *
 pygame.mixer.init()
 pygame.init()
 # load sound effects/music
-PILLSOUND = pygame.mixer.Sound("media/pillsound.wav")
+PILLSOUND = pygame.mixer.Sound("media/pilleatensound.wav")
 LOSINGLIFESOUND = pygame.mixer.Sound("media/losinglifesound.wav")
 POWERUPSOUND = pygame.mixer.Sound("media/powerupsound.wav")
-STARSOUND = pygame.mixer.Sound("media/earnstarsound.wav")
-KILLGHOSTSOUND = pygame.mixer.Sound("media/playerkillssound.wav")
+STARSOUND = pygame.mixer.Sound("media/starsound.wav")
+KILLGHOSTSOUND = pygame.mixer.Sound("media/killsound.wav")
 pygame.mixer.music.load('media/intromusic.wav')  
 # screen size
 WIDTH = 1000
