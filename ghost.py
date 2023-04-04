@@ -135,20 +135,19 @@ class WanderingGhost(SimplePathFindingGhost):
   def move(self, game): # ghost move function
     if self.__moving:
       changeX, changeY = 0, 0
-      match (self.__direction): # update changeX and changeY depending on direction of player
-        # check if new coordinates would cause wall collision
-        case "left":
-          if (math.floor(self.posX - 0.1), self.posY) in game.maze.getPaths() or (math.floor(self.posX - 0.1), self.posY) in game.maze.getGhosts(): 
-            changeX = -0.1
-        case "right":
-          if (math.ceil(self.posX + 0.1), self.posY) in game.maze.getPaths() or (math.ceil(self.posX + 0.1), self.posY) in game.maze.getGhosts(): 
-            changeX = 0.1
-        case "up":
-          if (self.posX, math.floor(self.posY - 0.1)) in game.maze.getPaths() or (self.posX, math.floor(self.posY - 0.1)) in game.maze.getGhosts(): 
-            changeY = -0.1
-        case "down":
-          if (self.posX, math.ceil(self.posY + 0.1)) in game.maze.getPaths() or (self.posX, math.ceil(self.posY + 0.1)) in game.maze.getGhosts(): 
-            changeY = 0.1
+      # check if new coordinates would cause wall collision
+      if self.__direction == "left":
+        if (math.floor(self.posX - 0.1), self.posY) in game.maze.getPaths() or (math.floor(self.posX - 0.1), self.posY) in game.maze.getGhosts(): 
+          changeX = -0.1
+      if self.__direction == "right":
+        if (math.ceil(self.posX + 0.1), self.posY) in game.maze.getPaths() or (math.ceil(self.posX + 0.1), self.posY) in game.maze.getGhosts(): 
+          changeX = 0.1
+      if self.__direction == "up":
+        if (self.posX, math.floor(self.posY - 0.1)) in game.maze.getPaths() or (self.posX, math.floor(self.posY - 0.1)) in game.maze.getGhosts(): 
+          changeY = -0.1
+      if self.__direction == "down":
+        if (self.posX, math.ceil(self.posY + 0.1)) in game.maze.getPaths() or (self.posX, math.ceil(self.posY + 0.1)) in game.maze.getGhosts(): 
+          changeY = 0.1
 
       # if no movement or movement in one direction many times, reset movements and change direction
       if changeX == 0 and changeY == 0 or self.__movements <= 0: 

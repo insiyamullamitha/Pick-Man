@@ -19,4 +19,6 @@ def uploadImage(imageFileName, scale, x, y, rotation = 0): # scale, rotate and u
     # blit
     SCREEN.blit(screenToUpload, (x, y))
 
+def playSoundEffect(soundObject):
+    soundObject.play()
 

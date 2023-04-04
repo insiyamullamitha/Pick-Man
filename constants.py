@@ -1,18 +1,15 @@
 #declare constant values that will not change while the game is running
 import pygame
 from pygame.locals import *
-
 pygame.mixer.init()
-
-# sound effects/music
+pygame.init()
+# load sound effects/music
 PILLSOUND = pygame.mixer.Sound("media/pillsound.wav")
 LOSINGLIFESOUND = pygame.mixer.Sound("media/losinglifesound.wav")
 POWERUPSOUND = pygame.mixer.Sound("media/powerupsound.wav")
 STARSOUND = pygame.mixer.Sound("media/earnstarsound.wav")
 KILLGHOSTSOUND = pygame.mixer.Sound("media/playerkillssound.wav")
-
-pygame.init()
-
+pygame.mixer.music.load('media/intromusic.wav')  
 # screen size
 WIDTH = 1000
 HEIGHT = 600

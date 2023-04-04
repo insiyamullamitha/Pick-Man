@@ -75,17 +75,16 @@ class Player:
     return self.__direction
   def setDirection(self, givenDirection):
     # set direction of player according to key movement given in event loop
-    match givenDirection:
-      case pygame.K_LEFT: # left
-        self.__direction = "left"
-      case pygame.K_RIGHT: # right
-        self.__direction = "right"
-      case pygame.K_UP: # up
-        self.__direction = "up"
-      case pygame.K_DOWN: # down
-        self.__direction = "down"
-      case None:
-        self.__direction = ""
+    if givenDirection == pygame.K_LEFT: # left
+      self.__direction = "left"
+    elif givenDirection == pygame.K_RIGHT: # right
+      self.__direction = "right"
+    elif givenDirection == pygame.K_UP: # up
+      self.__direction = "up"
+    elif givenDirection == pygame.K_DOWN: # down
+      self.__direction = "down"
+    else:
+      self.__direction = ""
 
   def resetPosition(self): 
     # return to starting position of pacman
@@ -97,45 +96,44 @@ class Player:
     movement = False
     for x in range(int(self.__speed/0.5)):
       # check direction
-      match self.__direction:
-        case "left":
-          # check if movement would cause wall collisionand update change in coordinates
-          if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
-            self.__changeX += -0.5
-            movement = True
+      if self.__direction == "left":
+        # check if movement would cause wall collisionand update change in coordinates
+        if (math.floor(self.__posX - 0.5), self.__posY) in game.maze.getPaths():
+          self.__changeX += -0.5
+          movement = True
+        # check if new user position would cause them to move into a door and change coordinates
+        else:
+          if (math.floor(self.__posX), self.__posY) == game.maze.getDoor1():
+            self.__posX = game.maze.getDoor2().x
+            self.__posY = game.maze.getDoor2().y
+      elif self.__direction == "right":
+        # check if movement would cause wall collision and update change in coordinates
+        if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
+          self.__changeX += 0.5
+          movement = True
+        else:
           # check if new user position would cause them to move into a door and change coordinates
-          else:
-            if (math.floor(self.__posX), self.__posY) == game.maze.getDoor1():
-              self.__posX = game.maze.getDoor2().x
-              self.__posY = game.maze.getDoor2().y
-        case "right":
-          # check if movement would cause wall collision and update change in coordinates
-          if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
-            self.__changeX += 0.5
-            movement = True
-          else:
-            # check if new user position would cause them to move into a door and change coordinates
-            if (math.ceil(self.__posX), self.__posY) == game.maze.getDoor2():
-              self.__posX = game.maze.getDoor1().x
-              self.__posY = game.maze.getDoor1().y
-        case "up":
-          # check if movement would cause wall collision and update change in coordinates
-          if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
-            self.__changeY += -0.5
-            movement = True
-        case "down":
-          # check if movement would cause wall collision and update change in coordinates
-          if (self.__posX, math.ceil(self.__posY+0.5)) in game.maze.getPaths():
-            self.__changeY += 0.5
-            movement = True
-        case __:
-          return
+          if (math.ceil(self.__posX), self.__posY) == game.maze.getDoor2():
+            self.__posX = game.maze.getDoor1().x
+            self.__posY = game.maze.getDoor1().y
+      elif self.__direction == "up":
+        # check if movement would cause wall collision and update change in coordinates
+        if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
+          self.__changeY += -0.5
+          movement = True
+      elif self.__direction == "down":
+        # check if movement would cause wall collision and update change in coordinates
+        if (self.__posX, math.ceil(self.__posY+0.5)) in game.maze.getPaths():
+          self.__changeY += 0.5
+          movement = True
+      else:
+        return
       # if movement has occurred update new position
-      if movement:
-        # change rotation of player according to their direction if they are original pacman
-        if self.__image == "pacmandefault.png":
-          self.__rotate = playerRotations[self.__direction]
-        return self.update()
+    if movement:
+      # change rotation of player according to their direction if they are original pacman
+      if self.__image == "pacmandefault.png":
+        self.__rotate = playerRotations[self.__direction]
+      return self.update()
 
   def checkForCollisions(self, game): # after new movement check for collisions between players and ghosts/pills/powerups
     returnValue = None, None

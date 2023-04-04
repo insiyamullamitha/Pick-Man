@@ -18,7 +18,7 @@ class Game:
     self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
-    self.soundEffects = False
+    self.soundEffects = True
     self.stars = 0
     self.lives = 3
     self.time = [0, 0]
@@ -61,58 +61,61 @@ class Game:
   def handleCollisionEffects(self, collisionObject):
     # check what type of collision has occurred and accordingly make changes to maze/score/lives/mode
     soundEffect = None
-    match collisionObject[0]:
 
-      # pill collision
-      case "pill":
-        # remove pill collided with from pill array
-        pillPosition = collisionObject[1]
-        self.maze.getPills().remove(pillPosition)
-        # play sound effect
-        self.playSoundEffects(PILLSOUND)
-        # increase score
-        self.score += 1
-      # powerup collision
+    # pill collision
+    if collisionObject[0] == "pill":
+      # remove pill collided with from pill array
+      pillPosition = collisionObject[1]
+      self.maze.getPills().remove(pillPosition)
+      # play sound effect
+      if self.soundEffects:
+        pass
+        #playSoundEffect(PILLSOUND)
+      # increase score
+      self.score += 1
+    # powerup collision
 
-      case "powerup":
-        # find specific powerup collided with
-        powerup = collisionObject[1]
-        # remove powerup from array
-        self.maze.getPowerups().remove(powerup)
-        # visually display type of powerup to user
-        self.displayPowerupAlert(powerup)
-        # play sound effect
-        self.playSoundEffects(POWERUPSOUND)
-        # determine type of powerup and accordingly adjust game/player values
-        if powerup.getType() == "score": # increase score
-          game.score += powerup.getScoreValue()
-        elif powerup.getType() == "speed": # change player speed
-          self.player.setSpeed(self.player.getSpeed() + powerup.getSpeedValue())
-        else: # change player mode
-          self.player.setMode("chasing")
+    if collisionObject[0] == "powerup":
+      # find specific powerup collided with
+      powerup = collisionObject[1]
+      # remove powerup from array
+      self.maze.getPowerups().remove(powerup)
+      # visually display type of powerup to user
+      self.displayPowerupAlert(powerup)
+      # play sound effect
+      if self.soundEffects:
+        playSoundEffect(POWERUPSOUND)
+      # determine type of powerup and accordingly adjust game/player values
+      if powerup.getType() == "score": # increase score
+        game.score += powerup.getScoreValue()
+      elif powerup.getType() == "speed": # change player speed
+        self.player.setSpeed(self.player.getSpeed() + powerup.getSpeedValue())
+      else: # change player mode
+        self.player.setMode("chasing")
 
-      # ghost collision
-      case "ghost":
-        # reset player and ghost positions
-        self.player.resetPosition()
-        for ghostObject in self.ghostObjects:
-          ghostObject.respawn()
-        # if player is in chase mode reduce number of lives
-        if self.player.getMode() == "chased":
-          soundEffect = LOSINGLIFESOUND
-          self.lives -= 1
-          # game over if no lives yet
-          if self.lives <= 0:
-            self.beginGameOver()
-            return
-        # if player is in chasing/kill mode increase score and reset mode
-        else:
-          soundEffect = KILLGHOSTSOUND
-          self.player.setMode("chased")
-          self.score += 30
-        # play sound effects
-        self.playSoundEffects(soundEffect)
-        pygame.time.delay(3000)
+    # ghost collision
+    if collisionObject[0] == "ghost":
+      # reset player and ghost positions
+      self.player.resetPosition()
+      for ghostObject in self.ghostObjects:
+        ghostObject.respawn()
+      # if player is in chase mode reduce number of lives
+      if self.player.getMode() == "chased":
+        soundEffect = LOSINGLIFESOUND
+        self.lives -= 1
+        # game over if no lives yet
+        if self.lives <= 0:
+          self.beginGameOver()
+          return
+      # if player is in chasing/kill mode increase score and reset mode
+      else:
+        soundEffect = KILLGHOSTSOUND
+        self.player.setMode("chased")
+        self.score += 30
+      # play sound effects
+      if self.soundEffects:
+        playSoundEffect(soundEffect)
+      pygame.time.delay(3000)
 
 
   def loadInstructions(self):
@@ -128,12 +131,6 @@ class Game:
                           [0, lines[startInstruction + 2][1:].strip('\n')]]
       # display instructions on screen
       self.displayInstructions()
-  
-  def playSoundEffects(self, soundFile):
-    if self.soundEffects:
-      print(True)
-      print(soundFile)
-      soundFile.play()
 
   def displayInstructions(self):
     # display instructions and matching star status on screen
@@ -156,7 +153,8 @@ class Game:
   def beginGameOver(self):
     # check if user has completed game successfully (win 3 stars) and set self.success
     self.state = "game over"
-    self.playSoundEffects(LOSINGLIFESOUND)
+    if self.soundEffects:
+      playSoundEffect(LOSINGLIFESOUND)
     # update stars that the user has achieved to the text file
     for instruction in range(len(self.instructions)):
       # check if player has achieved task that completes at the end of the game
@@ -186,11 +184,10 @@ class Game:
 
   def setupMazeAndObjects(self):
     # load correct level maze
-    match self.currentLevel:
-      case "1":
-        mazeLayout = level1Maze
-      case "2":
-        mazeLayout = level2Maze
+    if self.currentLevel == "1":
+      mazeLayout = level1Maze
+    elif self.currentLevel == "2":
+      mazeLayout = level2Maze
     self.maze.loadMaze(mazeLayout, self.theme)
     # set initial coordinates for player
     self.player.setUpInitialPosition(self.maze.getPlayer().x, self.maze.getPlayer().y)
@@ -209,29 +206,29 @@ class Game:
   def updateStars(self): 
     # change star status if instruction has been completed depending on particular level
     increaseStars = False
-    match self.currentLevel:
-      # level 1
-      case "1": 
-        # win 50 points
-        if self.instructions[0][0] != 1 and self.score >= 50:
-          self.instructions[0][0] = 1
-          increaseStars = True
-        # win 100 points
-        if self.instructions[1][0] != 1 and self.score >= 100:
-          self.instructions[1][0] = 1
-          increaseStars = True
-        # win 160 points
-        if self.instructions[2][0] != 1 and self.score >= 150:
-          self.instructions[2][0] = 1
-          increaseStars = True 
+    # level 1
+    if self.currentLevel == "1":
+       # win 50 points
+      if self.instructions[0][0] != 1 and self.score >= 50:
+        self.instructions[0][0] = 1
+        increaseStars = True
+      # win 100 points
+      if self.instructions[1][0] != 1 and self.score >= 100:
+        self.instructions[1][0] = 1
+        increaseStars = True
+      # win 160 points
+      if self.instructions[2][0] != 1 and self.score >= 150:
+        self.instructions[2][0] = 1
+        increaseStars = True 
     # increase number of stars and play sound effect
     if increaseStars:
       self.stars += 1
-      self.playSoundEffects(STARSOUND)
+      if self.soundEffects:
+        playSoundEffect(STARSOUND)
       if self.stars == 3:
         self.state = "game over"
 
-  def changeSoundSettings(self): 
+  def  changeSoundSettings(self): 
     # toggle sound effect settings and change sound effect button image to represent state
     if self.soundEffects:
       self.soundEffects = False
@@ -719,9 +716,7 @@ class Game:
 game = Game()
 
 # load background music 
-pygame.mixer.music.load('media/intromusic.wav')  
 pygame.mixer.music.play()
-
 
 # play game
 game.playGame()
