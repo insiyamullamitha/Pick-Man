@@ -4,6 +4,9 @@ from pygame.locals import *
 pygame.mixer.init()
 pygame.init()
 # load sound effects/music
+WIDTH = 1000
+HEIGHT = 600
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 PILLSOUND = pygame.mixer.Sound("media/pilleatensound.wav")
 LOSINGLIFESOUND = pygame.mixer.Sound("media/losinglifesound.wav")
 POWERUPSOUND = pygame.mixer.Sound("media/powerupsound.wav")
@@ -11,18 +14,15 @@ STARSOUND = pygame.mixer.Sound("media/starsound.wav")
 KILLGHOSTSOUND = pygame.mixer.Sound("media/killsound.wav")
 pygame.mixer.music.load('media/intromusic.wav')  
 # screen size
-WIDTH = 1000
-HEIGHT = 600
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CELLWIDTH = 2
 CELLHEIGHT = 2
 FRAMESPERSECOND = 60
 # colours
-BLACK = [(0, 0, 0), (0, 0, 0), (6,85,99)]
-WHITE = [(255, 255, 255), [65, 173, 116]]
+BLACK = [(0, 0, 0), (0, 0, 0)]
+WHITE = [(255, 255, 255), (65, 173, 116)]
 PINK = [(255, 0, 127), (0, 255, 153)]  
 RED = (255, 0, 0)
-GREEN = [(153, 250, 118), (0, 153, 51), (0, 204, 102)]
+GREEN = [(153, 250, 118), (0, 153, 51)]
 BLUE = [(39, 160, 194), (255, 255, 255)]
 LIGHTBLUE = [(31,176,245),(45,117,50) ]
 GREY = [(157, 154, 161), (255,114,118)]
