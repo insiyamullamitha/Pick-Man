@@ -1,9 +1,9 @@
-423,INSIYA
-410,PRAGNA
-342,ZAINAB
-316,CATRIN
-307,EVIE
+340,INSIYA
+0,
+0,
+0,
+0,
 time,0
-stars,329
-powerups,1047
+stars,3
+powerups,0
 

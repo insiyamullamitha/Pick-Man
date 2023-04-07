@@ -18,7 +18,7 @@ class Game:
     self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
-    self.soundEffects = True
+    self.soundEffects = False
     self.stars = 0
     self.lives = 3
     self.time = [0, 0]
@@ -31,7 +31,6 @@ class Game:
     self.maze = Maze()
     self.stars = 0
     self.instructions = []
-    self.success = False
     self.extraPowerups = 0
 
   def drawMaze(self): 
@@ -69,8 +68,7 @@ class Game:
       self.maze.getPills().remove(pillPosition)
       # play sound effect
       if self.soundEffects:
-        pass
-        #playSoundEffect(PILLSOUND)
+        playSoundEffect(PILLSOUND)
       # increase score
       self.score += 1
     # powerup collision
@@ -89,7 +87,10 @@ class Game:
       if powerup.getType() == "score": # increase score
         game.score += powerup.getScoreValue()
       elif powerup.getType() == "speed": # change player speed
-        self.player.setSpeed(self.player.getSpeed() + powerup.getSpeedValue())
+        self.player.setSpeed(powerup.getSpeedValue())
+        # make sure player is in viable maze position so it doesn't end up in a wall
+        self.player.setPosX(powerup.getPosX())
+        self.player.setPosY(powerup.getPosY())
       else: # change player mode
         self.player.setMode("chasing")
 
@@ -103,10 +104,6 @@ class Game:
       if self.player.getMode() == "chased":
         soundEffect = LOSINGLIFESOUND
         self.lives -= 1
-        # game over if no lives yet
-        if self.lives <= 0:
-          self.beginGameOver()
-          return
       # if player is in chasing/kill mode increase score and reset mode
       else:
         soundEffect = KILLGHOSTSOUND
@@ -117,6 +114,11 @@ class Game:
         playSoundEffect(soundEffect)
       pygame.time.delay(3000)
 
+  def checkGameOver(self):
+    # check if player has lost all lives or eaten all pills and powerups (game over)
+    if self.lives <= 0 or (len(self.maze.getPills()) == 0 and len(self.maze.getPowerups()) == 0):
+      self.beginGameOver()
+    return
 
   def loadInstructions(self):
     # load instructions for particular level from text file 
@@ -131,6 +133,12 @@ class Game:
                           [0, lines[startInstruction + 2][1:].strip('\n')]]
       # display instructions on screen
       self.displayInstructions()
+
+  def resetGameStatistics(self):
+    # reset game statistics ready for the new game
+    self.score = 0
+    self.stars = 0
+    self.lives = 3
 
   def displayInstructions(self):
     # display instructions and matching star status on screen
@@ -151,18 +159,21 @@ class Game:
       uploadImage(self.player.getImage(), 0.25, 3, 215)
 
   def beginGameOver(self):
-    # check if user has completed game successfully (win 3 stars) and set self.success
+    # update new star statuses and game statistics
     self.state = "game over"
     if self.soundEffects:
-      playSoundEffect(LOSINGLIFESOUND)
+      if self.lives == 0:
+        playSoundEffect(LOSINGLIFESOUND)
+      else:
+        playSoundEffect(STARSOUND)
     # update stars that the user has achieved to the text file
     for instruction in range(len(self.instructions)):
       # check if player has achieved task that completes at the end of the game
       self.updateStars()
       if self.instructions[instruction][0] == 1:
         self.updateFileStarStatus(instruction)
-    if game.stars == 3:
-      self.success = True
+    # update all game statistics (stars, leaderboard)
+    stats.updateStatistics(self.stars, self.score, self.username)
 
   # visually display powerup function to user
   def displayPowerupAlert(self, powerup):
@@ -225,10 +236,8 @@ class Game:
       self.stars += 1
       if self.soundEffects:
         playSoundEffect(STARSOUND)
-      if self.stars == 3:
-        self.state = "game over"
 
-  def  changeSoundSettings(self): 
+  def changeSoundSettings(self): 
     # toggle sound effect settings and change sound effect button image to represent state
     if self.soundEffects:
       self.soundEffects = False
@@ -331,6 +340,7 @@ class Game:
               # cast level number into integer, increment, and cast into string again
               self.currentLevel = str(int(self.currentLevel) + 1)
             self.setupMazeAndObjects()
+            self.resetGameStatistics()
             usernameButton.text = ""
             self.extraPowerups = 0
           elif self.state == "sound":
@@ -628,11 +638,6 @@ class Game:
         drawText("EXTRA POWERUPS", 630, 550, BLACK, 30, self.theme)
         drawText(self.extraPowerups, 540, 545, BLACK, 50, self.theme)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(525, 535, 50, 50), 1, 3)
-        # reset game statistics ready for the new game
-        self.success = False
-        self.score = 0
-        self.stars = 0
-        self.lives = 3
         
       #playing game state
       elif self.state == "play":
@@ -662,6 +667,8 @@ class Game:
         self.displayLives()
         # draw maze and all elements within
         self.drawMaze()
+        # check if player has eaten all pills/powerups
+        self.checkGameOver()
       
       #paused game state  
       elif self.state == "pause":
@@ -698,12 +705,6 @@ class Game:
         drawText("NEXT LEVEL", 550, 450, BLACK, 30, self.theme)
         # display level instructions and stars (and whether they have been achieved)
         self.displayInstructions()
-        # update all statistics (stars, leaderboard, time) if fully successful game (3 stars) and only number of stars if not successful
-        if self.success:
-          stats.updateStatistics(self.stars, self.score, self.username)
-        else:
-          stats.updateStatistics(self.stars)
-      
       elif self.state == "end program":
         SCREEN.fill(BLACK[self.theme])
         pygame.display.update()
@@ -715,8 +716,8 @@ class Game:
 # initialise game object
 game = Game()
 
-# load background music 
-pygame.mixer.music.play()
+# play intro music 
+playSoundEffect(INTROMUSIC)
 
 # play game
 game.playGame()

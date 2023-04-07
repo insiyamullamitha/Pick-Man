@@ -27,6 +27,7 @@ class Statistics:
           return
       else: # if the new score is higher than the one currently at this position then flag this as the line to be changed
         lineToBeChangedIndex = x
+    print(lineToBeChangedIndex)
     #update the leaderboard
     self.__leaderboard.insert(lineToBeChangedIndex, [givenScore, givenName])
     #remove 6th person in leaderboard

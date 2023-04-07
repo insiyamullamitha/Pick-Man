@@ -1,5 +1,6 @@
 #helper function file to contain functions that are used repeatedly throughout the game
 from constants import *
+import time
 
 def drawText(string, x, y, colour, size, givenTheme = 0):
     #function to render inputted string onto a given position
@@ -19,6 +20,9 @@ def uploadImage(imageFileName, scale, x, y, rotation = 0): # scale, rotate and u
     # blit
     SCREEN.blit(screenToUpload, (x, y))
 
-def playSoundEffect(soundObject):
-    soundObject.play()
+def playSoundEffect(soundFileName):
+    soundsPlaying.append(soundFileName)
+    for sound in soundsPlaying:
+        pygame.mixer.Sound.play(soundFileName)
+        soundsPlaying.remove(sound)
 
