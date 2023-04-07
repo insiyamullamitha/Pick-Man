@@ -17,6 +17,7 @@ class Player:
     self.__changeX = 0
     self.__changeY = 0
     self.__image = "pacmandefault.png"
+    self.__killedGhost = False
     
   # getters and setters for private attributes
 
@@ -85,6 +86,11 @@ class Player:
       self.__direction = "down"
     else:
       self.__direction = ""
+    
+  def getKilledGhost(self):
+    return self.__killedGhost
+  def setKilledGhost(self):
+    self.__killedGhost = True
 
   def resetPosition(self): 
     # return to starting position of pacman
@@ -104,9 +110,8 @@ class Player:
         # check if new user position would cause them to move into a door and change coordinates
         else:
           if (math.floor(self.__posX), self.__posY) == game.maze.getDoor1():
-            self.__posX = game.maze.getDoor2().x
-            self.__posY = game.maze.getDoor2().y
-            movement = True
+            self.__posX, self.__posY = game.maze.getDoor2().x, game.maze.getDoor2().y
+            return
       elif self.__direction == "right":
         # check if movement would cause wall collision and update change in coordinates
         if (math.ceil(self.__posX + 0.5), self.__posY) in game.maze.getPaths():
@@ -115,9 +120,8 @@ class Player:
         else:
           # check if new user position would cause them to move into a door and change coordinates
           if (math.ceil(self.__posX), self.__posY) == game.maze.getDoor2():
-            self.__posX = game.maze.getDoor1().x
-            self.__posY = game.maze.getDoor1().y
-            movement = True
+            self.__posX, self.__posY = game.maze.getDoor1().x, game.maze.getDoor1().y
+            return
       elif self.__direction == "up":
         # check if movement would cause wall collision and update change in coordinates
         if (self.__posX, math.floor(self.__posY-0.5)) in game.maze.getPaths():          
@@ -168,3 +172,7 @@ class Player:
     # also set separate start coordinates player can return to when resetting
     self.__startPosX = givenPosX
     self.__startPosY = givenPosY
+    # reset speed and mode in case this has changed in previous levels
+    self.__speed = 0.5
+    self.__mode = "chased"
+    self.__setKilledGhost = False

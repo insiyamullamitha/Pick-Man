@@ -1,8 +1,8 @@
-340,INSIYA
-0,
-0,
-0,
-0,
+214,INSIYA
+169,INSIYA
+162,INSIYA
+146,INSIYA
+118,INSIYA
 time,0
 stars,3
 powerups,0

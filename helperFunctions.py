@@ -20,9 +20,6 @@ def uploadImage(imageFileName, scale, x, y, rotation = 0): # scale, rotate and u
     # blit
     SCREEN.blit(screenToUpload, (x, y))
 
-def playSoundEffect(soundFileName):
-    soundsPlaying.append(soundFileName)
-    for sound in soundsPlaying:
-        pygame.mixer.Sound.play(soundFileName)
-        soundsPlaying.remove(sound)
+def playSoundEffect(soundEffect):
+    pygame.mixer.Sound.play(soundEffect)
 

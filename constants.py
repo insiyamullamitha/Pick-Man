@@ -35,4 +35,3 @@ allCharacters = [[["pacmandefault.png", "redghost.png", "purpleghost.png", "blue
                   ["turtle.png", "shark.png", "shark.png", "shark.png"]],
                  [["cherrypowerup.png", "seashellpowerup.png"]]]
 playerRotations = {"left": 180, "right": 0, "down": 270, "up": 90}
-soundsPlaying = []

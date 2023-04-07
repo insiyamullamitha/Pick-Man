@@ -106,6 +106,7 @@ class Game:
         self.lives -= 1
       # if player is in chasing/kill mode increase score and reset mode
       else:
+        self.player.setKilledGhost()
         soundEffect = KILLGHOSTSOUND
         self.player.setMode("chased")
         self.score += 30
@@ -166,10 +167,10 @@ class Game:
         playSoundEffect(LOSINGLIFESOUND)
       else:
         playSoundEffect(STARSOUND)
+    # check if player has achieved task that completes at the end of the game
+    self.updateStars()
     # update stars that the user has achieved to the text file
     for instruction in range(len(self.instructions)):
-      # check if player has achieved task that completes at the end of the game
-      self.updateStars()
       if self.instructions[instruction][0] == 1:
         self.updateFileStarStatus(instruction)
     # update all game statistics (stars, leaderboard)
@@ -231,6 +232,20 @@ class Game:
       if self.instructions[2][0] != 1 and self.score >= 150:
         self.instructions[2][0] = 1
         increaseStars = True 
+    # level 2
+    elif self.currentLevel == "2":
+      # kill a ghost
+      if self.instructions[0][0] != 1 and self.player.getKilledGhost():
+        self.instructions[0][0] = 1
+        increaseStars = True
+      # earn 120 points
+      if self.instructions[1][0] != 1 and self.score >= 120:
+        self.instructions[1][0] = 1
+        increaseStars = True
+      # finish and lose no lives
+      if self.instructions[2][0] != 1 and self.lives == 3 and self.state == "game over":
+        self.instructions[2][0] = 1
+        increaseStars = True
     # increase number of stars and play sound effect
     if increaseStars:
       self.stars += 1
@@ -348,9 +363,9 @@ class Game:
    
   def buyPowerup(self):
     # check if user has enough stars to buy powerup
-    if stats.getNumberOfStars() >= 100:
+    if stats.getNumberOfStars() >= 10:
       # reduce number of remaining stars
-      stats.changeNumberOfStars(-100)
+      stats.changeNumberOfStars(-10)
       # increase user's number of extra powerups
       stats.changePowerups(1)
 
@@ -527,7 +542,7 @@ class Game:
         # display powerup image
         uploadImage(allCharacters[2][0][self.theme], 2, 550, 140)
         # change buy button to red/green depending on whether user has enough stars
-        if stats.getNumberOfStars() >= 100 and self.previousState != "pause":
+        if stats.getNumberOfStars() >= 10 and self.previousState != "pause":
           colour = GREEN[1]
         else:
           colour = RED
@@ -627,14 +642,16 @@ class Game:
         if self.extraPowerups > 0:
           pygame.draw.circle(SCREEN, RED, (500, 555), 12, 0)
           pygame.draw.circle(SCREEN, BLACK[self.theme], (500, 555), 12, 1)
+          # - symbol
           pygame.draw.line(SCREEN, BLACK[self.theme], (495, 555), (505, 555))
         # green add extra powerup button if user has enough
         if stats.getPowerups() - self.extraPowerups - 1 >= 0 and self.extraPowerups <= 4:
           pygame.draw.circle(SCREEN, GREEN[self.theme], (600, 555), 12, 0)
           pygame.draw.circle(SCREEN, BLACK[self.theme], (600, 555), 12, 1)
+          # + symbol
           pygame.draw.line(SCREEN, BLACK[self.theme], (595, 555), (605, 555))
           pygame.draw.line(SCREEN, BLACK[self.theme], (600, 550), (600, 560))
-        # display number of extra powerups
+        # display number of extra powerups user has currently selected
         drawText("EXTRA POWERUPS", 630, 550, BLACK, 30, self.theme)
         drawText(self.extraPowerups, 540, 545, BLACK, 50, self.theme)
         pygame.draw.rect(SCREEN, BLACK[self.theme], pygame.Rect(525, 535, 50, 50), 1, 3)
@@ -690,7 +707,7 @@ class Game:
         drawText("PAUSED", 215, -5, BLUE, 200, self.theme)
 
       elif self.state == "game over":
-        self.previousState = "menu"
+        self.previousState = "levels"
         SCREEN.fill((WHITE[self.theme]))
         # title
         drawText("GAME OVER", 175, 20, BLACK, 155, self.theme)
