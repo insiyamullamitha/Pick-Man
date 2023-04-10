@@ -18,7 +18,7 @@ class Game:
     self.playingGame = False
     self.clock = pygame.time.Clock()
     self.score = 0
-    self.soundEffects = False
+    self.soundEffects = True
     self.stars = 0
     self.lives = 3
     self.time = [0, 0]
@@ -78,11 +78,11 @@ class Game:
       powerup = collisionObject[1]
       # remove powerup from array
       self.maze.getPowerups().remove(powerup)
-      # visually display type of powerup to user
-      self.displayPowerupAlert(powerup)
       # play sound effect
       if self.soundEffects:
         playSoundEffect(POWERUPSOUND)
+      # visually display type of powerup to user
+      self.displayPowerupAlert(powerup)
       # determine type of powerup and accordingly adjust game/player values
       if powerup.getType() == "score": # increase score
         game.score += powerup.getScoreValue()
@@ -251,6 +251,7 @@ class Game:
       self.stars += 1
       if self.soundEffects:
         playSoundEffect(STARSOUND)
+        pygame.time.delay(1000)
 
   def changeSoundSettings(self): 
     # toggle sound effect settings and change sound effect button image to represent state
@@ -327,9 +328,10 @@ class Game:
           # level buttons only available in levels game state
           if button in allButtons[2]:
             if self.state == "levels":
+              if button.text == "3":
+                self.state = "levels"
+                return
               self.currentLevel = button.text
-            else:
-              return
           if button in allButtons[3] and self.state != "play":
             return
           if button == replayButton and self.state in ["game over", "pause"]:
@@ -354,6 +356,9 @@ class Game:
             if button == nextLevelButton:
               # cast level number into integer, increment, and cast into string again
               self.currentLevel = str(int(self.currentLevel) + 1)
+              if self.currentLevel == "3":
+                self.state = "levels"
+                return
             self.setupMazeAndObjects()
             self.resetGameStatistics()
             usernameButton.text = ""
@@ -603,6 +608,7 @@ class Game:
 
       elif self.state == "levels": #displays levels page
         self.previousState = "menu" # return to menu if escape key is pressed
+        self.currentLevel = None
         SCREEN.fill((WHITE[self.theme]))
         # display side buttons
         for button in allButtons[0]: 
@@ -611,14 +617,15 @@ class Game:
         for button in allButtons[2]: 
           button.render(self.theme)
           level = int(button.text)
+          if button.text != "3":
           # for each level find number of stars
-          with open ("levelStarsInstructions.txt") as file: 
-            lines = file.readlines()
-            startLine = level * 3 - 3
-            stars = int(lines[startLine][0]) + int(lines[startLine + 1][0]) + int(lines[startLine + 2][0])
-            # display number of stars below level 
-            for star in range(stars): 
-              uploadImage("yellowstar.png", 0.02, 25 * star + button.x - 36, button.y + 40)
+            with open ("levelStarsInstructions.txt") as file: 
+              lines = file.readlines()
+              startLine = level * 3 - 3
+              stars = int(lines[startLine][0]) + int(lines[startLine + 1][0]) + int(lines[startLine + 2][0])
+              # display number of stars below level 
+              for star in range(stars): 
+                uploadImage("yellowstar.png", 0.02, 25 * star + button.x - 36, button.y + 40)
         # title
         drawText("LEVELS PAGE", 27, 0, BLACK, 200, self.theme)
         drawText("LEVELS PAGE", 22, 0, BLUE, 200, self.theme)

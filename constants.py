@@ -12,7 +12,7 @@ LOSINGLIFESOUND = pygame.mixer.Sound("media/losinglifesound.wav")
 POWERUPSOUND = pygame.mixer.Sound("media/powerupsound.wav")
 STARSOUND = pygame.mixer.Sound("media/starsound.wav")
 KILLGHOSTSOUND = pygame.mixer.Sound("media/killsound.wav")
-INTROMUSIC  = pygame.mixer.Sound('media/intromusic.wav')  
+INTROMUSIC = pygame.mixer.Sound('media/intromusic.wav')
 # screen size
 FRAMESPERSECOND = 60
 # colours
@@ -23,7 +23,7 @@ RED = (255, 0, 0)
 GREEN = [(153, 250, 118), (0, 153, 51)]
 BLUE = [(39, 160, 194), (255, 255, 255)]
 LIGHTBLUE = [(31,176,245),(45,117,50)]
-GREY = [(157, 154, 161), (255,114,118)]
+GREY = [(255, 114, 118), (255,114,118)]
 PURPLE = [(191, 0, 255), (144, 109, 203)]
 FONT = pygame.font.SysFont(None, 36)
 # maze element images

@@ -20,6 +20,20 @@ def uploadImage(imageFileName, scale, x, y, rotation = 0): # scale, rotate and u
     # blit
     SCREEN.blit(screenToUpload, (x, y))
 
-def playSoundEffect(soundEffect):
-    pygame.mixer.Sound.play(soundEffect)
+def playSoundEffect(soundEffect): # plays given sound effect via first available channel
+    emptyChannel = None
+    i = 0
+    # find empty channel from default number of channels 
+    while emptyChannel is not None and i <= pygame.mixer.get_num_channels():
+        if not pygame.mixer.Channel(i).get_busy():
+            emptyChannel = i
+        else:
+            i += 1
+    # if no channels are empty, use the first one
+    if emptyChannel is None:
+        emptyChannel = 0
+    # play sound effect via the channel selected
+    pygame.mixer.Channel(emptyChannel).play(soundEffect)
 
+
+    

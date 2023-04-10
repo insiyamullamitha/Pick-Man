@@ -101,12 +101,12 @@ class SimplePathFindingGhost:
   
   def move(self, game): # update position of ghost
     if self.__moving:
-      if self.__movements >= 4:
+      if self.__movements >= 3:
         # reset new direction if ghost has just moved 1 unit
         self.setTarget(game)
       # increment position by 0.1 * x and y movement to slow down
-      self.posX += self.__nextDirection[0]/4
-      self.posY += self.__nextDirection[1]/4
+      self.posX += self.__nextDirection[0]/3
+      self.posY += self.__nextDirection[1]/3
       # decrease number of movements so that at 0 the direction can change
       self.__movements += 1
   
@@ -259,7 +259,7 @@ class AStarGhost(SimplePathFindingGhost):
     if self.__moving:
 
       # check if ghost has moved one full unit 
-      if self.__movements >= 5 or self.__nextDirection == []:
+      if self.__movements >= 3 or self.__nextDirection == []:
         # remove coordinate of position ghost is currently in from route
         self.__route.pop(0)
         # check if the current route is empty and reset if so
@@ -271,8 +271,8 @@ class AStarGhost(SimplePathFindingGhost):
         self.__nextDirection = [(self.__route[0][0]-round(self.posX)), (self.__route[0][1]-round(self.posY))]
 
       # update current position at a speed of 0.2
-      self.posX += self.__nextDirection[0]/5
-      self.posY += self.__nextDirection[1]/5
+      self.posX += self.__nextDirection[0]/3
+      self.posY += self.__nextDirection[1]/3
       # increment number of movements 
       self.__movements += 1
 

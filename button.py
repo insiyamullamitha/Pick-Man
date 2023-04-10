@@ -51,7 +51,8 @@ pauseButton = Button("", 'pausedsymbol.png', BLUE, "circle", 420, 555, 35, 0, 0,
 menuPlayButton = Button("", "playsymbol.png", GREEN, "circle", WIDTH//2, HEIGHT//2, 35, 0, 0, "levels")
 changeCharacterButton = Button("CHANGE CHARACTER/THEME", "", PINK, "rectangle", 350, 350, 0, 300, 40, "change theme")
 level1Button = Button("1", "", GREEN, "circle", 60, 180, 35, 0, 0, "instructions")
-level2Button = Button("2", "", GREY, "circle", 200, 180, 35, 0, 0, "instructions")
+level2Button = Button("2", "", GREEN, "circle", 200, 180, 35, 0, 0, "instructions")
+level3Button = Button("3", "", GREY, "circle", 340, 180, 35, 0, 0, "levels")
 usernameButton = Button("", "", PINK, "rectangle", 350, 370, 0, 300, 40, "instructions")
 replayButton = Button("", "replaysymbol.png", PURPLE, "circle", 400, 400, 35, 0, 0, "instructions")
 nextLevelButton = Button("", "playsymbol.png", PURPLE, "circle", 600, 400, 35, 0, 0, "instructions")
@@ -61,7 +62,7 @@ returnHomeButton = Button("", "homesymbol.png", PURPLE, "circle", 600, 400, 35, 
 # allButtons[0] for side buttons, allButtons[1] for menu page, allButtons[2] for levels etc.
 allButtons = [[soundButton, statsButton, starButton, helpButton], 
               [menuPlayButton, changeCharacterButton],
-              [level1Button, level2Button], 
+              [level1Button, level2Button, level3Button], 
               [pauseButton], 
               [replayButton, continuePlayButton, returnHomeButton], 
               [replayButton, nextLevelButton]]
