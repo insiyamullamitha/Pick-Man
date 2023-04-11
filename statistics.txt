@@ -1,8 +1,8 @@
-0,INSIUA
-0,INSIYA
-0,INSIYA
-0,INSIYA
-0,INSIYA
+251,EVIE
+195,EVIE
+94,EVIEE
+0,
+0,
 time,0
-stars,53
-powerups,0
+stars,1
+powerups,1

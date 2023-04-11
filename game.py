@@ -741,7 +741,7 @@ class Game:
 game = Game()
 
 # play intro music 
-playSoundEffect(INTROMUSIC)
+INTROMUSIC.play()
 
 # play game
 game.playGame()

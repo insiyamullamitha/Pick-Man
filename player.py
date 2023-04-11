@@ -175,4 +175,4 @@ class Player:
     # reset speed and mode in case this has changed in previous levels
     self.__speed = 0.5
     self.__mode = "chased"
-    self.__setKilledGhost = False
+    self.__killedGhost = False
