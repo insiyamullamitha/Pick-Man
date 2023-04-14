@@ -17,9 +17,10 @@ class Maze:
         self.__paths = []
         self.__player = None
         self.__mazeLayout = None
-        self.__elements = []
+        self.__elements = [] 
 
-    #render maze on screen 
+    # getters and setters for private attributes
+
     def getMaze(self):
         return self.__maze
     def setMaze(self, givenMaze):
@@ -118,7 +119,6 @@ class Maze:
                     self.__pills.append(pygame.math.Vector2(column, row))
                 if "G" in self.__mazeLayout[row][column]:#ghosts
                     self.__ghosts.append(pygame.math.Vector2(column, row))
-                    #pygame.draw.rect(SCREEN, BLACK, pygame.Rect((275 + (column*30)), 65 + (row*30), 30, 30),0)
                     pass
                 if "D" in self.__mazeLayout[row][column]:#doors
                     # door 1 user moves left into

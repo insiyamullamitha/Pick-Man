@@ -94,7 +94,5 @@ class Statistics:
     self.updateLeaderboard(score, username)
     self.changeNumberOfStars(stars)
     self.changeFastestTime(time)
-
-
-
+    
 stats = Statistics()

@@ -59,7 +59,8 @@ nextLevelButton = Button("", "playsymbol.png", PURPLE, "circle", 600, 400, 35, 0
 continuePlayButton = Button("", "playsymbol.png", PURPLE, "circle", 500, 400, 35, 0, 0, "play")
 returnHomeButton = Button("", "homesymbol.png", PURPLE, "circle", 600, 400, 35, 0, 0, "menu" )
 # add buttons for each game state to array within allButtons 2D array
-# allButtons[0] for side buttons, allButtons[1] for menu page, allButtons[2] for levels etc.
+# allButtons[0] for side buttons, allButtons[1] for menu page, allButtons[2] for levels, allButtons[3] for play
+# allButtons[4] for pause, allButtons[5] for game over
 allButtons = [[soundButton, statsButton, starButton, helpButton], 
               [menuPlayButton, changeCharacterButton],
               [level1Button, level2Button, level3Button], 

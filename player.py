@@ -165,7 +165,7 @@ class Player:
     self.__changeX = 0
     self.__changeY = 0
   
-  def setUpInitialPosition(self, givenPosX, givenPosY):
+  def setUpInitialPosition(self, givenPosX, givenPosY): # reset player for new game 
     # set player coordinates to start position
     self.__posX = givenPosX
     self.__posY = givenPosY
