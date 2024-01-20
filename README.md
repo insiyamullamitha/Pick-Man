@@ -19,7 +19,7 @@ python3 game.py
 
 ## Features ✨
 
-* **Themes:**: Choose between a bright, colourful background or a dark ocean theme, the ghost images change dynamically based on your chosen theme.
+* **Themes:** Choose between a bright, colourful background or a dark ocean theme, the ghost images change dynamically based on your chosen theme.
 * **Characters:**: Select your character wisely! Each theme comes with up to three characters.
 * **Levels and Goals:** The game currently offers two exciting levels. In each level, players must complete three goals (e.g., kill a ghost) to earn stars. Collect stars to unlock and use powerups during the game.
 * **Powerups**: Use your hard-earned stars to purchase powerups! Up to five powerups can be used in a single game, each with random effects, such as speeding up the player, increasing points, or allowing players to kill ghosts.
