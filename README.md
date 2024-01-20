@@ -8,7 +8,7 @@ Welcome to the Pick Man! This classic arcade game has been given a fresh twist w
 ```
 pip install pygame
 ```
-2. Clone this repository
+2. Clone this repository:
 ```
 git clone https://github.com/insiyamullamitha/Pick-Man.git
 ```
